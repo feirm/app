@@ -52,7 +52,7 @@ import {
 } from "ionicons/icons"
 
 export default {
-  name: "Tab1",
+  name: "Home",
   components: {
     IonHeader,
     IonToolbar,
