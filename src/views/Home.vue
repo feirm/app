@@ -14,9 +14,6 @@
       <!-- Content goes in here -->
       <ion-card>
         <ion-card-content>
-          <p class="ion-text-center">
-            <b>Shortcuts</b>
-          </p>
           <ion-grid>
             <ion-row class="ion-text-center">
               <ion-col>
