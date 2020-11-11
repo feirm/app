@@ -14,7 +14,7 @@
       <!-- Content goes in here -->
       <ion-item-group>
         <ion-list-header>Explore the Feirm Ecosystem</ion-list-header>
-        <ion-item lines="none" color="light">
+        <ion-item lines="none" color="light" router-link="/services/qr">
           <ion-icon slot="end" :icon="qrCodeOutline"></ion-icon>
           <ion-label>Scan QR Code</ion-label>
         </ion-item>
