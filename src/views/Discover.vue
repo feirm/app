@@ -18,9 +18,23 @@
           <ion-icon slot="end" :icon="qrCodeOutline"></ion-icon>
           <ion-label>Scan QR Code</ion-label>
         </ion-item>
+        <ion-item>
+          <ion-icon slot="end" :icon="newspaperOutline"></ion-icon>
+          <ion-label>News Feed</ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-icon slot="end" :icon="cashOutline"></ion-icon>
+          <ion-label>Feirm Pay</ion-label>
+        </ion-item>
+      </ion-item-group>
+
+      <br>
+
+      <ion-item-group>
+        <ion-list-header>Need assistance?</ion-list-header>
         <ion-item href="https://discord.gg/mUZdSKg">
-          <ion-icon slot="end" :icon="helpCircleOutline"></ion-icon>
-          <ion-label>Feirm Support</ion-label>
+          <ion-icon slot="end" :icon="logoDiscord"></ion-icon>
+          <ion-label>Discord</ion-label>
         </ion-item>
       </ion-item-group>
     </ion-content>
@@ -37,10 +51,10 @@ import {
   IonItem,
   IonLabel,
   IonItemGroup,
-  IonListHeader
+  IonListHeader,
 } from "@ionic/vue";
 
-import { qrCodeOutline, helpCircleOutline } from "ionicons/icons";
+import { qrCodeOutline, logoDiscord, cashOutline, newspaperOutline } from "ionicons/icons";
 
 export default {
   name: "Discover",
@@ -53,12 +67,14 @@ export default {
     IonItem,
     IonLabel,
     IonItemGroup,
-    IonListHeader
+    IonListHeader,
   },
   setup() {
     return {
       qrCodeOutline,
-      helpCircleOutline,
+      logoDiscord,
+      cashOutline,
+      newspaperOutline
     };
   },
 };
