@@ -48,6 +48,10 @@
           <ion-icon slot="end" :icon="logoDiscord"></ion-icon>
           <ion-label>Discord</ion-label>
         </ion-item>
+        <ion-item href="https://twitter.com/_feirm" lines="none" color="light">
+          <ion-icon slot="end" :icon="logoTwitter"></ion-icon>
+          <ion-label>Twitter</ion-label>
+        </ion-item>
       </ion-item-group>
     </ion-content>
   </ion-page>
@@ -74,6 +78,7 @@ import {
   basketOutline,
   gameControllerOutline,
   waterOutline,
+  logoTwitter
 } from "ionicons/icons";
 
 export default {
@@ -98,6 +103,7 @@ export default {
       basketOutline,
       gameControllerOutline,
       waterOutline,
+      logoTwitter
     };
   },
 };
