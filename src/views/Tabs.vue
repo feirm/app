@@ -11,7 +11,12 @@
           <ion-icon :icon="walletOutline" />
           <ion-label>Wallet</ion-label>
         </ion-tab-button>
-        
+
+        <ion-tab-button tab="tab4" href="/tabs/tab3">
+          <ion-icon :icon="basketOutline" />
+          <ion-label>Marketplace</ion-label>
+        </ion-tab-button>
+
         <ion-tab-button tab="tab3" href="/tabs/tab3">
           <ion-icon :icon="personOutline" />
           <ion-label>Profile</ion-label>
@@ -22,18 +27,26 @@
 </template>
 
 <script lang="ts">
-import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage } from '@ionic/vue';
-import { personOutline, walletOutline, homeOutline } from 'ionicons/icons';
+import {
+  IonTabBar,
+  IonTabButton,
+  IonTabs,
+  IonLabel,
+  IonIcon,
+  IonPage,
+} from "@ionic/vue";
+import { personOutline, walletOutline, homeOutline, basketOutline } from "ionicons/icons";
 
 export default {
-  name: 'Tabs',
+  name: "Tabs",
   components: { IonLabel, IonTabs, IonTabBar, IonTabButton, IonIcon, IonPage },
   setup() {
     return {
       personOutline,
       walletOutline,
-      homeOutline
-    }
-  }
-}
+      homeOutline,
+      basketOutline
+    };
+  },
+};
 </script>
