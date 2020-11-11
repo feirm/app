@@ -49,7 +49,7 @@ import {
 } from "ionicons/icons"
 
 export default {
-  name: "Home",
+  name: "Discover",
   components: {
     IonHeader,
     IonToolbar,

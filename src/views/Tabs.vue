@@ -2,9 +2,9 @@
   <ion-page>
     <ion-tabs>
       <ion-tab-bar slot="bottom">
-        <ion-tab-button tab="home" href="/tabs/home">
-          <ion-icon :icon="homeOutline" />
-          <ion-label>Home</ion-label>
+        <ion-tab-button tab="discover" href="/tabs/discover">
+          <ion-icon :icon="compassOutline" />
+          <ion-label>Discover</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="tab2" href="/tabs/tab2">
@@ -35,7 +35,7 @@ import {
   IonIcon,
   IonPage,
 } from "@ionic/vue";
-import { personOutline, walletOutline, homeOutline, basketOutline } from "ionicons/icons";
+import { personOutline, walletOutline, compassOutline, basketOutline } from "ionicons/icons";
 
 export default {
   name: "Tabs",
@@ -44,7 +44,7 @@ export default {
     return {
       personOutline,
       walletOutline,
-      homeOutline,
+      compassOutline,
       basketOutline
     };
   },
