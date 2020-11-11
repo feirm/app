@@ -26,9 +26,21 @@
           <ion-icon slot="end" :icon="cashOutline"></ion-icon>
           <ion-label>Feirm Pay</ion-label>
         </ion-item>
+        <ion-item>
+          <ion-icon slot="end" :icon="basketOutline"></ion-icon>
+          <ion-label>Marketplace</ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-icon slot="end" :icon="gameControllerOutline"></ion-icon>
+          <ion-label>Games</ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-icon slot="end" :icon="waterOutline"></ion-icon>
+          <ion-label>Faucet</ion-label>
+        </ion-item>
       </ion-item-group>
 
-      <br>
+      <br />
 
       <ion-item-group>
         <ion-list-header>Need assistance?</ion-list-header>
@@ -54,7 +66,15 @@ import {
   IonListHeader,
 } from "@ionic/vue";
 
-import { qrCodeOutline, logoDiscord, cashOutline, newspaperOutline } from "ionicons/icons";
+import {
+  qrCodeOutline,
+  logoDiscord,
+  cashOutline,
+  newspaperOutline,
+  basketOutline,
+  gameControllerOutline,
+  waterOutline
+} from "ionicons/icons";
 
 export default {
   name: "Discover",
@@ -74,7 +94,10 @@ export default {
       qrCodeOutline,
       logoDiscord,
       cashOutline,
-      newspaperOutline
+      newspaperOutline,
+      basketOutline,
+      gameControllerOutline,
+      waterOutline
     };
   },
 };
