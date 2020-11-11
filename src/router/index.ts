@@ -28,6 +28,10 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/Tab3.vue')
       }
     ]
+  },
+  {
+    path: '/services/qr',
+    component: () => import('@/views/Services/QRCode/Scan.vue')
   }
 ]
 
