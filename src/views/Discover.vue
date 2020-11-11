@@ -2,29 +2,27 @@
   <ion-page>
     <ion-header>
       <ion-toolbar class="ion-text-center">
-        <ion-title>Feirm Account</ion-title>
+        <ion-title>Discover</ion-title>
       </ion-toolbar>
     </ion-header>
-    <ion-content :fullscreen="true">
+    <ion-content :fullscreen="true" class="ion-padding">
       <ion-header collapse="condense">
         <ion-toolbar>
           <ion-title size="large">Feirm Account</ion-title>
         </ion-toolbar>
       </ion-header>
       <!-- Content goes in here -->
-      <ion-card>
-        <ion-card-content>
-          <ion-grid>
-            <ion-row class="ion-text-center">
-              <ion-col>
-                <ion-button router-link="/">
-                  <ion-icon slot="icon-only" :icon="qrCodeOutline" />
-                </ion-button>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </ion-card-content>
-      </ion-card>
+      <ion-item-group>
+        <ion-list-header>Explore the Feirm Ecosystem</ion-list-header>
+        <ion-item>
+          <ion-icon slot="end" :icon="qrCodeOutline"></ion-icon>
+          <ion-label>Scan QR Code</ion-label>
+        </ion-item>
+        <ion-item href="https://discord.gg/mUZdSKg">
+          <ion-icon slot="end" :icon="helpCircleOutline"></ion-icon>
+          <ion-label>Feirm Support</ion-label>
+        </ion-item>
+      </ion-item-group>
     </ion-content>
   </ion-page>
 </template>
@@ -36,17 +34,13 @@ import {
   IonToolbar,
   IonTitle,
   IonContent,
-  IonCard,
-  IonCardContent,
-  IonGrid,
-  IonRow,
-  IonIcon,
-  IonButton
+  IonItem,
+  IonLabel,
+  IonItemGroup,
+  IonListHeader
 } from "@ionic/vue";
 
-import {
-  qrCodeOutline
-} from "ionicons/icons"
+import { qrCodeOutline, helpCircleOutline } from "ionicons/icons";
 
 export default {
   name: "Discover",
@@ -56,17 +50,16 @@ export default {
     IonTitle,
     IonContent,
     IonPage,
-    IonCard,
-    IonCardContent,
-    IonGrid,
-    IonRow,
-    IonIcon,
-    IonButton
+    IonItem,
+    IonLabel,
+    IonItemGroup,
+    IonListHeader
   },
   setup() {
     return {
-      qrCodeOutline
-    }
-  }
+      qrCodeOutline,
+      helpCircleOutline,
+    };
+  },
 };
 </script>
