@@ -34,9 +34,9 @@
         horizontal="center"
         class="ion-padding-bottom"
       >
-        <ion-fab-button @click="torchActive = !torchActive">
-          <p>T</p>
-        </ion-fab-button>
+        <ion-button @click="torchActive = !torchActive">
+          <ion-icon slot="icon-only" :icon="flashlightOutline"></ion-icon>
+        </ion-button>
       </ion-fab>
     </ion-content>
   </ion-page>
@@ -56,7 +56,7 @@ import {
   IonIcon,
   alertController,
 } from "@ionic/vue";
-import { informationCircleOutline } from "ionicons/icons";
+import { informationCircleOutline, flashlightOutline } from "ionicons/icons";
 import { QrStream } from "vue3-qr-reader";
 
 export default defineComponent({
@@ -117,6 +117,7 @@ export default defineComponent({
   setup() {
     return {
       informationCircleOutline,
+      flashlightOutline
     };
   },
 });
