@@ -4,8 +4,8 @@
     "description": "Privacy for everyone.",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#262626",
-    "theme_color": "#D3D3D3",
+    "background_color": "#363636",
+    "theme_color": "#363636",
     "icons": [
          {
             "src": "/img/icons/android-chrome-maskable-192x192.png",
