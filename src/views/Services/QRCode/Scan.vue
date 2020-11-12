@@ -29,7 +29,7 @@
         </qr-stream>
       </div>
       <ion-fab
-        v-if="torchNotSupported"
+        v-if="!torchNotSupported"
         slot="fixed"
         vertical="bottom"
         horizontal="center"
