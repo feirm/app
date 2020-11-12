@@ -96,7 +96,7 @@ export default defineComponent({
 .frame {
   border-style: solid;
   border-width: 2px;
-  border-color: rgb(170, 56, 56);
+  border-color: #f69738;
   height: 200px;
   width: 200px;
   position: absolute;
