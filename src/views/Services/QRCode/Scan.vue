@@ -17,11 +17,11 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      <p class="ion-text-center">Please scan a QR Code by placing it into the frame.</p>
-      <hr>
-      <qr-stream @decode="onDecode" class="stream">
-        <div style="color: red;" class="frame"></div>
-      </qr-stream>
+      <div class="fullscreen">
+        <qr-stream @decode="onDecode">
+          <div style="color: red" class="frame"></div>
+        </qr-stream>
+      </div>
     </ion-content>
   </ion-page>
 </template>
@@ -55,7 +55,7 @@ export default defineComponent({
     IonContent,
     IonTitle,
     IonIcon,
-    QrStream
+    QrStream,
   },
   methods: {
     async presentAlert() {
@@ -69,7 +69,7 @@ export default defineComponent({
     },
     onDecode(decodedString: any) {
       alert(decodedString);
-    }
+    },
   },
   setup() {
     return {
@@ -80,10 +80,17 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.stream {
-  margin: 0 auto;
-  height: 250px;
-  width: 250px;
+.fullscreen {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background-color: black;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
 }
 
 .frame {
