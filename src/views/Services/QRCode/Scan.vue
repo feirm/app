@@ -18,7 +18,10 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <p class="ion-text-center">Please scan a QR Code by placing it into the frame.</p>
-      <qr-stream @decode="onDecode" class="qr-stream"></qr-stream>
+      <hr>
+      <qr-stream @decode="onDecode" class="stream">
+        <div style="color: red;" class="frame"></div>
+      </qr-stream>
     </ion-content>
   </ion-page>
 </template>
@@ -76,9 +79,24 @@ export default defineComponent({
 });
 </script>
 
-<style scoped lang="css">
-.qr-stream {
-  width: 150px;
-  height: 150px;
+<style scoped>
+.stream {
+  margin: 0 auto;
+  height: 250px;
+  width: 250px;
+}
+
+.frame {
+  border-style: solid;
+  border-width: 2px;
+  border-color: rgb(170, 56, 56);
+  height: 200px;
+  width: 200px;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+  left: 0px;
+  margin: auto;
 }
 </style>
