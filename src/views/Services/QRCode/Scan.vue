@@ -16,7 +16,10 @@
         <ion-title>Scan QR Code</ion-title>
       </ion-toolbar>
     </ion-header>
-    <ion-content :fullscreen="true" class="ion-padding"> Hello </ion-content>
+    <ion-content :fullscreen="true" class="ion-padding">
+      <p class="ion-text-center">Please scan a QR Code by placing it into the frame.</p>
+      <qr-stream @decode="onDecode" class="qr-stream"></qr-stream>
+    </ion-content>
   </ion-page>
 </template>
 
@@ -35,6 +38,7 @@ import {
   alertController,
 } from "@ionic/vue";
 import { informationCircleOutline } from "ionicons/icons";
+import { QrStream } from "vue3-qr-reader";
 
 export default defineComponent({
   name: "Scan",
@@ -48,6 +52,7 @@ export default defineComponent({
     IonContent,
     IonTitle,
     IonIcon,
+    QrStream
   },
   methods: {
     async presentAlert() {
@@ -59,6 +64,9 @@ export default defineComponent({
       });
       return alert.present();
     },
+    onDecode(decodedString: any) {
+      alert(decodedString);
+    }
   },
   setup() {
     return {
@@ -67,3 +75,10 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped lang="css">
+.qr-stream {
+  width: 150px;
+  height: 150px;
+}
+</style>
