@@ -18,12 +18,23 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <div class="fullscreen">
-        <qr-stream @decode="onDecode" :track="false" :torch="state.flash">
+        <qr-stream
+          @init="onInit"
+          @decode="onDecode"
+          :track="false"
+          :torch="torchActive"
+          :disabled="torchNotSupported"
+        >
           <div style="color: red" class="frame"></div>
         </qr-stream>
       </div>
-      <ion-fab slot="fixed" vertical="bottom" horizontal="center" class="ion-padding-bottom">
-        <ion-fab-button @click="toggleFlash">
+      <ion-fab
+        slot="fixed"
+        vertical="bottom"
+        horizontal="center"
+        class="ion-padding-bottom"
+      >
+        <ion-fab-button @click="torchActive = !torchActive">
           <p>T</p>
         </ion-fab-button>
       </ion-fab>
@@ -32,7 +43,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from "vue";
+import { defineComponent } from "vue";
 import {
   IonPage,
   IonHeader,
@@ -62,6 +73,12 @@ export default defineComponent({
     IonIcon,
     QrStream,
   },
+  data() {
+    return {
+      torchActive: false,
+      torchNotSupported: false,
+    };
+  },
   methods: {
     async presentAlert() {
       const alert = await alertController.create({
@@ -80,6 +97,17 @@ export default defineComponent({
       });
       return alert.present();
     },
+    async onInit(promise: any) {
+      try {
+        const { capabilities } = await promise;
+
+        console.log(capabilities);
+
+        this.torchNotSupported = !capabilities.torch;
+      } catch (error) {
+        console.error(error);
+      }
+    },
     onDecode(decodedString: string) {
       if (decodedString.length > 1) {
         this.qrAlert(decodedString);
@@ -87,18 +115,8 @@ export default defineComponent({
     },
   },
   setup() {
-    const state = reactive({
-      flash: false
-    })
-
-    function toggleFlash() {
-      state.flash = !state.flash;
-    }
-
     return {
-      state,
-      toggleFlash,
-      informationCircleOutline
+      informationCircleOutline,
     };
   },
 });
