@@ -18,7 +18,7 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <div class="fullscreen">
-        <qr-stream @decode="onDecode" :track="false" :torch="flash">
+        <qr-stream @decode="onDecode" :track="false" :torch="state.flash">
           <div style="color: red" class="frame"></div>
         </qr-stream>
       </div>
@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, reactive } from "vue";
 import {
   IonPage,
   IonHeader,
@@ -85,16 +85,19 @@ export default defineComponent({
         this.qrAlert(decodedString);
       }
     },
-    toggleFlash() {
-      this.flash = !this.flash;
-      alert(this.flash)
-    }
   },
   setup() {
-    const flash = false;
+    const state = reactive({
+      flash: false
+    })
+
+    function toggleFlash() {
+      state.flash = !state.flash;
+    }
 
     return {
-      flash,
+      state,
+      toggleFlash,
       informationCircleOutline
     };
   },
