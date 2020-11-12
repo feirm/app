@@ -18,7 +18,7 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <div class="fullscreen">
-        <qr-stream @decode="onDecode">
+        <qr-stream @decode="onDecode" :track="false" :torch="true">
           <div style="color: red" class="frame"></div>
         </qr-stream>
       </div>
@@ -71,12 +71,14 @@ export default defineComponent({
       const alert = await alertController.create({
         header: "Successfully Scanned QR Code!",
         message: data,
-        buttons: ["Ok"]
-      })
+        buttons: ["Ok"],
+      });
       return alert.present();
     },
-    onDecode(decodedString: any) {
-      this.qrAlert(decodedString)
+    onDecode(decodedString: string) {
+      if (decodedString.length > 1) {
+        this.qrAlert(decodedString);
+      }
     },
   },
   setup() {
@@ -89,16 +91,16 @@ export default defineComponent({
 
 <style scoped>
 .fullscreen {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
-    background-color: black;
-    display: flex;
-    flex-flow: column nowrap;
-    justify-content: center;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: black;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
 }
 
 .frame {
