@@ -1,3 +1,9 @@
 module.exports = {
-    productionSourceMap: false
+    productionSourceMap: false,
+    pwa: {
+        workboxOptions: {
+            skipWaiting: true,
+            exclude: [/_redirects/],
+        }
+    }
 }
