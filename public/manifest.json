@@ -2,7 +2,7 @@
     "name": "Feirm",
     "short_name": "Feirm",
     "description": "Privacy for everyone.",
-    "start_url": "/",
+    "start_url": ".",
     "display": "standalone",
     "background_color": "#262626",
     "theme_color": "#D3D3D3"
