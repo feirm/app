@@ -62,7 +62,7 @@ export default defineComponent({
       const alert = await alertController.create({
         header: "Information",
         message:
-          "Use the QR Scanner to scan any QR Code. Depending on it's contents, the application will act accordingly.",
+          "Scanning a QR Code is the fastest way to carry out certain actions on the Feirm Platform. It makes adding new friends and paying for things much faster!",
         buttons: ["Okay, got it!"],
       });
       return alert.present();
