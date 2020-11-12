@@ -67,8 +67,16 @@ export default defineComponent({
       });
       return alert.present();
     },
+    async qrAlert(data: any) {
+      const alert = await alertController.create({
+        header: "Successfully Scanned QR Code!",
+        message: data,
+        buttons: ["Ok"]
+      })
+      return alert.present();
+    },
     onDecode(decodedString: any) {
-      alert(decodedString);
+      this.qrAlert(decodedString)
     },
   },
   setup() {
