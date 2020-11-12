@@ -87,6 +87,7 @@ export default defineComponent({
     },
     toggleFlash() {
       this.flash = !this.flash;
+      alert(this.flash)
     }
   },
   setup() {
