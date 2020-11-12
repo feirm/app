@@ -18,10 +18,15 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <div class="fullscreen">
-        <qr-stream @decode="onDecode" :track="false" :torch="true">
+        <qr-stream @decode="onDecode" :track="false" :torch="flash">
           <div style="color: red" class="frame"></div>
         </qr-stream>
       </div>
+      <ion-fab slot="fixed" vertical="bottom" horizontal="center" class="ion-padding-bottom">
+        <ion-fab-button @click="toggleFlash">
+          <p>T</p>
+        </ion-fab-button>
+      </ion-fab>
     </ion-content>
   </ion-page>
 </template>
@@ -80,10 +85,16 @@ export default defineComponent({
         this.qrAlert(decodedString);
       }
     },
+    toggleFlash() {
+      this.flash = !this.flash;
+    }
   },
   setup() {
+    const flash = false;
+
     return {
-      informationCircleOutline,
+      flash,
+      informationCircleOutline
     };
   },
 });
