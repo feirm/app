@@ -6,11 +6,6 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      <ion-header collapse="condense">
-        <ion-toolbar>
-          <ion-title size="large">Feirm Account</ion-title>
-        </ion-toolbar>
-      </ion-header>
       <!-- Content goes in here -->
       <ion-item-group>
         <ion-list-header>Explore the Feirm Ecosystem</ion-list-header>
