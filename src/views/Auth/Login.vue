@@ -22,7 +22,6 @@
                   </ion-item>
                   <br />
                   <ion-button expand="block">Login</ion-button>
-                  <ion-button expand="block" color="dark">Register</ion-button>
                 </form>
               </ion-card-content>
             </ion-card>
@@ -30,6 +29,9 @@
         </ion-row>
       </ion-grid>
     </ion-content>
+    <ion-button expand="full" color="dark"
+      >Don't have an account? Register</ion-button
+    >
   </ion-page>
 </template>
 
@@ -52,14 +54,14 @@ ion-img {
   width: 100px;
 }
 
-ion-grid{
-    height: 100%;
+ion-grid {
+  height: 100%;
 }
 
-ion-row{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
+ion-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 </style>
