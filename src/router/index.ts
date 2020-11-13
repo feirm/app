@@ -7,6 +7,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/',
     redirect: '/tabs/discover'
   },
+  // Authentication routes
+  {
+    path: '/auth/login',
+    component: () => import('@/views/Auth/Login.vue')
+  },
+  // Main page routes
   {
     path: '/tabs/',
     component: Tabs,
