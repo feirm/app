@@ -21,7 +21,7 @@
                     <ion-input></ion-input>
                   </ion-item>
                   <br />
-                  <ion-button expand="block" size="large">Login</ion-button>
+                  <ion-button expand="block">Login</ion-button>
                 </form>
               </ion-card-content>
             </ion-card>
@@ -29,7 +29,7 @@
         </ion-row>
       </ion-grid>
     </ion-content>
-    <ion-button expand="full" size="large" color="dark">Need an account?</ion-button>
+    <ion-button expand="full" color="dark">Need an account?</ion-button>
   </ion-page>
 </template>
 
