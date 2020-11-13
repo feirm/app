@@ -15,27 +15,27 @@
       <ion-item-group>
         <ion-list-header>Explore the Feirm Ecosystem</ion-list-header>
         <ion-item lines="none" color="light" router-link="/services/qr" button="true">
-          <ion-icon slot="end" :icon="qrCodeOutline"></ion-icon>
+          <ion-icon slot="end" :icon="qrCodeOutline" color="primary"></ion-icon>
           <ion-label>Scan QR Code</ion-label>
         </ion-item>
         <ion-item lines="none" color="light">
-          <ion-icon slot="end" :icon="newspaperOutline"></ion-icon>
+          <ion-icon slot="end" :icon="newspaperOutline" color="primary"></ion-icon>
           <ion-label>News Feed</ion-label>
         </ion-item>
         <ion-item lines="none" color="light">
-          <ion-icon slot="end" :icon="cashOutline"></ion-icon>
+          <ion-icon slot="end" :icon="cashOutline" color="primary"></ion-icon>
           <ion-label>Feirm Pay</ion-label>
         </ion-item>
         <ion-item lines="none" color="light">
-          <ion-icon slot="end" :icon="basketOutline"></ion-icon>
+          <ion-icon slot="end" :icon="basketOutline" color="primary"></ion-icon>
           <ion-label>Marketplace</ion-label>
         </ion-item>
         <ion-item lines="none" color="light">
-          <ion-icon slot="end" :icon="gameControllerOutline"></ion-icon>
+          <ion-icon slot="end" :icon="gameControllerOutline" color="primary"></ion-icon>
           <ion-label>Games</ion-label>
         </ion-item>
         <ion-item lines="none" color="light">
-          <ion-icon slot="end" :icon="waterOutline"></ion-icon>
+          <ion-icon slot="end" :icon="waterOutline" color="primary"></ion-icon>
           <ion-label>Faucet</ion-label>
         </ion-item>
       </ion-item-group>
@@ -45,11 +45,11 @@
       <ion-item-group>
         <ion-list-header>Need assistance?</ion-list-header>
         <ion-item href="https://discord.gg/mUZdSKg" lines="none" color="light">
-          <ion-icon slot="end" :icon="logoDiscord"></ion-icon>
+          <ion-icon slot="end" :icon="logoDiscord" color="primary"></ion-icon>
           <ion-label>Discord</ion-label>
         </ion-item>
         <ion-item href="https://twitter.com/_feirm" lines="none" color="light">
-          <ion-icon slot="end" :icon="logoTwitter"></ion-icon>
+          <ion-icon slot="end" :icon="logoTwitter" color="primary"></ion-icon>
           <ion-label>Twitter</ion-label>
         </ion-item>
       </ion-item-group>
