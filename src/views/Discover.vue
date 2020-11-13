@@ -48,6 +48,16 @@
           <ion-label>Twitter</ion-label>
         </ion-item>
       </ion-item-group>
+
+      <br>
+
+      <!-- For testing purposes only -->
+      <ion-item-group>
+        <ion-item href="/auth/login" lines="none" color="danger">
+          <ion-label>Login Page</ion-label>
+        </ion-item>
+      </ion-item-group>
+
     </ion-content>
   </ion-page>
 </template>
