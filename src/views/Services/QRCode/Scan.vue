@@ -25,7 +25,6 @@
           :torch="torchActive"
           :disabled="torchNotSupported"
         >
-          <div style="color: red" class="frame"></div>
         </qr-stream>
       </div>
       <ion-fab
@@ -136,19 +135,5 @@ export default defineComponent({
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
-}
-
-.frame {
-  border-style: solid;
-  border-width: 2px;
-  border-color: #f69738;
-  height: 200px;
-  width: 200px;
-  position: absolute;
-  top: 0px;
-  bottom: 0px;
-  right: 0px;
-  left: 0px;
-  margin: auto;
 }
 </style>
