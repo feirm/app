@@ -7,7 +7,7 @@
             <ion-img src="/assets/logo.png"></ion-img>
             <ion-text class="ion-text-center">
               <h1>Welcome to Feirm.</h1>
-              <p>Please Login or Register to continue.</p>
+              <p>Please Login or Create An Account to continue.</p>
             </ion-text>
             <ion-card>
               <ion-card-content>
