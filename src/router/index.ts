@@ -4,6 +4,11 @@ import { store } from '@/store';
 import Tabs from '../views/Tabs.vue'
 
 const routes: Array<RouteRecordRaw> = [
+  // Redirect index page to Discover route
+  {
+    path: '/',
+    redirect: '/tabs/discover'
+  },
   // Authentication routes
   {
     path: '/auth/login',
