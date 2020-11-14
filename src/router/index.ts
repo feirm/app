@@ -1,12 +1,9 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
+import { store } from '@/store';
 import Tabs from '../views/Tabs.vue'
 
 const routes: Array<RouteRecordRaw> = [
-  {
-    path: '/',
-    redirect: '/tabs/discover'
-  },
   // Authentication routes
   {
     path: '/auth/login',
@@ -44,6 +41,24 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
+})
+
+// Check if the user is already logged in.
+router.beforeEach((to, from, next) => {
+  const loggedIn = store.getters.isUserLoggedIn;
+
+  if (loggedIn) {
+    console.log("User logged in!")
+    next();
+  } else {
+    if (to.path === '/auth/login') {
+      console.log("User not logged in, but is going to path anyway!")
+      next();
+    } else {
+      console.log("User is not logged in, but was trying to visit a restricted resource!")
+      next('/auth/login');
+    }
+  }
 })
 
 export default router
