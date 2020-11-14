@@ -28,6 +28,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: 'wallet',
         component: () => import('@/views/Wallet/Warning.vue')
+      },
+      {
+        path: 'profile',
+        component: () => import('@/views/Profile/Overview.vue')
       }
     ]
   },
