@@ -29,19 +29,32 @@
         </ion-row>
       </ion-grid>
     </ion-content>
-    <ion-button expand="full" color="dark">Need an account?</ion-button>
+    <ion-button expand="full" color="dark" @click="register"
+      >Need an account?</ion-button
+    >
   </ion-page>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { IonPage, IonContent } from "@ionic/vue";
+import { IonPage, IonContent, alertController } from "@ionic/vue";
 
 export default defineComponent({
   name: "Login",
   components: {
     IonPage,
     IonContent,
+  },
+  methods: {
+    async register() {
+      const alert = await alertController.create({
+        header: "Feirm Platform",
+        message:
+          "Sorry, but registrations are closed at this time! Please check back later!",
+        buttons: ["Ok"],
+      });
+      return alert.present();
+    },
   },
 });
 </script>
