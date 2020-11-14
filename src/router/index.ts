@@ -26,12 +26,8 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import('@/views/Discover.vue')
       },
       {
-        path: 'tab2',
-        component: () => import('@/views/Tab2.vue')
-      },
-      {
-        path: 'tab3',
-        component: () => import('@/views/Tab3.vue')
+        path: 'wallet',
+        component: () => import('@/views/Wallet/Warning.vue')
       }
     ]
   },
