@@ -45,10 +45,10 @@ export default defineComponent({
       toggleTheme(event: any) {
           if (event.detail.checked) {
               console.log("Dark mode!")
-              document.body.setAttribute('color-theme', 'dark');
+              document.body.classList.toggle('dark', true);
           } else {
               console.log("Light mode!")
-              document.body.setAttribute('color-theme', 'light');
+              document.body.classList.toggle('light', true);
           }
       }
   },
