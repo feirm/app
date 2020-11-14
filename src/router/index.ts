@@ -40,6 +40,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/services/qr',
     component: () => import('@/views/Services/QRCode/Scan.vue')
+  },
+  {
+    path: '/update',
+    component: () => import('@/views/Update.vue')
   }
 ]
 
@@ -52,8 +56,8 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const loggedIn = store.getters.isUserLoggedIn;
 
-  if (loggedIn) {
-    console.log("User logged in!")
+  if (loggedIn || to.path === "/update") {
+    console.log("User is logged in, or visiting the update page!")
     next();
   } else {
     if (to.path === '/auth/login') {
