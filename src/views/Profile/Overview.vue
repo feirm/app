@@ -6,7 +6,12 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      
+        <ion-item-group>
+            <ion-item>
+                <ion-label>Dark mode</ion-label>
+                <ion-toggle @ionChange="toggleDarkMode"></ion-toggle>
+            </ion-item>
+        </ion-item-group>
     </ion-content>
   </ion-page>
 </template>
@@ -18,7 +23,10 @@ import {
   IonContent,
   IonHeader,
   IonToolbar,
-  IonTitle
+  IonTitle,
+  IonItem,
+  IonToggle,
+  IonItemGroup
 } from "@ionic/vue";
 import { alertCircleOutline } from "ionicons/icons";
 
@@ -28,7 +36,15 @@ export default defineComponent({
     IonContent,
     IonHeader,
     IonToolbar,
-    IonTitle
+    IonTitle,
+    IonItem,
+    IonToggle,
+    IonItemGroup
+  },
+  methods: {
+      toggleDarkMode() {
+          document.body.classList.toggle("dark");
+      }
   },
   setup() {
     return {
