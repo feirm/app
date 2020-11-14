@@ -7,17 +7,17 @@
           <ion-label>Discover</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="tab2" href="/tabs/tab2">
+        <ion-tab-button tab="wallet" href="/tabs/wallet">
           <ion-icon :icon="walletOutline" />
           <ion-label>Wallet</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="tab3" href="/tabs/tab2">
+        <ion-tab-button tab="tab3" href="/tabs/tab3">
           <ion-icon :icon="peopleOutline" />
           <ion-label>Contacts</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="tab4" href="/tabs/tab3">
+        <ion-tab-button tab="tab4" href="/tabs/tab4">
           <ion-icon :icon="personCircleOutline" />
           <ion-label>Profile</ion-label>
         </ion-tab-button>
