@@ -9,7 +9,7 @@
         <ion-item-group>
             <ion-item>
                 <ion-label>Dark mode</ion-label>
-                <ion-toggle @ionChange="toggleDarkMode"></ion-toggle>
+                <ion-toggle @ionChange="toggleTheme($event)"></ion-toggle>
             </ion-item>
         </ion-item-group>
     </ion-content>
@@ -42,8 +42,14 @@ export default defineComponent({
     IonItemGroup
   },
   methods: {
-      toggleDarkMode() {
-          document.body.classList.toggle("dark");
+      toggleTheme(event: any) {
+          if (event.detail.checked) {
+              console.log("Dark mode!")
+              document.body.setAttribute('color-theme', 'dark');
+          } else {
+              console.log("Light mode!")
+              document.body.setAttribute('color-theme', 'light');
+          }
       }
   },
   setup() {
