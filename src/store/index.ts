@@ -20,6 +20,6 @@ export const store = createStore({
     },
     getters: {
         getToken: state => state.accessToken,
-        isUserLoggedIn: () => false // Set to false for testing purposes.
+        isUserLoggedIn: () => true // Set to false for testing purposes.
     }
 })
