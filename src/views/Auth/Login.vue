@@ -21,7 +21,7 @@
                     <ion-input type="password"></ion-input>
                   </ion-item>
                   <br />
-                  <ion-button expand="block">Login</ion-button>
+                  <ion-button expand="block" @click="login">Login</ion-button>
                 </form>
               </ion-card-content>
             </ion-card>
@@ -38,6 +38,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { IonPage, IonContent, alertController } from "@ionic/vue";
+import router from '@/router';
 
 export default defineComponent({
   name: "Login",
@@ -46,6 +47,9 @@ export default defineComponent({
     IonContent,
   },
   methods: {
+    login() {
+      router.push({path: "/auth/login/2fa"})
+    },
     async register() {
       const alert = await alertController.create({
         header: "Feirm Platform",

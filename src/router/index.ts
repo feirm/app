@@ -14,6 +14,10 @@ const routes: Array<RouteRecordRaw> = [
     path: '/auth/login',
     component: () => import('@/views/Auth/Login.vue')
   },
+  {
+    path: '/auth/login/2fa',
+    component: () => import('@/views/Auth/TwoFactor.vue')
+  },
   // Main page routes
   {
     path: '/tabs/',
@@ -56,7 +60,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const loggedIn = store.getters.isUserLoggedIn;
 
-  if (loggedIn || to.path === "/update") {
+  if (loggedIn || to.path === "/update" || to.path === "/auth/login/2fa") {
     console.log("User is logged in, or visiting the update page!")
     next();
   } else {
