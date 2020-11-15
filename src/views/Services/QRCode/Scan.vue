@@ -76,7 +76,7 @@ export default defineComponent({
   data() {
     return {
       torchActive: false,
-      torchNotSupported: false,
+      torchNotSupported: true,
     };
   },
   methods: {
@@ -100,8 +100,6 @@ export default defineComponent({
     async onInit(promise: any) {
       try {
         const { capabilities } = await promise;
-
-        console.log(capabilities);
 
         this.torchNotSupported = !capabilities.torch;
       } catch (error) {
