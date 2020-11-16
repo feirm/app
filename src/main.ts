@@ -27,6 +27,9 @@ import './theme/variables.css';
 /* PWA Service Worker */
 import './registerServiceWorker';
 
+// Initialise the store
+store.dispatch("initialize");
+
 const app = createApp(App)
   .use(IonicVue)
   .use(store)
