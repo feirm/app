@@ -12,8 +12,8 @@
             <h1>Warning</h1>
             <p>
               Please note that this wallet is non-custodial and still under
-              development. If you lose access to your funds, we are in no way
-              responsible. You have been warned!
+              development. This means that Feirm is unable to access your funds in the event you lose access to your wallet.
+              Ensure that you go through the backup process when creating your new wallet. We are not liable for any losses!
             </p>
             <ion-button>Okay, I understand!</ion-button>
           </ion-col>
