@@ -49,7 +49,9 @@
         </ion-item>
       </ion-item-group>
 
-      <p>SUPPORT FINGERPRINT: {{supportsBiometric}}</p>
+      <!-- Biometric testing -->
+      <br>
+      <ion-button @click="checkFingerprint">Check for Biometrics</ion-button>
 
     </ion-content>
   </ion-page>
@@ -93,13 +95,16 @@ export default {
     IonListHeader,
   },
   setup() {
-    // Check if the browser supports biometric
-    let supportsBiometric = false;
+    function checkFingerprint() {
+      if (window.PublicKeyCredential) {
+        window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(supported => {
+          alert(supported)
+        })
+      } else {
+        alert(false);
+      }
+    }
 
-    window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(res => {
-      supportsBiometric = res;
-    })
-  
     return {
       qrCodeOutline,
       logoDiscord,
@@ -109,7 +114,7 @@ export default {
       gameControllerOutline,
       waterOutline,
       logoTwitter,
-      supportsBiometric
+      checkFingerprint
     };
   },
 };
