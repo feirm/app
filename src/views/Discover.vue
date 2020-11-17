@@ -96,7 +96,7 @@ export default {
     // Check if the browser supports biometric
     let supportsBiometric = false;
 
-    PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(res => {
+    window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(res => {
       supportsBiometric = res;
     })
   
