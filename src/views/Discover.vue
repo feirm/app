@@ -49,6 +49,8 @@
         </ion-item>
       </ion-item-group>
 
+      <p>SUPPORT FINGERPRINT: {{supportsBiometric}}</p>
+
     </ion-content>
   </ion-page>
 </template>
@@ -91,6 +93,13 @@ export default {
     IonListHeader,
   },
   setup() {
+    // Check if the browser supports biometric
+    let supportsBiometric = false;
+
+    PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(res => {
+      supportsBiometric = res;
+    })
+  
     return {
       qrCodeOutline,
       logoDiscord,
@@ -99,7 +108,8 @@ export default {
       basketOutline,
       gameControllerOutline,
       waterOutline,
-      logoTwitter
+      logoTwitter,
+      supportsBiometric
     };
   },
 };
