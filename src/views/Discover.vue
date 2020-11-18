@@ -49,10 +49,6 @@
         </ion-item>
       </ion-item-group>
 
-      <!-- Biometric testing -->
-      <br>
-      <ion-button @click="checkFingerprint">Check for Biometrics</ion-button>
-
     </ion-content>
   </ion-page>
 </template>

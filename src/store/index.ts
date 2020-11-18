@@ -26,6 +26,6 @@ export const store = createStore({
     getters: {
         getToken: state => state.accessToken,
         isWalletWarningConfirmed: state => state.walletWarning, // Check if the wallet warning has been confirmed
-        isUserLoggedIn: () => true // Set to false for testing purposes.
+        isUserLoggedIn: () => false // Set to false for testing purposes.
     }
 })
