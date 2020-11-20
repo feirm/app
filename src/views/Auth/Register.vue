@@ -21,7 +21,7 @@
             </ion-text>
             <ion-item>
               <ion-label position="floating">Username</ion-label>
-              <ion-input></ion-input>
+              <ion-input :autofocus="true"></ion-input>
             </ion-item>
           </ion-col>
         </ion-row>
