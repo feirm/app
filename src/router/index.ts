@@ -12,16 +12,25 @@ const routes: Array<RouteRecordRaw> = [
   // Authentication routes
   {
     path: '/auth/login',
-    component: () => import('@/views/Auth/Login.vue')
+    component: () => import('@/views/Auth/Login.vue'),
+    meta: {
+      requiresAuth: false
+    }
   },
   {
     path: '/auth/login/2fa',
-    component: () => import('@/views/Auth/TwoFactor.vue')
+    component: () => import('@/views/Auth/TwoFactor.vue'),
+    meta: {
+      requiresAuth: false
+    }
   },
   // Main page routes
   {
     path: '/tabs/',
     component: Tabs,
+    meta: {
+      requiresAuth: true
+    },
     children: [
       {
         path: '',
@@ -43,11 +52,17 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/services/qr',
-    component: () => import('@/views/Services/QRCode/Scan.vue')
+    component: () => import('@/views/Services/QRCode/Scan.vue'),
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/update',
-    component: () => import('@/views/Update.vue')
+    component: () => import('@/views/Update.vue'),
+    meta: {
+      requiresAuth: false
+    }
   }
 ]
 
@@ -59,18 +74,12 @@ const router = createRouter({
 // Check if the user is already logged in.
 router.beforeEach((to, from, next) => {
   const loggedIn = store.getters.isUserLoggedIn;
+  const authRequired = to.matched.some((route) => route.meta.requiresAuth);
 
-  if (loggedIn || to.path === "/update" || to.path === "/auth/login/2fa") {
-    console.log("User is logged in, or visiting the update page!")
-    next();
+  if (authRequired && !loggedIn) {
+    next("/auth/login")
   } else {
-    if (to.path === '/auth/login') {
-      console.log("User not logged in, but is going to path anyway!")
-      next();
-    } else {
-      console.log("User is not logged in, but was trying to visit a restricted resource!")
-      next('/auth/login');
-    }
+    next();
   }
 })
 
