@@ -29,7 +29,7 @@
         </ion-row>
       </ion-grid>
     </ion-content>
-    <ion-button expand="full" color="primary">Next</ion-button>
+    <ion-button expand="full" color="primary" @click="next">Next</ion-button>
   </ion-page>
 </template>
 
@@ -53,6 +53,7 @@ import {
   IonText,
 } from "@ionic/vue";
 import { personCircleOutline } from "ionicons/icons";
+import router from "@/router";
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -72,6 +73,11 @@ export default defineComponent({
     IonRow,
     IonCol,
     IonText,
+  },
+  methods: {
+    next() {
+      router.push({path: '/auth/register/email'})
+    }
   },
   setup() {
     return {
