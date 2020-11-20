@@ -19,10 +19,12 @@
                 payments.
               </p>
             </ion-text>
-            <ion-item>
-              <ion-label position="floating">Username</ion-label>
-              <ion-input :autofocus="true"></ion-input>
-            </ion-item>
+            <form @submit.prevent>
+              <ion-item>
+                <ion-label position="floating">Username</ion-label>
+                <ion-input :autofocus="true"></ion-input>
+              </ion-item>
+            </form>
           </ion-col>
         </ion-row>
       </ion-grid>
