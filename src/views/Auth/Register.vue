@@ -8,15 +8,26 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      <ion-icon :icon="personCircleOutline" size="large"></ion-icon>
-      <h1>Pick your username</h1>
-      <p>This is how other Feirm users can find you and send you payments.</p>
-      <ion-item>
-        <ion-label position="floating">Username</ion-label>
-        <ion-input></ion-input>
-      </ion-item>
+      <ion-grid>
+        <ion-row>
+          <ion-col class="ion-text-center">
+            <ion-icon :icon="personCircleOutline" size="large"></ion-icon>
+            <ion-text class="ion-text-center">
+              <h1>Pick your username</h1>
+              <p>
+                This is how other Feirm users can find you and send you
+                payments.
+              </p>
+            </ion-text>
+            <ion-item>
+              <ion-label position="floating">Username</ion-label>
+              <ion-input></ion-input>
+            </ion-item>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-content>
-    <ion-button expand="full" color="dark">Next</ion-button>
+    <ion-button expand="full" color="primary">Next</ion-button>
   </ion-page>
 </template>
 
@@ -34,6 +45,10 @@ import {
   IonLabel,
   IonItem,
   IonButton,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonText,
 } from "@ionic/vue";
 import { personCircleOutline } from "ionicons/icons";
 
@@ -51,6 +66,10 @@ export default defineComponent({
     IonLabel,
     IonItem,
     IonButton,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonText,
   },
   setup() {
     return {
@@ -59,3 +78,16 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+ion-grid {
+  height: 100%;
+}
+
+ion-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+</style>
