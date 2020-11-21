@@ -2,30 +2,26 @@ import { createStore } from 'vuex';
 
 export const store = createStore({
     state: {
-        accessToken: "",
-        walletWarning: false // Wallet warning is false by default
-    },
-    mutations: {
-        setAccessToken(state, accessToken) {
-            state.accessToken = accessToken;
-            localStorage.setItem("accessToken", accessToken);
-        },
-        confirmWalletWarning(state, accepted) {
-            state.walletWarning = accepted;
-            localStorage.setItem("walletWarning", accepted);
+        registration: {
+            username: "",
+            email: "",
+            password: "",
         }
     },
-    actions: {
-        initialize({ commit }) {
-            const accessToken = localStorage.getItem("accessToken");
-            if (accessToken) {
-                commit("setAccessToken", accessToken);
-            }
+    mutations: {
+        // Mutations for registration process
+        registerUsername(state, username) {
+            state.registration.username = username;
+        },
+        registerEmail(state, email) {
+            state.registration.email = email;
+        },
+        registerPassword(state, password) {
+            state.registration.password = password;
         }
     },
     getters: {
-        getToken: state => state.accessToken,
-        isWalletWarningConfirmed: state => state.walletWarning, // Check if the wallet warning has been confirmed
-        isUserLoggedIn: () => true // Set to false for testing purposes.
+        isUserLoggedIn: () => !true, // Set to false for testing purposes.
+        getRegistration: state => state.registration // Return the entire registration state
     }
 })
