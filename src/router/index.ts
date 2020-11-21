@@ -63,7 +63,7 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: 'wallet',
-        component: () => import('@/views/Wallet/Warning.vue')
+        component: () => import('@/views/Wallet/Overview.vue')
       },
       {
         path: 'profile',
