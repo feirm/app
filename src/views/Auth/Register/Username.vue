@@ -19,22 +19,20 @@
                 payments.
               </p>
             </ion-text>
-            <form @submit.prevent>
-              <ion-item>
-                <ion-label position="floating">Username</ion-label>
-                <ion-input :autofocus="true"></ion-input>
-              </ion-item>
-            </form>
+            <ion-item>
+              <ion-label position="floating">Username</ion-label>
+              <ion-input v-bind="username" v-on:ionChange="checkUsername($event.target.value)"></ion-input>
+            </ion-item>
           </ion-col>
         </ion-row>
       </ion-grid>
     </ion-content>
-    <ion-button expand="full" color="primary" @click="next">Next</ion-button>
+    <ion-button expand="full" color="primary" @click="next" :disabled="buttonDisabled">Next</ion-button>
   </ion-page>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { useStore } from "vuex";
 import {
   IonPage,
   IonHeader,
@@ -54,6 +52,7 @@ import {
 } from "@ionic/vue";
 import { personCircleOutline } from "ionicons/icons";
 import router from "@/router";
+import { defineComponent } from 'vue';
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -74,13 +73,36 @@ export default defineComponent({
     IonCol,
     IonText,
   },
+  data () {
+    return {
+      buttonDisabled: true
+    }
+  },
   methods: {
     next() {
-      router.push({path: '/auth/register/email'})
+      this.store.commit("registerUsername", this.username);
+
+      router.push({ path: "/auth/register/email" });
+    },
+    checkUsername(username: string) {
+      // Username length check
+      // TODO API call to check username is valid
+      if (username.length >= 3) {
+        this.buttonDisabled = false;
+      } else {
+        this.buttonDisabled = true;
+      }
     }
   },
   setup() {
+    // Use existing store
+    const store = useStore();
+
+    const username = "";
+
     return {
+      store,
+      username,
       personCircleOutline,
     };
   },
