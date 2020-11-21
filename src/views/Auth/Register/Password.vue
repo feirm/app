@@ -11,24 +11,31 @@
       <ion-grid>
         <ion-row>
           <ion-col class="ion-text-center">
-            <ion-icon :icon="mailOutline" size="large"></ion-icon>
+            <ion-icon :icon="keyOutline" size="large"></ion-icon>
             <ion-text class="ion-text-center">
-              <h1>Enter your E-mail address</h1>
+              <h1>Create a password</h1>
               <p>
-                If you wish, you can enter your E-mail address to receive messages about the status of your Feirm account. This is optional.
+                It is important to secure your Feirm account with a secure
+                password, as this is used to encrypt your account. If you lose
+                it, we are unable to reset it for you due to how End-to-End
+                Encryption works.
               </p>
             </ion-text>
             <form @submit.prevent>
               <ion-item>
-                <ion-label position="floating">Email Address</ion-label>
-                <ion-input type="email" :autofocus="true" v-bind="email"></ion-input>
+                <ion-label position="floating">Password</ion-label>
+                <ion-input type="password" :autofocus="true"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="floating">Confirm Password</ion-label>
+                <ion-input type="password" :autofocus="true"></ion-input>
               </ion-item>
             </form>
           </ion-col>
         </ion-row>
       </ion-grid>
     </ion-content>
-    <ion-button expand="full" color="primary" @click="next">Next</ion-button>
+    <ion-button expand="full" color="primary">Next</ion-button>
   </ion-page>
 </template>
 
@@ -51,7 +58,7 @@ import {
   IonCol,
   IonText,
 } from "@ionic/vue";
-import { mailOutline } from "ionicons/icons";
+import { keyOutline } from "ionicons/icons";
 import router from "@/router";
 
 export default defineComponent({
@@ -74,13 +81,23 @@ export default defineComponent({
     IonText,
   },
   methods: {
-      next() {
-          router.push({ path: '/auth/register/password' })
+    next() {
+      // TODO Validate password
+
+      if (this.email == "") {
+        // Assume user does not want to enter an email address, so configure TOTP 2FA
+        router.push({ path: "/auth/register/2fa" });
+      } else {
+        // TODO
       }
+    },
   },
   setup() {
+    const email = "";
+
     return {
-      mailOutline
+      email,
+      keyOutline
     };
   },
 });

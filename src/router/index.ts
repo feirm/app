@@ -38,6 +38,13 @@ const routes: Array<RouteRecordRaw> = [
       requiresAuth: false
     }
   },
+  {
+    path: '/auth/register/password',
+    component: () => import('@/views/Auth/Register/Password.vue'),
+    meta: {
+      requiresAuth: false
+    }
+  },
   // Main page routes
   {
     path: '/tabs/',
