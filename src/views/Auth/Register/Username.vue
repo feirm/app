@@ -21,13 +21,22 @@
             </ion-text>
             <ion-item>
               <ion-label position="floating">Username</ion-label>
-              <ion-input v-bind="username" v-on:ionChange="checkUsername($event.target.value)"></ion-input>
+              <ion-input
+                v-bind="username"
+                v-on:ionChange="checkUsername($event.target.value)"
+              ></ion-input>
             </ion-item>
           </ion-col>
         </ion-row>
       </ion-grid>
     </ion-content>
-    <ion-button expand="full" color="primary" @click="next" :disabled="buttonDisabled">Next</ion-button>
+    <ion-button
+      expand="full"
+      color="primary"
+      @click="next"
+      :disabled="buttonDisabled"
+      >Next</ion-button
+    >
   </ion-page>
 </template>
 
@@ -49,10 +58,11 @@ import {
   IonRow,
   IonCol,
   IonText,
+  toastController,
 } from "@ionic/vue";
 import { personCircleOutline } from "ionicons/icons";
 import router from "@/router";
-import { defineComponent } from 'vue';
+import { defineComponent } from "vue";
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -73,10 +83,10 @@ export default defineComponent({
     IonCol,
     IonText,
   },
-  data () {
+  data() {
     return {
-      buttonDisabled: true
-    }
+      buttonDisabled: true,
+    };
   },
   methods: {
     next() {
@@ -84,15 +94,26 @@ export default defineComponent({
 
       router.push({ path: "/auth/register/email" });
     },
-    checkUsername(username: string) {
-      // Username length check
-      // TODO API call to check username is valid
+    async checkUsername(username: string) {
+      // Configure toast
+      const toast = await toastController.create({
+        header: "Username is available! 🥳",
+        position: "bottom",
+        color: "success",
+        duration: 1500,
+      });
+
+      toast.dismiss();
+
+      // TODO Check that the username isn't taken
+      // Check that username is longer than 3 characters
       if (username.length >= 3) {
+        toast.present();
         this.buttonDisabled = false;
       } else {
         this.buttonDisabled = true;
       }
-    }
+    },
   },
   setup() {
     // Use existing store
@@ -119,5 +140,9 @@ ion-row {
   align-items: center;
   justify-content: center;
   height: 100%;
+}
+
+.ion-toast {
+  text-align: center;
 }
 </style>
