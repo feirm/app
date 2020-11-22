@@ -101,6 +101,7 @@ export default defineComponent({
     async checkEmail(email: string) {
       // If the email field is empty, then assume the user does not want to supply one
       if (email.length === 0) {
+        this.emailCheckMessage = ""; // Reset the email message
         return this.buttonDisabled = false;
       }
 
