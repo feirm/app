@@ -100,9 +100,13 @@ export default defineComponent({
         await tatsuyaService
           .checkUsername(username)
           .then((res) => {
+            // Enable the button
+            this.buttonDisabled = false;
             alert(res.data);
           })
           .catch((err) => {
+            // Disable the button
+            this.buttonDisabled = true;
             alert(err.response.data.error);
           });
       }
