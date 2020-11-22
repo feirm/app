@@ -58,11 +58,11 @@ import {
   IonRow,
   IonCol,
   IonText,
-  toastController,
 } from "@ionic/vue";
 import { personCircleOutline } from "ionicons/icons";
 import router from "@/router";
 import { defineComponent } from "vue";
+import tatsuyaService from "@/apiService/tatsuyaService";
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -95,23 +95,16 @@ export default defineComponent({
       router.push({ path: "/auth/register/email" });
     },
     async checkUsername(username: string) {
-      // Configure toast
-      const toast = await toastController.create({
-        header: "Username is available! 🥳",
-        position: "bottom",
-        color: "success",
-        duration: 1500,
-      });
-
-      toast.dismiss();
-
-      // TODO Check that the username isn't taken
-      // Check that username is longer than 3 characters
+      // Check that the username isn't taken and meets minimum requirements
       if (username.length >= 3) {
-        toast.present();
-        this.buttonDisabled = false;
-      } else {
-        this.buttonDisabled = true;
+        await tatsuyaService
+          .checkUsername(username)
+          .then((res) => {
+            alert(res.data);
+          })
+          .catch((err) => {
+            alert(err.response.data.error);
+          });
       }
     },
   },
