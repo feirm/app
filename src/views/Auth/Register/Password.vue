@@ -24,13 +24,18 @@
             <form @submit.prevent>
               <ion-item>
                 <ion-label position="floating">Password</ion-label>
-                <ion-input type="password" :autofocus="true"></ion-input>
+                <ion-input
+                  type="password"
+                  v-bind="password"
+                  v-on:ionChange="validatePassword($event.target.value)"
+                ></ion-input>
               </ion-item>
               <ion-item>
                 <ion-label position="floating">Confirm Password</ion-label>
-                <ion-input type="password" :autofocus="true"></ion-input>
+                <ion-input type="password"></ion-input>
               </ion-item>
             </form>
+            <p>{{ passwordMessage }}</p>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -59,7 +64,7 @@ import {
   IonText,
 } from "@ionic/vue";
 import { keyOutline } from "ionicons/icons";
-import router from "@/router";
+import zxcvbn from "zxcvbn";
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -80,24 +85,59 @@ export default defineComponent({
     IonCol,
     IonText,
   },
+  data() {
+    return {
+      passwordMessage: "",
+    };
+  },
   methods: {
     next() {
-      // TODO Validate password
+      // TODO
+    },
+    validatePassword(password: string) {
+      if (password.length > 1) {
+        const score = zxcvbn(password).score;
 
-      if (this.email == "") {
-        // Assume user does not want to enter an email address, so configure TOTP 2FA
-        router.push({ path: "/auth/register/2fa" });
+        switch (score) {
+          case 0:
+            this.passwordMessage = this.passwordStrengthMessages.veryWeak;
+            break;
+          case 1:
+            this.passwordMessage = this.passwordStrengthMessages.weak;
+            break;
+          case 2:
+            this.passwordMessage = this.passwordStrengthMessages.medium;
+            break;
+          case 3:
+            this.passwordMessage = this.passwordStrengthMessages.strong;
+            break;
+          case 4:
+            this.passwordMessage = this.passwordStrengthMessages.veryStrong;
+            break;
+          default:
+            break;
+        }
       } else {
-        // TODO
+        // Reset the password message
+        this.passwordMessage = "";
       }
     },
   },
   setup() {
-    const email = "";
+    const password = "";
+
+    const passwordStrengthMessages = {
+      veryWeak: "Very weak password! 😩",
+      weak: "Weak password! 🙁",
+      medium: "Medium password! 😐",
+      strong: "Strong password! 🙂",
+      veryStrong: "Very strong password! 😁",
+    };
 
     return {
-      email,
-      keyOutline
+      password,
+      passwordStrengthMessages,
+      keyOutline,
     };
   },
 });
