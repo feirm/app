@@ -26,7 +26,7 @@
                 v-on:ionChange="checkUsername($event.target.value)"
               ></ion-input>
             </ion-item>
-              <p>{{ usernameCheckMessage }}</p>
+            <p>{{ usernameCheckMessage }}</p>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -87,7 +87,7 @@ export default defineComponent({
   data() {
     return {
       buttonDisabled: true,
-      usernameCheckMessage: ""
+      usernameCheckMessage: "",
     };
   },
   methods: {
@@ -98,20 +98,18 @@ export default defineComponent({
     },
     async checkUsername(username: string) {
       // Check that the username isn't taken and meets minimum requirements
-      if (username.length >= 3) {
-        await tatsuyaService
-          .checkUsername(username)
-          .then((res) => {
-            // Enable the button
-            this.buttonDisabled = false;
-            this.usernameCheckMessage = res.data;
-          })
-          .catch((err) => {
-            // Disable the button
-            this.buttonDisabled = true;
-            this.usernameCheckMessage = err.response.data.error;
-          });
-      }
+      await tatsuyaService
+        .checkUsername(username)
+        .then((res) => {
+          // Enable the button
+          this.buttonDisabled = false;
+          this.usernameCheckMessage = res.data;
+        })
+        .catch((err) => {
+          // Disable the button
+          this.buttonDisabled = true;
+          this.usernameCheckMessage = err.response.data.error;
+        });
     },
   },
   setup() {
