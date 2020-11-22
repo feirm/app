@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <ion-header>
+    <ion-header class="ion-no-border">
       <ion-toolbar class="ion-text-center">
         <ion-buttons slot="start">
           <ion-back-button></ion-back-button>
