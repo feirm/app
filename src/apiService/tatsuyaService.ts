@@ -5,5 +5,9 @@ export default {
     // Check if username exists
     checkUsername(username: string) {
         return tatsuyaApi.get(`/v1/checkUsername?username=${username}`)
+    },
+    // Check if email is valid and not in use
+    checkEmail(email: string) {
+        return tatsuyaApi.get(`/v1/checkEmail?email=${email}`)
     }
 }
