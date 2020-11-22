@@ -26,6 +26,7 @@
                 v-on:ionChange="checkUsername($event.target.value)"
               ></ion-input>
             </ion-item>
+              <p>{{ usernameCheckMessage }}</p>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -86,6 +87,7 @@ export default defineComponent({
   data() {
     return {
       buttonDisabled: true,
+      usernameCheckMessage: ""
     };
   },
   methods: {
@@ -102,12 +104,12 @@ export default defineComponent({
           .then((res) => {
             // Enable the button
             this.buttonDisabled = false;
-            alert(res.data);
+            this.usernameCheckMessage = res.data;
           })
           .catch((err) => {
             // Disable the button
             this.buttonDisabled = true;
-            alert(err.response.data.error);
+            this.usernameCheckMessage = err.response.data.error;
           });
       }
     },
