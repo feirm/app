@@ -15,20 +15,31 @@
             <ion-text class="ion-text-center">
               <h1>Enter your E-mail address</h1>
               <p>
-                If you wish, you can enter your E-mail address to receive messages about the status of your Feirm account. This is optional.
+                If you wish, you can enter your E-mail address to receive
+                messages about the status of your Feirm account. This is
+                optional.
               </p>
             </ion-text>
-            <form @submit.prevent>
-              <ion-item>
-                <ion-label position="floating">Email Address</ion-label>
-                <ion-input type="email" :autofocus="true" v-bind="email"></ion-input>
-              </ion-item>
-            </form>
+            <ion-item>
+              <ion-label position="floating">Email Address</ion-label>
+              <ion-input
+                type="email"
+                v-bind="username"
+                v-on:ionChange="checkEmail($event.target.value)"
+              ></ion-input>
+            </ion-item>
+            <p>{{ emailCheckMessage }}</p>
           </ion-col>
         </ion-row>
       </ion-grid>
     </ion-content>
-    <ion-button expand="full" color="primary" @click="next">Next</ion-button>
+    <ion-button
+      expand="full"
+      color="primary"
+      @click="next"
+      :disabled="buttonDisabled"
+      >Next</ion-button
+    >
   </ion-page>
 </template>
 
@@ -53,6 +64,8 @@ import {
 } from "@ionic/vue";
 import { mailOutline } from "ionicons/icons";
 import router from "@/router";
+import tatsuyaService from "@/apiService/tatsuyaService";
+import { useStore } from 'vuex';
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -73,13 +86,46 @@ export default defineComponent({
     IonCol,
     IonText,
   },
+  data() {
+    return {
+      buttonDisabled: false,
+      emailCheckMessage: "",
+    };
+  },
   methods: {
-      next() {
-          router.push({ path: '/auth/register/password' })
+    next() {
+      this.store.commit('registerEmail', this.email)
+
+      router.push({ path: "/auth/register/password" });
+    },
+    async checkEmail(email: string) {
+      // If the email field is empty, then assume the user does not want to supply one
+      if (email.length === 0) {
+        return this.buttonDisabled = false;
       }
+
+      // Check that the email is valid and not in use
+      await tatsuyaService
+        .checkEmail(email)
+        .then((res) => {
+          // Enable the button
+          this.buttonDisabled = false;
+          this.emailCheckMessage = res.data;
+        })
+        .catch((err) => {
+          // Disable the button
+          this.buttonDisabled = true;
+          this.emailCheckMessage = err.response.data.error;
+        });
+    },
   },
   setup() {
+    const store = useStore();
+    const email = "";
+
     return {
+      store,
+      email,
       mailOutline
     };
   },
