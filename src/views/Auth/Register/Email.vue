@@ -88,6 +88,7 @@ export default defineComponent({
   },
   data() {
     return {
+      email: "",
       buttonDisabled: false,
       emailCheckMessage: "",
     };
@@ -104,6 +105,9 @@ export default defineComponent({
         this.emailCheckMessage = ""; // Reset the email message
         return this.buttonDisabled = false;
       }
+
+      // Update the email value
+      this.email = email;
 
       // Check that the email is valid and not in use
       await tatsuyaService
@@ -122,11 +126,9 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
-    const email = "";
 
     return {
       store,
-      email,
       mailOutline
     };
   },
