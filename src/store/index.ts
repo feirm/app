@@ -20,6 +20,13 @@ export const store = createStore({
             state.registration.password = password;
         }
     },
+    actions: {
+        initialize({ commit }) {
+            commit("registerUsername", "");
+            commit("registerEmail", "");
+            commit("registerPassword", "");
+        }
+    },
     getters: {
         isUserLoggedIn: () => !true, // Set to false for testing purposes.
         getRegistration: state => state.registration // Return the entire registration state
