@@ -39,7 +39,7 @@
         </ion-row>
       </ion-grid>
     </ion-content>
-    <ion-button expand="full" color="primary">Next</ion-button>
+    <ion-button expand="full" color="primary" @click="next">Next</ion-button>
   </ion-page>
 </template>
 
@@ -64,6 +64,7 @@ import {
 } from "@ionic/vue";
 import { keyOutline } from "ionicons/icons";
 import zxcvbn from "zxcvbn";
+import router from "@/router";
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -91,7 +92,7 @@ export default defineComponent({
   },
   methods: {
     next() {
-      // TODO
+      router.push({ path: '/auth/register/pin' })
     },
     validatePassword(password: string) {
       if (password.length > 1) {
