@@ -15,10 +15,9 @@
             <ion-text class="ion-text-center">
               <h1>Create a password</h1>
               <p>
-                It is important to secure your Feirm account with a secure
-                password, as this is used to encrypt your account. If you lose
-                it, we are unable to reset it for you due to how End-to-End
-                Encryption works.
+                It is important to secure your Feirm account with a strong
+                password, as this is used to encrypt your account data. We are
+                unable to reset it if you forget your password.
               </p>
             </ion-text>
             <form @submit.prevent>
