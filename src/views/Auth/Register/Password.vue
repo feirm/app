@@ -35,7 +35,7 @@
         </ion-row>
       </ion-grid>
     </ion-content>
-    <ion-button expand="full" color="primary" @click="next">Next</ion-button>
+    <ion-button expand="full" color="primary" @click="next" :disabled="buttonDisabled">Next</ion-button>
   </ion-page>
 </template>
 
@@ -84,6 +84,7 @@ export default defineComponent({
   data() {
     return {
       passwordMessage: "",
+      buttonDisabled: true
     };
   },
   methods: {
@@ -94,21 +95,27 @@ export default defineComponent({
       if (password.length > 1) {
         const score = zxcvbn(password).score;
 
+        // Re-enable the button once the password score is > 3
         switch (score) {
           case 0:
             this.passwordMessage = this.passwordStrengthMessages.veryWeak;
+            this.buttonDisabled = true;
             break;
           case 1:
             this.passwordMessage = this.passwordStrengthMessages.weak;
+            this.buttonDisabled = true;
             break;
           case 2:
             this.passwordMessage = this.passwordStrengthMessages.medium;
+            this.buttonDisabled = true;
             break;
           case 3:
             this.passwordMessage = this.passwordStrengthMessages.strong;
+            this.buttonDisabled = false;
             break;
           case 4:
             this.passwordMessage = this.passwordStrengthMessages.veryStrong;
+            this.buttonDisabled = false;
             break;
           default:
             break;
