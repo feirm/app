@@ -2274,6 +2274,11 @@ arch@^2.1.1:
   resolved "https://registry.yarnpkg.com/arch/-/arch-2.2.0.tgz#1bc47818f305764f23ab3306b0bfc086c5a29d11"
   integrity sha512-Of/R0wqp83cgHozfIYLbBMnej79U/SVGOOyuB3VVFv1NRM/PSFMK12x9KVtiYzJqmnU5WR2qp0Z5rHb7sWGnFQ==
 
+argon2-browser@^1.15.2:
+  version "1.15.2"
+  resolved "https://registry.yarnpkg.com/argon2-browser/-/argon2-browser-1.15.2.tgz#1d37c0ef3eac357b6571297cbaf9958aa62eb0d6"
+  integrity sha512-kn9rs/+dZk0K4L9Vj8ZDdNw+s9vTYvmHCi8TT7z5OHeoFEwJnElZioICNLWXCve9sHc0d6TfeD0b1GKcscsuwg==
+
 argparse@^1.0.7:
   version "1.0.10"
   resolved "https://registry.yarnpkg.com/argparse/-/argparse-1.0.10.tgz#bcd6791ea5ae09725e17e5ad988134cd40b3d911"
