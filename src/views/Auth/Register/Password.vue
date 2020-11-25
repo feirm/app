@@ -76,6 +76,7 @@ import {
 import { keyOutline, informationCircleOutline } from "ionicons/icons";
 import zxcvbn from "zxcvbn";
 import router from "@/router";
+import { generateAccount } from "@/lib/account";
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -109,6 +110,9 @@ export default defineComponent({
     validatePassword(password: string) {
       if (password.length > 1) {
         const score = zxcvbn(password).score;
+
+        // Testing
+        const a = generateAccount(password);
 
         // Re-enable the button once the password score is > 3
         switch (score) {
