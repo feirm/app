@@ -11,16 +11,20 @@ The following technologies have been used when building the application:
 * Ionic
 
 ## Get Started
-As the Feirm Platform web application has been built with the Ionic framework along with Vue.js you need to ensure that the Ionic CLI is installed on your system. We prefer to use Yarn for our package manager, so please adapt the command below as necessary for your package manager of choice.
+As the Feirm Platform web application has been built with the Ionic framework along with Vue.js, you will need to make sure that the Vue CLI is installed. We prefer to use Yarn for our package manager, so please adapt the commands throughout this document as necessary.
 
+You can go ahead and clone this repository, and then execute the commands below to launch the web application.
 ```bash
-$ yarn global add @ionic/cli
+$ git clone https://github.com/feirm/app.git
+$ cd app/
+$ yarn install
+$ yarn serve
 ```
 
-Now you can go ahead and clone this repository, and then execute the commands below to launch the web application.
+### Development Modes
+The Feirm Platform web application has been configured to support different development modes. By default, `dev` mode is used, however `prod` is available for use if required.
+
 ```bash
-$ git clone https://github.com/feirm/platform-app.git
-$ cd platform-app/
-$ yarn install
-$ ionic serve
+$ yarn serve --mode dev
+$ yarn serve --mode dev
 ```
