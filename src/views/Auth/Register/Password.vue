@@ -29,10 +29,6 @@
                   v-on:ionChange="validatePassword($event.target.value)"
                 ></ion-input>
               </ion-item>
-              <ion-item>
-                <ion-label position="floating">Confirm Password</ion-label>
-                <ion-input type="password"></ion-input>
-              </ion-item>
             </form>
             <p>{{ passwordMessage }}</p>
           </ion-col>
