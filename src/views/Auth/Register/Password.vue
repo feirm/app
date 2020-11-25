@@ -107,12 +107,13 @@ export default defineComponent({
     next() {
       router.push({ path: "/auth/register/pin" });
     },
-    validatePassword(password: string) {
+    async validatePassword(password: string) {
       if (password.length > 1) {
         const score = zxcvbn(password).score;
 
         // Testing
-        const a = generateAccount(password);
+        const a = await generateAccount("", "", password);
+        console.log(a)
 
         // Re-enable the button once the password score is > 3
         switch (score) {
