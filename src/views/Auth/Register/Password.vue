@@ -5,6 +5,14 @@
         <ion-buttons slot="start">
           <ion-back-button></ion-back-button>
         </ion-buttons>
+        <ion-buttons slot="secondary">
+          <ion-button @click="presentAlert">
+            <ion-icon
+              slot="icon-only"
+              :icon="informationCircleOutline"
+            ></ion-icon>
+          </ion-button>
+        </ion-buttons>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
@@ -35,7 +43,13 @@
         </ion-row>
       </ion-grid>
     </ion-content>
-    <ion-button expand="full" color="primary" @click="next" :disabled="buttonDisabled">Next</ion-button>
+    <ion-button
+      expand="full"
+      color="primary"
+      @click="next"
+      :disabled="buttonDisabled"
+      >Next</ion-button
+    >
   </ion-page>
 </template>
 
@@ -57,8 +71,9 @@ import {
   IonRow,
   IonCol,
   IonText,
+  alertController,
 } from "@ionic/vue";
-import { keyOutline } from "ionicons/icons";
+import { keyOutline, informationCircleOutline } from "ionicons/icons";
 import zxcvbn from "zxcvbn";
 import router from "@/router";
 
@@ -84,12 +99,12 @@ export default defineComponent({
   data() {
     return {
       passwordMessage: "",
-      buttonDisabled: true
+      buttonDisabled: true,
     };
   },
   methods: {
     next() {
-      router.push({ path: '/auth/register/pin' })
+      router.push({ path: "/auth/register/pin" });
     },
     validatePassword(password: string) {
       if (password.length > 1) {
@@ -125,6 +140,15 @@ export default defineComponent({
         this.passwordMessage = "";
       }
     },
+    async presentAlert() {
+      const alert = await alertController.create({
+        header: "Password Requirements",
+        message:
+          "A strong password is required to create a Feirm account. We suggest using a password manager, or a combination of letters, numbers and symbols to create your password.",
+        buttons: ["Okay, got it!"],
+      });
+      return alert.present();
+    },
   },
   setup() {
     const password = "";
@@ -141,6 +165,7 @@ export default defineComponent({
       password,
       passwordStrengthMessages,
       keyOutline,
+      informationCircleOutline,
     };
   },
 });
