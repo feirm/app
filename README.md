@@ -22,9 +22,9 @@ $ yarn serve
 ```
 
 ### Development Modes
-The Feirm Platform web application has been configured to support different development modes. By default, `dev` mode is used, however `prod` is available for use if required.
+The Feirm Platform web application has been configured to support different development modes. By default, `dev` mode is used, however `production` is available for use if required.
 
 ```bash
 $ yarn serve --mode dev
-$ yarn serve --mode dev
+$ yarn serve --mode production
 ```
