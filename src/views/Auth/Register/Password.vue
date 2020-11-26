@@ -77,6 +77,7 @@ import { keyOutline, informationCircleOutline } from "ionicons/icons";
 import zxcvbn from "zxcvbn";
 import router from "@/router";
 import { generateAccount } from "@/lib/account";
+import { useStore } from 'vuex';
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -99,17 +100,23 @@ export default defineComponent({
   },
   data() {
     return {
+      password: "",
       passwordMessage: "",
       buttonDisabled: true,
     };
   },
   methods: {
     next() {
+      this.store.commit('registerPassword', this.password)
+
       router.push({ path: "/auth/register/pin" });
     },
     async validatePassword(password: string) {
       if (password.length > 1) {
         const score = zxcvbn(password).score;
+
+        // Set password
+        this.password = password;
 
         // Testing
         const a = await generateAccount("", "", password);
@@ -156,7 +163,7 @@ export default defineComponent({
     },
   },
   setup() {
-    const password = "";
+    const store = useStore();
 
     const passwordStrengthMessages = {
       veryWeak: "Very weak password! 😩",
@@ -167,7 +174,7 @@ export default defineComponent({
     };
 
     return {
-      password,
+      store,
       passwordStrengthMessages,
       keyOutline,
       informationCircleOutline,
