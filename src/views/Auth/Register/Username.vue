@@ -86,6 +86,7 @@ export default defineComponent({
   },
   data() {
     return {
+      username: "",
       buttonDisabled: true,
       usernameCheckMessage: "",
     };
@@ -94,13 +95,19 @@ export default defineComponent({
     next() {
       this.store.commit("registerUsername", this.username);
 
+      console.log(JSON.stringify(this.store.getters.getRegistration))
+
       router.push({ path: "/auth/register/email" });
     },
     async checkUsername(username: string) {
+      // Set username
+      this.username = username;
+
       // Check that the username isn't taken and meets minimum requirements
       await tatsuyaService
         .checkUsername(username)
         .then((res) => {
+
           // Enable the button
           this.buttonDisabled = false;
           this.usernameCheckMessage = res.data;
@@ -116,11 +123,8 @@ export default defineComponent({
     // Use existing store
     const store = useStore();
 
-    const username = "";
-
     return {
       store,
-      username,
       personCircleOutline,
     };
   },
