@@ -4,12 +4,12 @@ import bufferToHex from "@/lib/bufferToHex";
 interface Account {
   Username: string;
   Email: string;
+  RootPasswordSalt: string;
   RootPublicKey: string;
   EncryptedRootKey: {
     CipherText: string;
     Iv: string;
   };
-  PasswordSalt: string;
 }
 
 async function generateAccount(username: string, email: string, password: string): Promise<Account> {
@@ -28,12 +28,12 @@ async function generateAccount(username: string, email: string, password: string
     const account = {
         Username: username,
         Email: email,
+        RootPasswordSalt: bufferToHex(saltArray),
         RootPublicKey: "",
         EncryptedRootKey: {
             CipherText: "",
             Iv: ""
         },
-        PasswordSalt: bufferToHex(saltArray)
     } as Account;
     
     return account;
