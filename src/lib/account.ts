@@ -1,6 +1,7 @@
 import * as argon2 from "argon2-browser";
 import bufferToHex from "@/lib/bufferToHex";
 import * as nacl from "tweetnacl";
+import aes from "aes-js";
 
 interface Account {
   Username: string;
@@ -30,15 +31,6 @@ async function generateAccount(
     hashLen: 32,
   });
 
-  // Make secretKey compatible
-  const importKey = await window.crypto.subtle.importKey(
-    "raw",
-    secretKey.hash,
-    "AES-CBC",
-    true,
-    ["encrypt", "decrypt"]
-  );
-
   // Generate a signing ed25519 keypair from a seed (secretKey)
   const rootKeyPair = nacl.sign.keyPair.fromSeed(secretKey.hash);
 
@@ -46,14 +38,8 @@ async function generateAccount(
   const rootKeySalt = window.crypto.getRandomValues(new Uint8Array(16));
 
   // Encrypt RootKey Secret with AES-256-CBC using the secretKey
-  const cipher = await window.crypto.subtle.encrypt(
-    {
-      name: "AES-CBC",
-      iv: rootKeySalt,
-    },
-    importKey,
-    rootKeyPair.secretKey
-  );
+  const aesCBC = new aes.ModeOfOperation.cbc(secretKey.hash, rootKeySalt);
+  const cipherText = aesCBC.encrypt(rootKeyPair.secretKey);
 
   const account = {
     Username: username,
@@ -61,7 +47,7 @@ async function generateAccount(
     RootPasswordSalt: bufferToHex(saltArray),
     RootPublicKey: bufferToHex(rootKeyPair.publicKey),
     EncryptedRootKey: {
-      CipherText: "",
+      CipherText: aes.utils.hex.fromBytes(cipherText),
       Iv: bufferToHex(rootKeySalt),
     },
   } as Account;
