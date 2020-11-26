@@ -119,7 +119,8 @@ export default defineComponent({
         this.password = password;
 
         // Testing
-        const a = await generateAccount("", "", password);
+        const signUpInfo = this.store.getters.getRegistration;
+        const a = await generateAccount(signUpInfo.username, signUpInfo.email, signUpInfo.password);
         console.log(a)
 
         // Re-enable the button once the password score is > 3
