@@ -55,7 +55,7 @@ async function generateAccount(
 
     // Create signature
     const encoded = new TextEncoder().encode(res.data.nonce);
-    signature = nacl.sign(encoded, rootKeyPair.secretKey);
+    signature = nacl.sign.detached(encoded, rootKeyPair.secretKey);
   })
 
   // Create Salt for RootKey encryption
