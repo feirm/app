@@ -4,13 +4,13 @@ import * as nacl from "tweetnacl";
 import aes from "aes-js";
 
 interface Account {
-  Username: string;
-  Email: string;
-  RootPasswordSalt: string;
-  RootPublicKey: string;
-  EncryptedRootKey: {
-    CipherText: string;
-    Iv: string;
+  username: string;
+  email: string;
+  rootPasswordSalt: string;
+  rootPublicKey: string;
+  encryptedRootKey: {
+    cipherText: string;
+    iv: string;
   };
 }
 
@@ -49,13 +49,13 @@ async function generateAccount(
   const cipherText = aesCBC.encrypt(rootKey);
 
   const account = {
-    Username: username,
-    Email: email,
-    RootPasswordSalt: bufferToHex(saltArray),
-    RootPublicKey: bufferToHex(rootKeyPair.publicKey),
-    EncryptedRootKey: {
-      CipherText: aes.utils.hex.fromBytes(cipherText),
-      Iv: bufferToHex(rootKeySalt),
+    username: username,
+    email: email,
+    rootPasswordSalt: bufferToHex(saltArray),
+    rootPublicKey: bufferToHex(rootKeyPair.publicKey),
+    encryptedRootKey: {
+      cipherText: aes.utils.hex.fromBytes(cipherText),
+      iv: bufferToHex(rootKeySalt),
     },
   } as Account;
 
