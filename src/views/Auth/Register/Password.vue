@@ -128,13 +128,24 @@ export default defineComponent({
 
             await tatsuyaService
               .registerAccount(account)
-              .then((res) => {
+              .then(async (res) => {
                 this.isLoading = false;
-                alert(res.data);
+                const successAlert = await alertController.create({
+                  header: "Registration Successfull",
+                  message: res.data
+                })
+                successAlert.present();
               })
-              .catch((err) => {
+              .catch(async (err) => {
                 this.isLoading = false;
-                alert(err);
+                
+                // Error alert
+                const errorAlert = await alertController.create({
+                  header: "Registration Error",
+                  message: err.response.data.error,
+                  buttons: ["Okay!"]
+                })
+                errorAlert.present();
               });
 
             if (!this.isLoading) {
