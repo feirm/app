@@ -24,6 +24,7 @@
               <ion-label position="floating">Email Address</ion-label>
               <ion-input
                 type="email"
+                debounce="500"
                 v-on:ionChange="checkEmail($event.target.value)"
               ></ion-input>
             </ion-item>
