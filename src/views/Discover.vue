@@ -9,12 +9,21 @@
       <!-- Content goes in here -->
       <ion-item-group>
         <ion-list-header>Explore the Feirm Ecosystem</ion-list-header>
-        <ion-item lines="none" color="light" router-link="/services/qr" button="true">
+        <ion-item
+          lines="none"
+          color="light"
+          router-link="/services/qr"
+          button="true"
+        >
           <ion-icon slot="end" :icon="qrCodeOutline" color="primary"></ion-icon>
           <ion-label>Scan QR Code</ion-label>
         </ion-item>
         <ion-item lines="none" color="light" button="true">
-          <ion-icon slot="end" :icon="newspaperOutline" color="primary"></ion-icon>
+          <ion-icon
+            slot="end"
+            :icon="newspaperOutline"
+            color="primary"
+          ></ion-icon>
           <ion-label>News Feed</ion-label>
         </ion-item>
         <ion-item lines="none" color="light" button="true">
@@ -26,7 +35,11 @@
           <ion-label>Marketplace</ion-label>
         </ion-item>
         <ion-item lines="none" color="light" button="true">
-          <ion-icon slot="end" :icon="gameControllerOutline" color="primary"></ion-icon>
+          <ion-icon
+            slot="end"
+            :icon="gameControllerOutline"
+            color="primary"
+          ></ion-icon>
           <ion-label>Games</ion-label>
         </ion-item>
         <ion-item lines="none" color="light" button="true">
@@ -39,16 +52,34 @@
 
       <ion-item-group>
         <ion-list-header>Need assistance?</ion-list-header>
-        <ion-item href="https://discord.gg/mUZdSKg" lines="none" color="light" button="true">
+        <ion-item
+          href="https://discord.gg/mUZdSKg"
+          lines="none"
+          color="light"
+          button="true"
+        >
           <ion-icon slot="end" :icon="logoDiscord" color="primary"></ion-icon>
           <ion-label>Discord</ion-label>
         </ion-item>
-        <ion-item href="https://twitter.com/_feirm" lines="none" color="light" button="true">
+        <ion-item
+          href="https://t.me/Feirm"
+          lines="none"
+          color="light"
+          button="true"
+        >
+          <ion-icon slot="end" :icon="paperPlaneOutline" color="primary"></ion-icon>
+          <ion-label>Telegram</ion-label>
+        </ion-item>
+        <ion-item
+          href="https://twitter.com/_feirm"
+          lines="none"
+          color="light"
+          button="true"
+        >
           <ion-icon slot="end" :icon="logoTwitter" color="primary"></ion-icon>
           <ion-label>Twitter</ion-label>
         </ion-item>
       </ion-item-group>
-
     </ion-content>
   </ion-page>
 </template>
@@ -74,7 +105,8 @@ import {
   basketOutline,
   gameControllerOutline,
   waterOutline,
-  logoTwitter
+  logoTwitter,
+  paperPlaneOutline
 } from "ionicons/icons";
 
 export default {
@@ -93,9 +125,11 @@ export default {
   setup() {
     function checkFingerprint() {
       if (window.PublicKeyCredential) {
-        window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(supported => {
-          alert(supported)
-        })
+        window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(
+          (supported) => {
+            alert(supported);
+          }
+        );
       } else {
         alert(false);
       }
@@ -110,7 +144,8 @@ export default {
       gameControllerOutline,
       waterOutline,
       logoTwitter,
-      checkFingerprint
+      checkFingerprint,
+      paperPlaneOutline
     };
   },
 };
