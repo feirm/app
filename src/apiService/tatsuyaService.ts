@@ -1,4 +1,5 @@
 import { tatsuyaApi } from "@/apiService/Api";
+import { Account } from "@/lib/account";
 
 // Export all endpoints for authentication API
 export default {
@@ -13,5 +14,9 @@ export default {
     // Fetch a temporary registration token
     getRegistrationToken() {
         return tatsuyaApi.get(`/v1/register/token`)
+    },
+    // Register a user account
+    registerAccount(account: Account) {
+        return tatsuyaApi.post(`/v1/register`, account)
     }
 }
