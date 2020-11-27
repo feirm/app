@@ -72,6 +72,7 @@ import {
   IonCol,
   IonText,
   alertController,
+  loadingController,
 } from "@ionic/vue";
 import { keyOutline, informationCircleOutline } from "ionicons/icons";
 import zxcvbn from "zxcvbn";
@@ -103,26 +104,44 @@ export default defineComponent({
       password: "",
       passwordMessage: "",
       buttonDisabled: true,
+      isLoading: false,
     };
   },
   methods: {
     async next() {
       this.store.commit("registerPassword", this.password);
+      this.isLoading = true;
 
-      const signUpInfo = this.store.getters.getRegistration;
+      const loading = await loadingController
+        .create({
+          message: "Creating account...",
+        })
+        .then((a) => {
+          a.present().then(async () => {
+            const signUpInfo = this.store.getters.getRegistration;
 
-      const account = await generateAccount(
-        signUpInfo.username,
-        signUpInfo.email,
-        signUpInfo.password
-      );
+            const account = await generateAccount(
+              signUpInfo.username,
+              signUpInfo.email,
+              signUpInfo.password
+            );
 
-      await tatsuyaService.registerAccount(account).then(res => {
-        alert(res.data)
-      }).catch(err => {
-        alert(err)
-      })
+            await tatsuyaService
+              .registerAccount(account)
+              .then((res) => {
+                this.isLoading = false;
+                alert(res.data);
+              })
+              .catch((err) => {
+                this.isLoading = false;
+                alert(err);
+              });
 
+            if (!this.isLoading) {
+              a.dismiss();
+            }
+          });
+        });
     },
     async validatePassword(password: string) {
       if (password.length > 1) {
