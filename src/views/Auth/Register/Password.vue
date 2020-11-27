@@ -101,7 +101,7 @@ export default defineComponent({
     return {
       password: "",
       passwordMessage: "",
-      buttonDisabled: true,
+      buttonDisabled: false,
     };
   },
   methods: {
