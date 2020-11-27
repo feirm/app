@@ -83,4 +83,4 @@ async function generateAccount(
   return account;
 }
 
-export { generateAccount };
+export { Account, generateAccount };
