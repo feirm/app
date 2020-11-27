@@ -22,7 +22,7 @@
             <ion-item>
               <ion-label position="floating">Username</ion-label>
               <ion-input
-                v-bind="username"
+                v-model="username"
                 v-on:ionChange="checkUsername($event.target.value)"
               ></ion-input>
             </ion-item>
