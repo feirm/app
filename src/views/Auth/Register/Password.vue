@@ -123,7 +123,7 @@ export default defineComponent({
         const score = zxcvbn(password).score;
 
         // Set password
-        this.password = password;
+        this.password = String(password);
 
         // Re-enable the button once the password score is > 3
         switch (score) {
