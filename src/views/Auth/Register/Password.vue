@@ -33,7 +33,7 @@
                 <ion-label position="floating">Password</ion-label>
                 <ion-input
                   type="password"
-                  v-bind="password"
+                  v-model="password"
                   v-on:ionChange="validatePassword($event.target.value)"
                 ></ion-input>
               </ion-item>
@@ -102,7 +102,7 @@ export default defineComponent({
     return {
       password: "",
       passwordMessage: "",
-      buttonDisabled: false,
+      buttonDisabled: true,
     };
   },
   methods: {
