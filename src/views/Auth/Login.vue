@@ -37,21 +37,46 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { IonPage, IonContent } from "@ionic/vue";
-import router from '@/router';
+import {
+  IonPage,
+  IonContent,
+  IonImg,
+  IonText,
+  IonLabel,
+  IonInput,
+  IonItem,
+  IonButton,
+  IonCard,
+  IonCardContent,
+  IonCol,
+  IonRow,
+  IonGrid,
+} from "@ionic/vue";
+import router from "@/router";
 
 export default defineComponent({
   name: "Login",
   components: {
     IonPage,
     IonContent,
+    IonImg,
+    IonText,
+    IonLabel,
+    IonInput,
+    IonItem,
+    IonButton,
+    IonCard,
+    IonCardContent,
+    IonCol,
+    IonRow,
+    IonGrid,
   },
   methods: {
     login() {
-      router.push({path: "/auth/login/2fa"})
+      router.push({ path: "/auth/login/2fa" });
     },
     register() {
-      router.push({path: "/auth/register"})
+      router.push({ path: "/auth/register" });
     },
   },
 });
