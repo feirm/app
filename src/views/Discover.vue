@@ -18,7 +18,7 @@
           <ion-icon slot="end" :icon="qrCodeOutline" color="primary"></ion-icon>
           <ion-label>Scan QR Code</ion-label>
         </ion-item>
-        <ion-item lines="none" color="light" button="true">
+        <ion-item lines="none" color="light" button="true" @click="notAvailableAlert('News feed')">
           <ion-icon
             slot="end"
             :icon="newspaperOutline"
@@ -26,15 +26,15 @@
           ></ion-icon>
           <ion-label>News Feed</ion-label>
         </ion-item>
-        <ion-item lines="none" color="light" button="true">
+        <ion-item lines="none" color="light" button="true" @click="notAvailableAlert('Feirm Pay')">
           <ion-icon slot="end" :icon="cashOutline" color="primary"></ion-icon>
           <ion-label>Feirm Pay</ion-label>
         </ion-item>
-        <ion-item lines="none" color="light" button="true">
+        <ion-item lines="none" color="light" button="true" @click="notAvailableAlert('Marketplace')">
           <ion-icon slot="end" :icon="basketOutline" color="primary"></ion-icon>
           <ion-label>Marketplace</ion-label>
         </ion-item>
-        <ion-item lines="none" color="light" button="true">
+        <ion-item lines="none" color="light" button="true" @click="notAvailableAlert('Games')">
           <ion-icon
             slot="end"
             :icon="gameControllerOutline"
@@ -42,7 +42,7 @@
           ></ion-icon>
           <ion-label>Games</ion-label>
         </ion-item>
-        <ion-item lines="none" color="light" button="true">
+        <ion-item lines="none" color="light" button="true" @click="notAvailableAlert('Faucet')">
           <ion-icon slot="end" :icon="waterOutline" color="primary"></ion-icon>
           <ion-label>Faucet</ion-label>
         </ion-item>
@@ -95,6 +95,7 @@ import {
   IonLabel,
   IonItemGroup,
   IonListHeader,
+  alertController
 } from "@ionic/vue";
 
 import {
@@ -135,6 +136,16 @@ export default {
       }
     }
 
+    async function notAvailableAlert(service: string) {
+      const alert = await alertController.create({
+        header: "Not available!",
+        message: `${service} is not available at this time!`,
+        buttons: ["Okay!"]
+      })
+
+      return alert.present();
+    }
+
     return {
       qrCodeOutline,
       logoDiscord,
@@ -145,7 +156,8 @@ export default {
       waterOutline,
       logoTwitter,
       checkFingerprint,
-      paperPlaneOutline
+      paperPlaneOutline,
+      notAvailableAlert
     };
   },
 };
