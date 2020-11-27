@@ -2,6 +2,7 @@ import * as argon2 from "argon2-browser";
 import bufferToHex from "@/lib/bufferToHex";
 import * as nacl from "tweetnacl";
 import aes from "aes-js";
+import tatsuyaApi from "@/apiService/tatsuyaService";
 
 interface Account {
   username: string;
@@ -40,6 +41,14 @@ async function generateAccount(
 
   // Generate a signing ed25519 keypair from a seed (identityKey)
   const rootKeyPair = nacl.sign.keyPair.fromSeed(new Uint8Array(identityKey));
+
+  // Fetch a temporary registration token and sign it
+  let signature: any = "";
+  await tatsuyaApi.getRegistrationToken().then(res => {
+    console.log(res.data)
+    const encoded = new TextEncoder().encode(res.data.nonce);
+    signature = nacl.sign(encoded, rootKeyPair.secretKey);
+  })
 
   // Create Salt for RootKey encryption
   const rootKeySalt = window.crypto.getRandomValues(new Uint8Array(16));
