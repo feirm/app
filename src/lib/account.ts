@@ -23,7 +23,7 @@ async function generateAccount(
   const saltArray: Uint8Array = new Uint8Array(16);
   const salt = window.crypto.getRandomValues(saltArray);
 
-  // Derive secret key from password
+  // Derive secret key from password (this is to be used for encryption)
   const secretKey = await argon2.hash({
     pass: password,
     salt: salt,
@@ -31,15 +31,22 @@ async function generateAccount(
     hashLen: 32,
   });
 
-  // Generate a signing ed25519 keypair from a seed (secretKey)
-  const rootKeyPair = nacl.sign.keyPair.fromSeed(secretKey.hash);
+  // Generate the account key root, and subsequent identity key
+  // The rootKey is to be encrypted with secretKey
+  const rootKey: Uint8Array = window.crypto.getRandomValues(new Uint8Array(32));
+
+  const identityKeyString = bufferToHex(rootKey) + "identity";
+  const identityKey = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(identityKeyString));
+
+  // Generate a signing ed25519 keypair from a seed (identityKey)
+  const rootKeyPair = nacl.sign.keyPair.fromSeed(new Uint8Array(identityKey));
 
   // Create Salt for RootKey encryption
   const rootKeySalt = window.crypto.getRandomValues(new Uint8Array(16));
 
-  // Encrypt RootKey Secret with AES-256-CBC using the secretKey
+  // Encrypt rootKey with AES-256-CBC using the secretKey and rootKeySalt
   const aesCBC = new aes.ModeOfOperation.cbc(secretKey.hash, rootKeySalt);
-  const cipherText = aesCBC.encrypt(rootKeyPair.secretKey);
+  const cipherText = aesCBC.encrypt(rootKey);
 
   const account = {
     Username: username,
