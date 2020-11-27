@@ -48,7 +48,7 @@
       color="primary"
       @click="next"
       :disabled="buttonDisabled"
-      >Next</ion-button
+      >Create Account</ion-button
     >
   </ion-page>
 </template>
@@ -75,9 +75,8 @@ import {
 } from "@ionic/vue";
 import { keyOutline, informationCircleOutline } from "ionicons/icons";
 import zxcvbn from "zxcvbn";
-import router from "@/router";
 import { generateAccount } from "@/lib/account";
-import { useStore } from 'vuex';
+import { useStore } from "vuex";
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -106,10 +105,18 @@ export default defineComponent({
     };
   },
   methods: {
-    next() {
-      this.store.commit('registerPassword', this.password)
+    async next() {
+      this.store.commit("registerPassword", this.password);
 
-      router.push({ path: "/auth/register/pin" });
+      const signUpInfo = this.store.getters.getRegistration;
+
+      const account = await generateAccount(
+        signUpInfo.username,
+        signUpInfo.email,
+        signUpInfo.password
+      );
+
+      console.log(account);
     },
     async validatePassword(password: string) {
       if (password.length > 1) {
@@ -117,11 +124,6 @@ export default defineComponent({
 
         // Set password
         this.password = password;
-
-        // Testing
-        const signUpInfo = this.store.getters.getRegistration;
-        const a = await generateAccount(signUpInfo.username, signUpInfo.email, signUpInfo.password);
-        console.log(a)
 
         // Re-enable the button once the password score is > 3
         switch (score) {
