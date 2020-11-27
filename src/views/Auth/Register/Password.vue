@@ -77,6 +77,7 @@ import { keyOutline, informationCircleOutline } from "ionicons/icons";
 import zxcvbn from "zxcvbn";
 import { generateAccount } from "@/lib/account";
 import { useStore } from "vuex";
+import tatsuyaService from "@/apiService/tatsuyaService";
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -116,7 +117,12 @@ export default defineComponent({
         signUpInfo.password
       );
 
-      console.log(account);
+      await tatsuyaService.registerAccount(account).then(res => {
+        alert(res.data)
+      }).catch(err => {
+        alert(err)
+      })
+
     },
     async validatePassword(password: string) {
       if (password.length > 1) {
