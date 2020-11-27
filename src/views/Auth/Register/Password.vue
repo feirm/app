@@ -33,7 +33,7 @@
                 <ion-label position="floating">Password</ion-label>
                 <ion-input
                   type="password"
-                  debounce="500"
+                  debounce="250"
                   v-model="password"
                   v-on:ionChange="validatePassword($event.target.value)"
                 ></ion-input>
