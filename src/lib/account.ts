@@ -13,6 +13,10 @@ interface Account {
     cipherText: string;
     iv: string;
   };
+  token: {
+    id: string;
+    signature: string;
+  };
 }
 
 async function generateAccount(
@@ -43,9 +47,13 @@ async function generateAccount(
   const rootKeyPair = nacl.sign.keyPair.fromSeed(new Uint8Array(identityKey));
 
   // Fetch a temporary registration token and sign it
+  let tokenId = "";
   let signature: any = "";
   await tatsuyaApi.getRegistrationToken().then(res => {
-    console.log(res.data)
+    // Set ID
+    tokenId = res.data.id;
+
+    // Create signature
     const encoded = new TextEncoder().encode(res.data.nonce);
     signature = nacl.sign(encoded, rootKeyPair.secretKey);
   })
@@ -66,6 +74,10 @@ async function generateAccount(
       cipherText: aes.utils.hex.fromBytes(cipherText),
       iv: bufferToHex(rootKeySalt),
     },
+    token: {
+      id: tokenId,
+      signature: bufferToHex(signature)
+    }
   } as Account;
 
   return account;
