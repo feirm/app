@@ -53,6 +53,7 @@ import {
   IonGrid,
 } from "@ionic/vue";
 import router from "@/router";
+import { loginAccount } from "@/lib/account";
 
 export default defineComponent({
   name: "Login",
@@ -78,8 +79,8 @@ export default defineComponent({
     }
   },
   methods: {
-    login() {
-      router.push({ path: "/auth/login/2fa" });
+    async login() {
+      await loginAccount(this.username, this.password);
     },
     register() {
       router.push({ path: "/auth/register" });
