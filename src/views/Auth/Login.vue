@@ -11,17 +11,17 @@
             </ion-text>
             <ion-card>
               <ion-card-content>
-                <form @submit.prevent>
+                <form @submit.prevent="login">
                   <ion-item>
                     <ion-label position="floating">Username</ion-label>
-                    <ion-input></ion-input>
+                    <ion-input v-model="username"></ion-input>
                   </ion-item>
                   <ion-item>
                     <ion-label position="floating">Password</ion-label>
-                    <ion-input type="password"></ion-input>
+                    <ion-input v-model="password" type="password"></ion-input>
                   </ion-item>
                   <br />
-                  <ion-button expand="block" @click="login">Login</ion-button>
+                  <ion-button expand="block" type="submit">Login</ion-button>
                 </form>
               </ion-card-content>
             </ion-card>
@@ -70,6 +70,12 @@ export default defineComponent({
     IonCol,
     IonRow,
     IonGrid,
+  },
+  data () {
+    return {
+      username: "",
+      password: ""
+    }
   },
   methods: {
     login() {
