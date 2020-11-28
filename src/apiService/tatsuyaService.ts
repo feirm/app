@@ -18,5 +18,13 @@ export default {
     // Register a user account
     registerAccount(account: Account) {
         return tatsuyaApi.post(`/v1/register`, account)
+    },
+    // Fetch a temporary login token
+    getLoginToken(user: any) {
+        return tatsuyaApi.post(`/v1/login/token`, user)
+    },
+    // Fetch an encrypted account blob
+    fetchEncryptedAccount(user: any) {
+        return tatsuyaApi.post(`/v1/login/fetchAccount`, user)
     }
 }
