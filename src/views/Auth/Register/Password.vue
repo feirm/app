@@ -133,7 +133,7 @@ export default defineComponent({
                 this.isLoading = false;
                 const successAlert = await alertController.create({
                   header: "Registration Successfull",
-                  message: res.data
+                  message: JSON.stringify(res.data)
                 })
                 successAlert.present();
               })
