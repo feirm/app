@@ -18,6 +18,12 @@ export const store = createStore({
         },
         registerPassword(state, password) {
             state.registration.password = password;
+        },
+        // Reset registration state
+        clearRegistration(state) {
+            state.registration.username = "";
+            state.registration.email = "";
+            state.registration.password = "";
         }
     },
     actions: {
@@ -25,6 +31,9 @@ export const store = createStore({
             commit("registerUsername", "");
             commit("registerEmail", "");
             commit("registerPassword", "");
+        },
+        clearRegistrationState({ commit }) {
+            commit("clearRegistration")
         }
     },
     getters: {

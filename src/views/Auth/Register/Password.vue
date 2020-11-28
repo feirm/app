@@ -175,6 +175,9 @@ export default defineComponent({
             }
           });
         });
+
+      // Reset registration state
+      this.store.commit("clearRegistrationState")
     },
     async validatePassword(password: string) {
       if (password.length > 1) {
