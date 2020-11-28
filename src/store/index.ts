@@ -63,14 +63,14 @@ export const store = createStore({
     },
     getters: {
         isUserLoggedIn: (state, getters) => {
-            return !!state.authentication.accessToken && getters.getAccessTokenExpirationDate > new Date()
+            return !!state.authentication.refreshToken && getters.getRefreshTokenExpirationDate > new Date()
         },
-        getAccessTokenExpirationDate: state => {
-            if (!state.authentication.accessToken) {
+        getRefreshTokenExpirationDate: state => {
+            if (!state.authentication.refreshToken) {
                 return null;
             }
 
-            const token: any = jwt_decode(state.authentication.accessToken);
+            const token: any = jwt_decode(state.authentication.refreshToken);
             if (!token.exp) {
                 return null;
             }
@@ -79,7 +79,7 @@ export const store = createStore({
             date.setUTCSeconds(token.exp);
             return date;
         },
-        getAccessToken: state => state.authentication.accessToken,
+        getRefreshToken: state => state.authentication.refreshToken,
         getRegistration: state => state.registration // Return the entire registration state
     }
 })
