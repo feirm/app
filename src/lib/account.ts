@@ -4,6 +4,8 @@ import hexStringToBytes from "@/lib/hexStringToBytes";
 import * as nacl from "tweetnacl";
 import aes from "aes-js";
 import tatsuyaApi from "@/apiService/tatsuyaService";
+import { store } from '@/store';
+import router from '@/router';
 
 interface Account {
   username: string;
@@ -139,6 +141,15 @@ async function loginAccount(
       const signature = nacl.sign.detached(new TextEncoder().encode(nonce), rootKeyPair.secretKey);
 
       // Send the token and signature back to the API
+      const token = {
+        id: id,
+        username: username,
+        signature: bufferToHex(signature)
+      }
+      await tatsuyaApi.loginAccount(token).then(res => {
+        store.dispatch("login", res.data);
+        router.push({ path: "/" })
+      });
     });
   });
 
