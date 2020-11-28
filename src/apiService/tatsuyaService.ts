@@ -30,5 +30,8 @@ export default {
         return tatsuyaApi.post(`/v1/login/fetchAccount`, {
             username: user
         })
+    },
+    loginAccount(token: any) {
+        return tatsuyaApi.post(`/v1/login`, token)
     }
 }
