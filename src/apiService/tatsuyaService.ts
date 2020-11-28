@@ -21,10 +21,14 @@ export default {
     },
     // Fetch a temporary login token
     getLoginToken(user: any) {
-        return tatsuyaApi.post(`/v1/login/token`, user)
+        return tatsuyaApi.post(`/v1/login/token`, {
+            username: user
+        })
     },
     // Fetch an encrypted account blob
     fetchEncryptedAccount(user: any) {
-        return tatsuyaApi.post(`/v1/login/fetchAccount`, user)
+        return tatsuyaApi.post(`/v1/login/fetchAccount`, {
+            username: user
+        })
     }
 }
