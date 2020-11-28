@@ -28,7 +28,7 @@ export const store = createStore({
         }
     },
     getters: {
-        isUserLoggedIn: () => true, // Set to false for testing purposes.
+        isUserLoggedIn: () => false, // Set to false for testing purposes.
         getRegistration: state => state.registration // Return the entire registration state
     }
 })
