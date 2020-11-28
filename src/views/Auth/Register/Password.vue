@@ -113,7 +113,8 @@ export default defineComponent({
       this.store.commit("registerPassword", this.password);
       this.isLoading = true;
 
-      const loading = await loadingController
+      // Creating account popup
+      await loadingController
         .create({
           message: "Creating account...",
         })
@@ -134,19 +135,20 @@ export default defineComponent({
                 const successAlert = await alertController.create({
                   header: "Registration Successfull",
                   message: JSON.stringify(res.data),
-                  buttons: ["Close"]
-                })
+                  buttons: ["Close"],
+                });
                 successAlert.present();
               })
+              // Stop the loading popup and show an alert
               .catch(async (err) => {
                 this.isLoading = false;
-                
+
                 // Error alert
                 const errorAlert = await alertController.create({
                   header: "Registration Error",
                   message: err.response.data.error,
-                  buttons: ["Okay!"]
-                })
+                  buttons: ["Okay!"],
+                });
                 errorAlert.present();
               });
 
@@ -161,7 +163,7 @@ export default defineComponent({
         const score = zxcvbn(password).score;
 
         // Set password
-        this.password = String(password);
+        this.password = password;
 
         // Re-enable the button once the password score is > 3
         switch (score) {
