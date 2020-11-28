@@ -38,6 +38,13 @@
                   v-on:ionChange="validatePassword($event.target.value)"
                 ></ion-input>
               </ion-item>
+              <ion-item>
+                <ion-label position="floating">Confirm Password</ion-label>
+                <ion-input
+                  type="password"
+                  v-model="confirmPassword"
+                ></ion-input>
+              </ion-item>
             </form>
             <p>{{ passwordMessage }}</p>
           </ion-col>
@@ -103,6 +110,7 @@ export default defineComponent({
   data() {
     return {
       password: "",
+      confirmPassword: "",
       passwordMessage: "",
       buttonDisabled: true,
       isLoading: false,
@@ -112,6 +120,16 @@ export default defineComponent({
     async next() {
       this.store.commit("registerPassword", this.password);
       this.isLoading = true;
+
+      if(this.password != this.confirmPassword) {
+        const alert = await alertController.create({
+          header: "Password Error",
+          message: "The passwords do not match. Please double check your password and try again.",
+          buttons: ["Okay!"]
+        })
+
+        return alert.present();
+      }
 
       // Creating account popup
       await loadingController
