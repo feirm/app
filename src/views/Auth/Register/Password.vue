@@ -148,14 +148,11 @@ export default defineComponent({
 
             await tatsuyaService
               .registerAccount(account)
-              .then(async (res) => {
+              .then((res) => {
                 this.isLoading = false;
-                const successAlert = await alertController.create({
-                  header: "Registration Successfull",
-                  message: JSON.stringify(res.data),
-                  buttons: ["Close"],
-                });
-                successAlert.present();
+
+                // Save authentication tokens
+                this.store.dispatch("login", res.data);
               })
               // Stop the loading popup and show an alert
               .catch(async (err) => {
