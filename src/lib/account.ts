@@ -1,5 +1,6 @@
 import * as argon2 from "argon2-browser";
 import bufferToHex from "@/lib/bufferToHex";
+import hexStringToBytes from "@/lib/hexStringToBytes";
 import * as nacl from "tweetnacl";
 import aes from "aes-js";
 import tatsuyaApi from "@/apiService/tatsuyaService";
@@ -65,9 +66,8 @@ async function generateAccount(
   const rootKeySalt = window.crypto.getRandomValues(new Uint8Array(16));
 
   // Encrypt rootKey with AES-256-CBC using the secretKey and rootKeySalt
-  const rootKeyBytes = aes.utils.utf8.toBytes(bufferToHex(rootKey));
   const aesCBC = new aes.ModeOfOperation.cbc(secretKey.hash, rootKeySalt);
-  const cipherText = aesCBC.encrypt(rootKeyBytes);
+  const cipherText = aesCBC.encrypt(rootKey);
 
   const account = {
     username: username,
@@ -101,7 +101,7 @@ async function loginAccount(
       // Derive the secret key using Argon2 along with password + salt
       const secretKey = await argon2.hash({
         pass: password,
-        salt: res.data.rootPasswordSalt,
+        salt: hexStringToBytes(res.data.rootPasswordSalt),
         type: argon2.ArgonType.Argon2id,
         hashLen: 32,
       });
