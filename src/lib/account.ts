@@ -91,34 +91,58 @@ async function generateAccount(
 async function loginAccount(
   username: string,
   password: string
-): Promise<Account> {
+): Promise<null> {
   // Fetch the encrypted account blob
-  const account = {} as Account;
-
-  await tatsuyaApi
-    .fetchEncryptedAccount(username)
-    .then(async (res) => {
-      // Derive the secret key using Argon2 along with password + salt
-      const secretKey = await argon2.hash({
-        pass: password,
-        salt: hexStringToBytes(res.data.rootPasswordSalt),
-        type: argon2.ArgonType.Argon2id,
-        hashLen: 32,
-      });
-
-      // Attempt to decrypt the account with AES
-      const rootKeySalt = aes.utils.hex.toBytes(res.data.encryptedRootKey.iv).slice(0, 16);
-      const aesCBC = new aes.ModeOfOperation.cbc(secretKey.hash, rootKeySalt);
-      
-      try {
-        const account = aesCBC.decrypt(aes.utils.hex.toBytes(res.data.encryptedRootKey.cipherText));
-        console.log("ROOT KEY:", bufferToHex(account))
-      } catch (e) {
-        throw new Error(e)
-      }
+  await tatsuyaApi.fetchEncryptedAccount(username).then(async (res) => {
+    // Derive the secret key using Argon2 along with password + salt
+    const secretKey = await argon2.hash({
+      pass: password,
+      salt: hexStringToBytes(res.data.rootPasswordSalt),
+      type: argon2.ArgonType.Argon2id,
+      hashLen: 32,
     });
 
-  return account;
+    // Attempt to decrypt the account with AES
+    const rootKeySalt = aes.utils.hex
+      .toBytes(res.data.encryptedRootKey.iv)
+      .slice(0, 16);
+    const aesCBC = new aes.ModeOfOperation.cbc(secretKey.hash, rootKeySalt);
+
+    let rootKey = "";
+
+    try {
+      rootKey = bufferToHex(
+        aesCBC.decrypt(
+          aes.utils.hex.toBytes(res.data.encryptedRootKey.cipherText)
+        )
+      );
+    } catch (e) {
+      throw new Error(e);
+    }
+
+    // Reconstruct the identity key from the root key
+    const identityKeyString = rootKey + "identity";
+    const identityKey = await window.crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(identityKeyString)
+    );
+
+    // Derive the signing ed25519 keypair from identityKey
+    const rootKeyPair = nacl.sign.keyPair.fromSeed(new Uint8Array(identityKey));
+
+    // Fetch a login token and sign it
+    await tatsuyaApi.getLoginToken(username).then(async (res) => {
+      const id = res.data.id;
+      const nonce = res.data.nonce;
+
+      // Create signature
+      const signature = nacl.sign.detached(new TextEncoder().encode(nonce), rootKeyPair.secretKey);
+
+      // Send the token and signature back to the API
+    });
+  });
+
+  return null;
 }
 
 export { Account, generateAccount, loginAccount };
