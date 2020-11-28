@@ -87,6 +87,7 @@ import zxcvbn from "zxcvbn";
 import { generateAccount } from "@/lib/account";
 import { useStore } from "vuex";
 import tatsuyaService from "@/apiService/tatsuyaService";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -153,6 +154,9 @@ export default defineComponent({
 
                 // Save authentication tokens
                 this.store.dispatch("login", res.data);
+
+                // Push to Discover page
+                this.router.push({ path: "/" })
               })
               // Stop the loading popup and show an alert
               .catch(async (err) => {
@@ -225,6 +229,7 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
+    const router = useRouter();
 
     const passwordStrengthMessages = {
       veryWeak: "Very weak password! 😩",
@@ -236,6 +241,7 @@ export default defineComponent({
 
     return {
       store,
+      router,
       passwordStrengthMessages,
       keyOutline,
       informationCircleOutline,
