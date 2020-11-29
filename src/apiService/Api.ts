@@ -54,8 +54,8 @@ tatsuyaApi.interceptors.response.use(
             store.dispatch("login", res.data);
 
             // Attempt to handle the original request
-            tatsuyaApi.defaults.headers.common["Authorization"] =
-              "Bearer " + store.getters.getAccessToken;
+            axios.defaults.headers.common["Authorization"] =
+              "Bearer " + res.data.accessToken;
 
             return axios(originalRequest);
           }
