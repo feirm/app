@@ -25,6 +25,7 @@
                     <ion-input
                       v-model="pin"
                       maxlength="6"
+                      minlength="6"
                       type="password"
                       pattern="[0-9]"
                       inputmode="numeric"
