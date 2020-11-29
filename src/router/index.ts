@@ -18,13 +18,6 @@ const routes: Array<RouteRecordRaw> = [
     }
   },
   {
-    path: '/auth/login/2fa',
-    component: () => import('@/views/Auth/TwoFactor.vue'),
-    meta: {
-      requiresAuth: false
-    }
-  },
-  {
     path: '/auth/register',
     component: () => import('@/views/Auth/Register/Username.vue'),
     meta: {
