@@ -114,7 +114,7 @@ export default defineComponent({
   methods: {
     async next() {
       this.isLoading = true;
-      this.store.commit("registerPin", this.pin);
+      this.store.commit("registerPin", Number(this.pin));
 
       // Check that both PINs match
       if (this.pin != this.confirmPin) {
