@@ -70,6 +70,7 @@ export const store = createStore({
             commit("clearRegistration")
         },
         login({ commit }, authenticationToken) {
+            commit("clearAuthenticationTokens");
             commit("setAuthenticationTokens", authenticationToken);
         },
         logout({ commit }) {
