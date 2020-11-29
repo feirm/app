@@ -1,17 +1,14 @@
 <template>
   <ion-page>
-       <ion-header>
+    <ion-header>
       <ion-toolbar class="ion-text-center">
         <ion-title>Profile</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-        <ion-item-group>
-            <ion-item>
-                <ion-label>Dark mode</ion-label>
-                <ion-toggle @ionChange="toggleTheme($event)"></ion-toggle>
-            </ion-item>
-        </ion-item-group>
+      <ion-button color="danger" expand="full" @click="logout"
+        >Log out</ion-button
+      >
     </ion-content>
   </ion-page>
 </template>
@@ -24,11 +21,9 @@ import {
   IonHeader,
   IonToolbar,
   IonTitle,
-  IonItem,
-  IonToggle,
-  IonItemGroup
+  IonButton,
+  alertController,
 } from "@ionic/vue";
-import { alertCircleOutline } from "ionicons/icons";
 
 export default defineComponent({
   components: {
@@ -37,25 +32,30 @@ export default defineComponent({
     IonHeader,
     IonToolbar,
     IonTitle,
-    IonItem,
-    IonToggle,
-    IonItemGroup
+    IonButton,
   },
   methods: {
-      toggleTheme(event: any) {
-          if (event.detail.checked) {
-              console.log("Dark mode!")
-              document.body.classList.toggle('dark', true);
-          } else {
-              console.log("Light mode!")
-              document.body.classList.toggle('light', true);
-          }
-      }
-  },
-  setup() {
-    return {
-      alertCircleOutline,
-    };
+    async logout() {
+      const alert = await alertController.create({
+        header: "Log out",
+        message:
+          "Are you sure you want to logout? This action will apply to all signed in devices.",
+        buttons: [
+          {
+            text: "Cancel",
+            role: "cancel",
+          },
+          {
+            text: "Yes, log me out!",
+            handler: () => {
+              console.log("Log out action!");
+            },
+          },
+        ],
+      });
+
+      return alert.present();
+    },
   },
 });
 </script>
