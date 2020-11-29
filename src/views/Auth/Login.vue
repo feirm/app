@@ -27,6 +27,7 @@
                       maxlength="6"
                       type="password"
                       pattern="[0-9]"
+                      inputmode="numeric"
                     ></ion-input>
                   </ion-item>
                   <br />
