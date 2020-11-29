@@ -24,6 +24,7 @@ import {
   IonButton,
   alertController,
 } from "@ionic/vue";
+import tatsuyaService from "@/apiService/tatsuyaService";
 
 export default defineComponent({
   components: {
@@ -47,8 +48,8 @@ export default defineComponent({
           },
           {
             text: "Yes, log me out!",
-            handler: () => {
-              console.log("Log out action!");
+            handler: async () => {
+              await tatsuyaService.logoutAccount();
             },
           },
         ],
