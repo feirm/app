@@ -42,6 +42,13 @@ export const store = createStore({
 
             localStorage.setItem("accessToken", authenticationToken.accessToken);
             localStorage.setItem("refreshToken", authenticationToken.refreshToken);
+        },
+        clearAuthenticationTokens(state) {
+            state.authentication.accessToken = "";
+            state.authentication.refreshToken = "";
+
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
         }
     },
     actions: {
@@ -64,6 +71,9 @@ export const store = createStore({
         },
         login({ commit }, authenticationToken) {
             commit("setAuthenticationTokens", authenticationToken);
+        },
+        logout({ commit }) {
+            commit("clearAuthenticationTokens");
         }
     },
     getters: {
@@ -85,6 +95,7 @@ export const store = createStore({
             return date;
         },
         getRefreshToken: state => state.authentication.refreshToken,
+        getAccessToken: state => state.authentication.accessToken,
         getRegistration: state => state.registration // Return the entire registration state
     }
 })
