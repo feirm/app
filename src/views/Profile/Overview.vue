@@ -25,6 +25,8 @@ import {
   alertController,
 } from "@ionic/vue";
 import tatsuyaService from "@/apiService/tatsuyaService";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 
 export default defineComponent({
   components: {
@@ -50,6 +52,12 @@ export default defineComponent({
             text: "Yes, log me out!",
             handler: async () => {
               await tatsuyaService.logoutAccount();
+
+              // Clear Vuex state
+              this.store.dispatch("logout");
+              
+              // Push to login page
+              this.router.push({ path: '/' })
             },
           },
         ],
@@ -58,5 +66,14 @@ export default defineComponent({
       return alert.present();
     },
   },
+  setup() {
+    const router = useRouter();
+    const store = useStore();
+
+    return {
+      router,
+      store
+    }
+  }
 });
 </script>
