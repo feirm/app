@@ -51,11 +51,7 @@ export default defineComponent({
           {
             text: "Yes, log me out!",
             handler: async () => {
-              await tatsuyaService.logoutAccount().catch(() => {
-                // Force logout anyway if something goes wrong
-                this.store.dispatch("logout");
-                this.router.push({ path: "/" })
-              });
+              await tatsuyaService.logoutAccount();
 
               // Clear Vuex state
               this.store.dispatch("logout");
