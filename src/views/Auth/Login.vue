@@ -20,6 +20,14 @@
                     <ion-label position="floating">Password</ion-label>
                     <ion-input v-model="password" type="password"></ion-input>
                   </ion-item>
+                  <ion-item>
+                    <ion-label position="floating">PIN</ion-label>
+                    <ion-input
+                      v-model="pin"
+                      maxlength="6"
+                      type="password"
+                    ></ion-input>
+                  </ion-item>
                   <br />
                   <ion-button expand="block" type="submit">Login</ion-button>
                 </form>
@@ -51,6 +59,8 @@ import {
   IonCol,
   IonRow,
   IonGrid,
+  alertController,
+  loadingController,
 } from "@ionic/vue";
 import router from "@/router";
 import { loginAccount } from "@/lib/account";
@@ -72,15 +82,45 @@ export default defineComponent({
     IonRow,
     IonGrid,
   },
-  data () {
+  data() {
     return {
       username: "",
-      password: ""
-    }
+      password: "",
+      pin: "",
+      isLoading: false,
+    };
   },
   methods: {
     async login() {
-      await loginAccount(this.username, this.password);
+      this.isLoading = true;
+
+      await loadingController
+        .create({
+          message: "Signing you in...",
+        })
+        .then(async (a) => {
+          a.present().then(async () => {
+            await loginAccount(this.username, this.password, Number(this.pin))
+              .then(() => {
+                this.isLoading = false;
+              })
+              .catch(async (err) => {
+                this.isLoading = false;
+
+                const alert = await alertController.create({
+                  header: "Sign in error!",
+                  message: err.response.data.error,
+                  buttons: ["Okay"],
+                });
+
+                return alert.present();
+              });
+
+            if (!this.isLoading) {
+              a.dismiss();
+            }
+          });
+        });
     },
     register() {
       router.push({ path: "/auth/register" });
