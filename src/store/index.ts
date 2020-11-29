@@ -8,6 +8,7 @@ export const store = createStore({
             username: "",
             email: "",
             password: "",
+            pin: 0
         },
         authentication: {
             accessToken: "",
@@ -25,11 +26,15 @@ export const store = createStore({
         registerPassword(state, password) {
             state.registration.password = password;
         },
+        registerPin(state, pin) {
+            state.registration.pin = pin;
+        },
         // Reset registration state
         clearRegistration(state) {
             state.registration.username = "";
             state.registration.email = "";
             state.registration.password = "";
+            state.registration.pin = 0;
         },
         setAuthenticationTokens(state, authenticationToken) {
             state.authentication.accessToken = authenticationToken.accessToken;
