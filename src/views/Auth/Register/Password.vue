@@ -80,13 +80,10 @@ import {
   IonCol,
   IonText,
   alertController,
-  loadingController,
 } from "@ionic/vue";
 import { keyOutline, informationCircleOutline } from "ionicons/icons";
 import zxcvbn from "zxcvbn";
-import { generateAccount } from "@/lib/account";
 import { useStore } from "vuex";
-import tatsuyaService from "@/apiService/tatsuyaService";
 import { useRouter } from "vue-router";
 
 export default defineComponent({
@@ -114,72 +111,24 @@ export default defineComponent({
       confirmPassword: "",
       passwordMessage: "",
       buttonDisabled: true,
-      isLoading: false,
     };
   },
   methods: {
     async next() {
       this.store.commit("registerPassword", this.password);
-      this.isLoading = true;
 
-      if(this.password != this.confirmPassword) {
+      if (this.password != this.confirmPassword) {
         const alert = await alertController.create({
           header: "Password Error",
-          message: "The passwords do not match. Please double check your password and try again.",
-          buttons: ["Okay!"]
-        })
+          message:
+            "The passwords do not match. Please double check your password and try again.",
+          buttons: ["Okay!"],
+        });
 
         return alert.present();
       }
 
-      // Creating account popup
-      await loadingController
-        .create({
-          message: "Creating account...",
-        })
-        .then((a) => {
-          a.present().then(async () => {
-            const signUpInfo = this.store.getters.getRegistration;
-
-            const account = await generateAccount(
-              signUpInfo.username,
-              signUpInfo.email,
-              signUpInfo.password,
-              signUpInfo.pin
-            );
-
-            await tatsuyaService
-              .registerAccount(account)
-              .then((res) => {
-                this.isLoading = false;
-
-                // Save authentication tokens
-                this.store.dispatch("login", res.data);
-
-                // Push to Discover page
-                this.router.push({ path: "/" })
-              })
-              // Stop the loading popup and show an alert
-              .catch(async (err) => {
-                this.isLoading = false;
-
-                // Error alert
-                const errorAlert = await alertController.create({
-                  header: "Registration Error",
-                  message: err.response.data.error,
-                  buttons: ["Okay!"],
-                });
-                errorAlert.present();
-              });
-
-            if (!this.isLoading) {
-              a.dismiss();
-            }
-          });
-        });
-
-      // Reset registration state
-      this.store.commit("clearRegistrationState")
+      this.router.push({ path: "/auth/register/pin" })
     },
     async validatePassword(password: string) {
       if (password.length > 1) {
