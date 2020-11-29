@@ -144,7 +144,8 @@ export default defineComponent({
             const account = await generateAccount(
               signUpInfo.username,
               signUpInfo.email,
-              signUpInfo.password
+              signUpInfo.password,
+              signUpInfo.pin
             );
 
             await tatsuyaService
