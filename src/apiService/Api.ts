@@ -48,7 +48,7 @@ tatsuyaApi.interceptors.response.use(
           console.log("Set new rtokens")
 
           // Attempt to handle the original request
-          axios.defaults.headers.common[
+          tatsuyaApi.defaults.headers.common[
             "Authorization"
           ] = 'Bearer ' + data.accessToken;
 
