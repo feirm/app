@@ -12,9 +12,10 @@ const tatsuyaApi = axios.create({
 // Interceptors for refresh tokens
 tatsuyaApi.interceptors.request.use(
   (config) => {
-    if (store.getters.getAccessToken) {
-      config.headers.authorization = `Bearer ${store.getters.getAccessToken}`;
-      return config;
+    const accessToken = store.getters.getAccessToken;
+
+    if (accessToken) {
+      config.headers.authorization = "Bearer " + accessToken;
     }
 
     return config;
@@ -31,32 +32,33 @@ tatsuyaApi.interceptors.response.use(
   (error) => {
     const originalRequest = error.config;
 
-    if (error.response.status === 401) {
-      const accessToken = store.getters.getAccessToken;
-      const refreshToken = store.getters.getRefreshToken;
+    // Do not get stuck in infinite loop
+    if (
+      error.response.status === 401 &&
+      originalRequest.path === "/api/v1/user/token/refresh"
+    ) {
+      return Promise.reject(error);
+    }
+
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
 
       return axios
         .post(`${process.env.VUE_APP_TATSUYA_API_URL}v1/user/token/refresh`, {
-          accessToken: accessToken,
-          refreshToken: refreshToken,
+          accessToken: store.getters.getAccessToken,
+          refreshToken: store.getters.getRefreshToken,
         })
-        .then(({ data} ) => {
-          // Save the new set of tokens
-          localStorage.setItem("accessToken", data.accessToken);
-          localStorage.setItem("refreshToken", data.refreshToken);
+        .then((res) => {
+          if (res.status === 200) {
+            // Update the set of tokens
+            store.dispatch("login", res.data);
 
-          console.log("Set new rtokens")
+            // Attempt to handle the original request
+            tatsuyaApi.defaults.headers.common["Authorization"] =
+              "Bearer " + store.getters.getAccessToken;
 
-          // Attempt to handle the original request
-          tatsuyaApi.defaults.headers.common[
-            "Authorization"
-          ] = 'Bearer ' + data.accessToken;
-
-          originalRequest.headers[
-            "Authorization"
-          ] = 'Bearer ' + data.accessToken;
-
-          return axios(originalRequest);
+            return axios(originalRequest);
+          }
         });
     }
 
