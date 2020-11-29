@@ -56,7 +56,7 @@
       color="primary"
       @click="next"
       :disabled="buttonDisabled"
-      >Create Account</ion-button
+      >Next</ion-button
     >
   </ion-page>
 </template>
