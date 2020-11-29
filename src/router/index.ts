@@ -38,6 +38,13 @@ const routes: Array<RouteRecordRaw> = [
       requiresAuth: false
     }
   },
+  {
+    path: '/auth/register/pin',
+    component: () => import('@/views/Auth/Register/PIN.vue'),
+    meta: {
+      requiresAuth: false
+    }
+  },
   // Main page routes
   {
     path: '/tabs/',
