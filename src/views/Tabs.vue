@@ -12,7 +12,7 @@
           <ion-label>Wallet</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="tab3" href="/tabs/tab3">
+        <ion-tab-button tab="contacts" href="/tabs/contacts">
           <ion-icon :icon="peopleOutline" />
           <ion-label>Contacts</ion-label>
         </ion-tab-button>
