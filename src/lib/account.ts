@@ -10,6 +10,7 @@ import router from '@/router';
 interface Account {
   username: string;
   email: string;
+  pin: number;
   rootPasswordSalt: string;
   rootPublicKey: string;
   encryptedRootKey: {
@@ -25,7 +26,8 @@ interface Account {
 async function generateAccount(
   username: string,
   email: string,
-  password: string
+  password: string,
+  pin: number
 ): Promise<Account> {
   // Generate 16 random bytes of salt
   const saltArray: Uint8Array = new Uint8Array(16);
@@ -74,6 +76,7 @@ async function generateAccount(
   const account = {
     username: username,
     email: email,
+    pin: pin,
     rootPasswordSalt: bufferToHex(saltArray),
     rootPublicKey: bufferToHex(rootKeyPair.publicKey),
     encryptedRootKey: {
@@ -92,10 +95,11 @@ async function generateAccount(
 // Handle an account login request (fetch, decrypt, sign and submit)
 async function loginAccount(
   username: string,
-  password: string
+  password: string,
+  pin: number
 ): Promise<null> {
   // Fetch the encrypted account blob
-  await tatsuyaApi.fetchEncryptedAccount(username).then(async (res) => {
+  await tatsuyaApi.fetchEncryptedAccount(username, pin).then(async (res) => {
     // Derive the secret key using Argon2 along with password + salt
     const secretKey = await argon2.hash({
       pass: password,
