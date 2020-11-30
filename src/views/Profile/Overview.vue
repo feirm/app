@@ -6,9 +6,18 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      <ion-button color="danger" expand="full" @click="logout"
-        >Log out</ion-button
-      >
+      <ion-item-group>
+        <ion-item>
+          <ion-label slot="start">Name</ion-label>
+          <ion-label slot="end">Name</ion-label>
+        </ion-item>
+        <ion-item>
+          <ion-label slot="start">Feirm ID</ion-label>
+          <ion-label slot="end">Username</ion-label>
+        </ion-item>
+      </ion-item-group>
+      <br />
+      <ion-button color="danger" @click="logout" expand="block">Log out</ion-button>
     </ion-content>
   </ion-page>
 </template>
@@ -21,7 +30,10 @@ import {
   IonHeader,
   IonToolbar,
   IonTitle,
+  IonItem,
+  IonLabel,
   IonButton,
+  IonItemGroup,
   alertController,
 } from "@ionic/vue";
 import tatsuyaService from "@/apiService/tatsuyaService";
@@ -35,7 +47,10 @@ export default defineComponent({
     IonHeader,
     IonToolbar,
     IonTitle,
+    IonItem,
+    IonLabel,
     IonButton,
+    IonItemGroup,
   },
   methods: {
     async logout() {
@@ -51,16 +66,16 @@ export default defineComponent({
           {
             text: "Yes, log me out!",
             handler: async () => {
-              await tatsuyaService.logoutAccount().catch(err => {
+              await tatsuyaService.logoutAccount().catch((err) => {
                 this.store.dispatch("logout");
                 window.close();
               });
 
               // Clear Vuex state
               this.store.dispatch("logout");
-              
+
               // Push to login page
-              this.router.push({ path: '/' })
+              this.router.push({ path: "/" });
             },
           },
         ],
@@ -75,8 +90,8 @@ export default defineComponent({
 
     return {
       router,
-      store
-    }
-  }
+      store,
+    };
+  },
 });
 </script>
