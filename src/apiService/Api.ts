@@ -15,7 +15,7 @@ tatsuyaApi.interceptors.request.use(
     const accessToken = store.getters.getAccessToken;
 
     if (accessToken) {
-      config.headers.authorization = "Bearer " + accessToken;
+      config.headers.Authorization = "Bearer " + accessToken;
     }
 
     return config;
@@ -49,16 +49,13 @@ tatsuyaApi.interceptors.response.use(
           refreshToken: store.getters.getRefreshToken,
         })
         .then((res) => {
-          if (res.status === 200) {
-            // Update the set of tokens
-            store.dispatch("login", res.data);
+          // Update authentication tokens
+          store.dispatch("login", res.data)
 
-            // Attempt to handle the original request
-            axios.defaults.headers.common["Authorization"] =
-              "Bearer " + res.data.accessToken;
+          // Attempt to handle the original request
+          originalRequest.headers.Authorization = "Bearer " + res.data.accessToken;
 
-            return axios(originalRequest);
-          }
+          return axios(originalRequest);
         });
     }
 
