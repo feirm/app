@@ -73,6 +73,7 @@ import {
   IonItem,
   IonInput,
   IonButton,
+  alertController,
 } from "@ionic/vue";
 import { informationCircleOutline } from "ionicons/icons";
 import { Contact, CreateEncryptedContact } from "@/lib/contacts";
@@ -111,7 +112,21 @@ export default defineComponent({
         FeirmID: this.feirmId,
         PhoneNumber: this.phoneNumber,
         Email: this.email,
-      } as Contact;
+			} as Contact;
+			
+			// Validate fields (very basic and awful)
+			if (contact.FirstName == "") {
+				this.showMessage("First name field cannot be empty.")
+				return
+			}
+			if (contact.LastName == "") {
+				this.showMessage("Last name field cannot be empty.")
+				return
+			}
+			if (contact.FeirmID == "") {
+				this.showMessage("Feirm ID field cannot be empty.")
+				return
+			}
 
       // Encrypt the payload
       const encryptedContact = await CreateEncryptedContact(contact);
@@ -124,11 +139,22 @@ export default defineComponent({
     },
   },
   setup() {
-    const router = useRouter();
+		const router = useRouter();
+		
+		async function showMessage(message: string) {
+			const alert = await alertController.create({
+				header: "Error!",
+				message: message,
+				buttons: ["Okay"]
+			})
+
+			return alert.present();
+		}
 
     return {
       router,
-      informationCircleOutline,
+			informationCircleOutline,
+			showMessage
     };
   },
 });
