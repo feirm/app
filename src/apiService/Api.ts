@@ -1,5 +1,8 @@
 import { store } from "@/store";
 import axios from "axios";
+import tatsuyaService from "./tatsuyaService";
+import * as nacl from "tweetnacl";
+import bufferToHex from "@/lib/bufferToHex";
 
 // Axios instance for Tatsuya authentication API
 const tatsuyaApi = axios.create({
@@ -9,13 +12,13 @@ const tatsuyaApi = axios.create({
   },
 });
 
-// Interceptors for refresh tokens
+// Interceptors for new session token
 tatsuyaApi.interceptors.request.use(
   (config) => {
-    const accessToken = store.getters.getAccessToken;
+    const sessionToken = store.getters.sessionToken;
 
-    if (accessToken) {
-      config.headers.Authorization = "Bearer " + accessToken;
+    if (sessionToken) {
+      config.headers.Authorization = "Bearer " + sessionToken;
     }
 
     return config;
@@ -32,30 +35,53 @@ tatsuyaApi.interceptors.response.use(
   (error) => {
     const originalRequest = error.config;
 
-    // Do not get stuck in infinite loop
-    if (
-      error.response.status === 401 &&
-      originalRequest.path === "/api/v1/user/token/refresh"
-    ) {
-      return Promise.reject(error);
-    }
-
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      return axios
-        .post(`${process.env.VUE_APP_TATSUYA_API_URL}v1/user/token/refresh`, {
-          accessToken: store.getters.getAccessToken,
-          refreshToken: store.getters.getRefreshToken,
-        })
-        .then((res) => {
-          // Update authentication tokens
-          store.dispatch("login", res.data)
+      // Fetch a new authentication/session token for the user
+      const username = store.getters.getUsername;
+      const rootKey = store.getters.getRootKey;
 
-          // Attempt to handle the original request
-          originalRequest.headers.Authorization = "Bearer " + res.data.accessToken;
+      // Reconstruct the identity key from the root key
+      const identityKeyString = rootKey + "identity";
+      window.crypto.subtle
+        .digest("SHA-256", new TextEncoder().encode(identityKeyString))
+        .then(async (identityKey) => {
+          // Derive the signing ed25519 keypair from identityKey
+          const rootKeyPair = nacl.sign.keyPair.fromSeed(
+            new Uint8Array(identityKey)
+          );
 
-          return axios(originalRequest);
+          await tatsuyaService.getLoginToken(username).then(async (res) => {
+            // Create signature
+            const signature = nacl.sign.detached(
+              new TextEncoder().encode(res.data.nonce),
+              rootKeyPair.secretKey
+            );
+
+            // Construct the login/new session payload
+            const payload = {
+              id: res.data.id,
+              username: username,
+              signature: bufferToHex(signature),
+            };
+
+            await tatsuyaService.loginAccount(payload).then((res) => {
+              // Construct the session object
+              const session = {
+                rootKey: rootKey,
+                sessionToken: res.data.sessionToken,
+                username: res.data.username,
+              };
+
+              store.dispatch("login", session);
+
+              // Attempt to handle the original request
+              originalRequest.headers.Authorization =
+                "Bearer " + res.data.sessionToken;
+              return axios(originalRequest);
+            });
+          });
         });
     }
 
