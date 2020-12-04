@@ -183,7 +183,7 @@
       </ion-grid>
     </ion-content>
     <ion-button expand="full" color="primary" @click="next"
-      >Create Account</ion-button
+      >Next</ion-button
     >
   </ion-page>
 </template>
@@ -204,7 +204,6 @@ import {
   IonCol,
   IonText,
   alertController,
-  loadingController,
 } from "@ionic/vue";
 import {
   informationCircleOutline,
@@ -213,8 +212,6 @@ import {
   ellipse,
 } from "ionicons/icons";
 import { useStore } from "vuex";
-import { generateAccount } from "@/lib/account";
-import tatsuyaService from "@/apiService/tatsuyaService";
 import { useRouter } from "vue-router";
 
 export default defineComponent({
@@ -237,96 +234,24 @@ export default defineComponent({
     return {
       pin: "",
       confirmPin: "",
-      isLoading: false
-    }
+    };
   },
   methods: {
     handleInput(n: number) {
-        this.pin += String(n);
+      this.pin += String(n);
 
-        if (this.pin.length > 6) {
-          return;
-        }
+      if (this.pin.length > 6) {
+        return;
+      }
 
-        console.log(this.pin)
+      console.log(this.pin);
     },
     clearInput() {
       this.pin = "";
     },
     async next() {
-      this.isLoading = true;
       this.store.commit("registerPin", Number(this.pin));
-
-      // Check that both PINs match
-      /*
-      if (this.pin != this.confirmPin) {
-        this.isLoading = false;
-
-        const alert = await alertController.create({
-          header: "PIN",
-          message:
-            "The PINs do not match. Please double check your PIN and try again.",
-          buttons: ["Okay!"],
-        });
-
-        return alert.present();
-      }
-      */
-
-      // Begin the submitting process and show a loading popup
-      await loadingController
-        .create({
-          message: "Creating account...",
-        })
-        .then((a) => {
-          a.present().then(async () => {
-            const signUpInfo = this.store.getters.getRegistration;
-
-            const account = await generateAccount(
-              signUpInfo.username,
-              signUpInfo.email,
-              signUpInfo.password,
-              signUpInfo.pin
-            );
-
-            await tatsuyaService
-              .registerAccount(account)
-              .then((res) => {
-                this.isLoading = false;
-
-                // Account data
-                const username = res.data.username;
-                const sessionToken = res.data.sessionToken;
-                const rootKey = this.store.getters.getRootKey;
-
-                // Save authentication tokens
-                this.store.dispatch("login", {
-                  username,
-                  sessionToken,
-                  rootKey,
-                });
-
-                // Push to Discover page
-                this.router.push({ path: "/" });
-              })
-              // Stop the loading popup and show an alert
-              .catch(async (err) => {
-                this.isLoading = false;
-
-                // Error alert
-                const errorAlert = await alertController.create({
-                  header: "Registration Error",
-                  message: err.response.data.error,
-                  buttons: ["Okay!"],
-                });
-                errorAlert.present();
-              });
-
-            if (!this.isLoading) {
-              a.dismiss();
-            }
-          });
-        });
+      this.router.push({ path: "/auth/register/confirmPin" })
     },
     async presentAlert() {
       const alert = await alertController.create({
