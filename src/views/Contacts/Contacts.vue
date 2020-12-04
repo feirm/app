@@ -2,17 +2,16 @@
   <ion-page>
     <ion-header>
       <ion-toolbar class="ion-text-center">
-        <ion-buttons slot="start">
-        </ion-buttons>
-        <ion-buttons slot="secondary">
-          <ion-button>
-            <ion-icon slot="icon-only" :icon="addCircleOutline"></ion-icon>
-          </ion-button>
-        </ion-buttons>
         <ion-title>Contacts</ion-title>
       </ion-toolbar>
     </ion-header>
-    <ion-content :fullscreen="true" class="ion-padding"></ion-content>
+    <ion-content :fullscreen="true" class="ion-padding">
+      <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button>
+          <ion-icon :icon="addOutline"></ion-icon>
+        </ion-fab-button>
+      </ion-fab>
+    </ion-content>
   </ion-page>
 </template>
 
@@ -24,11 +23,11 @@ import {
   IonToolbar,
   IonTitle,
   IonContent,
-  IonButtons,
-  IonButton,
+  IonFab,
+  IonFabButton,
   IonIcon,
 } from "@ionic/vue";
-import { addCircleOutline } from "ionicons/icons";
+import { addOutline } from "ionicons/icons";
 
 export default defineComponent({
   name: "Contacts",
@@ -38,13 +37,13 @@ export default defineComponent({
     IonToolbar,
     IonTitle,
     IonContent,
-    IonButtons,
-    IonButton,
+    IonFab,
+    IonFabButton,
     IonIcon,
   },
   setup() {
     return {
-      addCircleOutline,
+      addOutline,
     };
   },
 });
