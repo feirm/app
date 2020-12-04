@@ -84,6 +84,7 @@ export const store = createStore({
         },
         getSessionToken: state => state.authentication.sessionToken,
         getUsername: state => state.authentication.username,
+        getRootKey: state => state.authentication.rootKey,
         getRegistration: state => state.registration // Return the entire registration state
     }
 })
