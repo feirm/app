@@ -11,8 +11,9 @@ export const store = createStore({
             pin: 0
         },
         authentication: {
-            accessToken: "",
-            refreshToken: ""
+            rootKey: "",
+            sessionToken: "",
+            username: ""
         }
     },
     mutations: {
@@ -36,34 +37,20 @@ export const store = createStore({
             state.registration.password = "";
             state.registration.pin = 0;
         },
-        setAuthenticationTokens(state, authenticationToken) {
-            state.authentication.accessToken = authenticationToken.accessToken;
-            state.authentication.refreshToken = authenticationToken.refreshToken;
+        setSessionState(state, sessionData) {
+            state.authentication.sessionToken = sessionData.sessionToken;
+            state.authentication.username = sessionData.username;
 
-            localStorage.setItem("accessToken", authenticationToken.accessToken);
-            localStorage.setItem("refreshToken", authenticationToken.refreshToken);
+            localStorage.setItem("feirmAccount", sessionData);
         },
-        clearAuthenticationTokens(state) {
-            state.authentication.accessToken = "";
-            state.authentication.refreshToken = "";
-
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("refreshToken");
-        }
     },
     actions: {
         initialize({ commit }) {
-            // Set any authentication tokens
-            const accessToken = localStorage.getItem("accessToken");
-            const refreshToken = localStorage.getItem("refreshToken");
+            // Load existing session if its in storage
+            const session = localStorage.getItem("feirmAccount");
 
-            if (accessToken && refreshToken) {
-                const authenticationTokens = {
-                    accessToken: accessToken,
-                    refreshToken: refreshToken
-                }
-
-                commit("setAuthenticationTokens", authenticationTokens);
+            if (session) {
+                commit("setSessionState", session);
             }
         },
         clearRegistrationState({ commit }) {
@@ -78,14 +65,14 @@ export const store = createStore({
     },
     getters: {
         isUserLoggedIn: (state, getters) => {
-            return !!state.authentication.refreshToken && getters.getRefreshTokenExpirationDate > new Date()
+            return !!state.authentication.sessionToken && getters.getRefreshTokenExpirationDate > new Date()
         },
-        getRefreshTokenExpirationDate: state => {
-            if (!state.authentication.refreshToken) {
+        getSessionExpirationDate: state => {
+            if (!state.authentication.sessionToken) {
                 return null;
             }
 
-            const token: any = jwt_decode(state.authentication.refreshToken);
+            const token: any = jwt_decode(state.authentication.sessionToken);
             if (!token.exp) {
                 return null;
             }
@@ -94,8 +81,8 @@ export const store = createStore({
             date.setUTCSeconds(token.exp);
             return date;
         },
-        getRefreshToken: state => state.authentication.refreshToken,
-        getAccessToken: state => state.authentication.accessToken,
+        getSessionToken: state => state.authentication.sessionToken,
+        getUsername: state => state.authentication.sessionToken,
         getRegistration: state => state.registration // Return the entire registration state
     }
 })
