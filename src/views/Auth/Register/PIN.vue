@@ -151,11 +151,17 @@ export default defineComponent({
               .then((res) => {
                 this.isLoading = false;
 
-                // Save authentication tokens
-                this.store.dispatch("login", res.data);
+                // Account data
+                const username = res.data.username;
+                const sessionToken = res.data.sessionToken;
+                const rootKey = this.store.getters.getRootKey;
 
-                // Wipe the Vuex state
-                this.store.dispatch("clearRegistration");
+                // Save authentication tokens
+                this.store.dispatch("login", {
+                  username,
+                  sessionToken,
+                  rootKey
+                });
 
                 // Push to Discover page
                 this.router.push({ path: "/" });

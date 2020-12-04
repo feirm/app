@@ -45,6 +45,9 @@ async function generateAccount(
   // The rootKey is to be encrypted with secretKey
   const rootKey: Uint8Array = window.crypto.getRandomValues(new Uint8Array(32));
 
+  // Save in Vuex
+  store.commit("registerRootKey", bufferToHex(rootKey));
+
   const identityKeyString = bufferToHex(rootKey) + "identity";
   const identityKey = await window.crypto.subtle.digest(
     "SHA-256",

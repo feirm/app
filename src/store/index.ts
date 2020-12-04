@@ -30,12 +30,8 @@ export const store = createStore({
         registerPin(state, pin) {
             state.registration.pin = pin;
         },
-        // Reset registration state
-        clearRegistration(state) {
-            state.registration.username = "";
-            state.registration.email = "";
-            state.registration.password = "";
-            state.registration.pin = 0;
+        registerRootKey(state, key) {
+            state.authentication.rootKey = key;
         },
         setSessionState(state, sessionData) {
             state.authentication.rootKey = sessionData.rootKey;
