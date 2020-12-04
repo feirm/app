@@ -8,7 +8,8 @@ export const store = createStore({
             username: "",
             email: "",
             password: "",
-            pin: 0
+            pin: 0,
+            confirmPin: 0
         },
         authentication: {
             rootKey: "",
@@ -29,6 +30,9 @@ export const store = createStore({
         },
         registerPin(state, pin) {
             state.registration.pin = pin;
+        },
+        confirmPin(state, pin) {
+            state.registration.confirmPin = pin;
         },
         registerRootKey(state, key) {
             state.authentication.rootKey = key;
