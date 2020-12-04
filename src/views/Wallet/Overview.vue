@@ -1,26 +1,12 @@
 <template>
   <ion-page>
-    <ion-toolbar class="ion-text-center">
+    <ion-header>
+      <ion-toolbar class="ion-text-center">
       <ion-title>Wallets</ion-title>
     </ion-toolbar>
+    </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      <ion-card>
-        <ion-card-header color="primary">
-          <ion-card-title>Feirm Wallets</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-list>
-            <ion-item lines="none" button="true">
-              <ion-icon
-                :icon="walletOutline"
-                size="large"
-                slot="start"
-              ></ion-icon>
-              <ion-label>Personal</ion-label>
-            </ion-item>
-          </ion-list>
-        </ion-card-content>
-      </ion-card>
+      <ion-button @click="newWallet">Generate wallets</ion-button>
     </ion-content>
   </ion-page>
 </template>
@@ -32,13 +18,8 @@ import {
   IonContent,
   IonToolbar,
   IonTitle,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
-  IonList,
-  IonItem,
-  IonLabel,
+  IonHeader,
+  IonButton
 } from "@ionic/vue";
 import { walletOutline } from "ionicons/icons";
 
@@ -49,13 +30,13 @@ export default defineComponent({
     IonContent,
     IonToolbar,
     IonTitle,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
-    IonList,
-    IonItem,
-    IonLabel,
+    IonHeader,
+    IonButton
+  },
+  methods: {
+    newWallet() {
+      console.log("hello")
+    }
   },
   setup() {
     return {
@@ -64,15 +45,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style scoped>
-ion-card-header {
-  padding-top: 0.4em;
-  padding-bottom: 0.4em;
-}
-
-ion-card-title {
-  font-size: 1rem;
-  font-weight: bold;
-}
-</style>
