@@ -44,6 +44,13 @@ export const store = createStore({
 
             localStorage.setItem("session", JSON.stringify(sessionData));
         },
+        clearSessionState(state) {
+            state.authentication.rootKey = "";
+            state.authentication.sessionToken = "";
+            state.authentication.username = "";
+
+            localStorage.removeItem("session");
+        }
     },
     actions: {
         initialize({ commit }) {
@@ -61,7 +68,7 @@ export const store = createStore({
             commit("setSessionState", sessionData);
         },
         logout({ commit }) {
-            commit("clearAuthenticationTokens");
+            commit("clearSessionState");
         }
     },
     getters: {
