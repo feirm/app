@@ -19,19 +19,39 @@
     <ion-content class="ion-padding" :fullscreen="true">
       <ion-item-group>
         <ion-item>
-          <ion-input v-model="firstName" placeholder="First Name" type="text"></ion-input>
+          <ion-input
+            v-model="firstName"
+            placeholder="First Name"
+            type="text"
+          ></ion-input>
         </ion-item>
         <ion-item>
-          <ion-input v-model="lastName" placeholder="Last Name" type="text"></ion-input>
+          <ion-input
+            v-model="lastName"
+            placeholder="Last Name"
+            type="text"
+          ></ion-input>
         </ion-item>
         <ion-item>
-          <ion-input v-model="feirmId" placeholder="Feirm ID" type="text"></ion-input>
+          <ion-input
+            v-model="feirmId"
+            placeholder="Feirm ID"
+            type="text"
+          ></ion-input>
         </ion-item>
         <ion-item>
-          <ion-input v-model="phoneNumber" placeholder="Phone Number" type="tel"></ion-input>
+          <ion-input
+            v-model="phoneNumber"
+            placeholder="Phone Number"
+            type="tel"
+          ></ion-input>
         </ion-item>
         <ion-item>
-          <ion-input v-model="email" placeholder="Email Address" type="email"></ion-input>
+          <ion-input
+            v-model="email"
+            placeholder="Email Address"
+            type="email"
+          ></ion-input>
         </ion-item>
       </ion-item-group>
       <ion-button expand="block">Save</ion-button>
@@ -52,7 +72,7 @@ import {
   IonItemGroup,
   IonItem,
   IonInput,
-  IonButton
+  IonButton,
 } from "@ionic/vue";
 import { informationCircleOutline } from "ionicons/icons";
 
@@ -69,7 +89,7 @@ export default defineComponent({
     IonItemGroup,
     IonItem,
     IonInput,
-    IonButton
+    IonButton,
   },
   setup() {
     return {
