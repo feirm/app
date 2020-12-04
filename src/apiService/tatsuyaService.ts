@@ -36,8 +36,4 @@ export default {
     loginAccount(token: any) {
         return tatsuyaApi.post(`/v1/login`, token)
     },
-    // Logout of an account
-    logoutAccount() {
-        return tatsuyaApi.post(`/v1/user/logout`)
-    }
 }
