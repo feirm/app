@@ -6,6 +6,16 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
+      <ion-item v-for="contact in contacts" :key="contact" :button="true">
+        <ion-avatar slot="start">
+          <img
+            src="https://avatars0.githubusercontent.com/u/33553891?s=200&v=4"
+          />
+        </ion-avatar>
+        <p>{{ contact.FirstName }} {{ contact.LastName }}</p>
+      </ion-item>
+
+      <!-- Floating button -->
       <ion-fab vertical="bottom" horizontal="end" slot="fixed">
         <ion-fab-button>
           <ion-icon :icon="addOutline"></ion-icon>
@@ -26,6 +36,9 @@ import {
   IonFab,
   IonFabButton,
   IonIcon,
+  IonItem,
+  IonAvatar,
+  loadingController,
 } from "@ionic/vue";
 import { addOutline } from "ionicons/icons";
 
@@ -40,9 +53,45 @@ export default defineComponent({
     IonFab,
     IonFabButton,
     IonIcon,
+    IonItem,
+    IonAvatar,
+  },
+  async created() {
+    // Simulate loading
+    const loading = await loadingController.create({
+      message: "Fetching and decrypting contacts...",
+      duration: 2000,
+    });
+
+    await loading.present();
   },
   setup() {
+    // Individual contact interface
+    interface Contact {
+      FirstName: string;
+      LastName: string;
+      FeirmID: string;
+      PhoneNumber: string;
+      Email: string;
+    }
+
+    const contacts: Contact[] = [];
+
+    /* TODO
+    1. Fetch encrypted contact blobs
+    2. Decrypt encrypted blob into contacts array
+    */
+
+    // Example contact
+    const exampleContact = {
+      FirstName: "Feirm",
+      LastName: "Blockchain",
+    } as Contact;
+
+    contacts.push(exampleContact);
+
     return {
+      contacts,
       addOutline,
     };
   },
