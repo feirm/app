@@ -47,5 +47,6 @@ async function CreateEncryptedContact(contact: Contact): Promise<EncryptedContac
 
 export {
     Contact,
+    EncryptedContact,
     CreateEncryptedContact
 }
