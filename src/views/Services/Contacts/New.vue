@@ -54,7 +54,7 @@
           ></ion-input>
         </ion-item>
       </ion-item-group>
-      <ion-button expand="block">Save</ion-button>
+      <ion-button expand="block" @click="encryptContact">Save</ion-button>
     </ion-content>
   </ion-page>
 </template>
@@ -75,6 +75,8 @@ import {
   IonButton,
 } from "@ionic/vue";
 import { informationCircleOutline } from "ionicons/icons";
+import { Contact, CreateEncryptedContact } from "@/lib/contacts";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "NewContact",
@@ -91,8 +93,41 @@ export default defineComponent({
     IonInput,
     IonButton,
   },
-  setup() {
+  data() {
     return {
+      firstName: "",
+      lastName: "",
+      feirmId: "",
+      phoneNumber: "",
+      email: "",
+    };
+  },
+  methods: {
+    async encryptContact() {
+      // Assemble standard contact payload
+      const contact = {
+        FirstName: this.firstName,
+        LastName: this.lastName,
+        FeirmID: this.feirmId,
+        PhoneNumber: this.phoneNumber,
+        Email: this.email,
+      } as Contact;
+
+      // Encrypt the payload
+      const encryptedContact = await CreateEncryptedContact(contact);
+      alert(JSON.stringify(encryptedContact));
+
+      //   TODO: Submit payload to API
+
+      //   Return to contacts screen
+      this.router.push({ path: "/tabs/contacts" });
+    },
+  },
+  setup() {
+    const router = useRouter();
+
+    return {
+      router,
       informationCircleOutline,
     };
   },
