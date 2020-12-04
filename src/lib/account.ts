@@ -151,7 +151,14 @@ async function loginAccount(
         signature: bufferToHex(signature)
       }
       await tatsuyaApi.loginAccount(token).then(res => {
-        store.dispatch("login", res.data);
+        // Construct the session object
+        const session = {
+          rootKey: rootKey,
+          sessionToken: res.data.sessionToken,
+          username: res.data.username
+        }
+
+        store.dispatch("login", JSON.stringify(session));
         router.push({ path: "/" })
       });
     });
