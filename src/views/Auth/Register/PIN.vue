@@ -28,24 +28,156 @@
                 logging into your Feirm account.
               </p>
             </ion-text>
-            <ion-item>
-              <ion-label position="floating">PIN</ion-label>
-              <ion-input
-                v-model="pin"
-                maxlength="6"
-                minlength="6"
-                type="password"
-              ></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-label position="floating">Confirm PIN</ion-label>
-              <ion-input
-                v-model="confirmPin"
-                maxlength="6"
-                minlength="6"
-                type="password"
-              ></ion-input>
-            </ion-item>
+          </ion-col>
+        </ion-row>
+        <!-- PIN Digits -->
+        <ion-row class="ion-text-center ellipses">
+          <ion-col>
+            <ion-icon
+              :icon="pin.length >= 1 ? ellipse : ellipseOutline"
+            ></ion-icon>
+          </ion-col>
+          <ion-col>
+            <ion-icon
+              :icon="pin.length >= 2 ? ellipse : ellipseOutline"
+            ></ion-icon>
+          </ion-col>
+          <ion-col>
+            <ion-icon
+              :icon="pin.length >= 3 ? ellipse : ellipseOutline"
+            ></ion-icon>
+          </ion-col>
+          <ion-col>
+            <ion-icon
+              :icon="pin.length >= 4 ? ellipse : ellipseOutline"
+            ></ion-icon>
+          </ion-col>
+          <ion-col>
+            <ion-icon
+              :icon="pin.length >= 5 ? ellipse : ellipseOutline"
+            ></ion-icon>
+          </ion-col>
+          <ion-col>
+            <ion-icon
+              :icon="pin.length >= 6 ? ellipse : ellipseOutline"
+            ></ion-icon>
+          </ion-col>
+        </ion-row>
+
+        <br />
+        <!-- Numbers 1, 2, 3 -->
+        <ion-row class="ion-text-center">
+          <ion-col>
+            <ion-button
+              size="large"
+              fill="outline"
+              shape="round"
+              @click="handleInput(1)"
+              >1</ion-button
+            >
+          </ion-col>
+          <ion-col>
+            <ion-button
+              size="large"
+              fill="outline"
+              shape="round"
+              @click="handleInput(2)"
+              >2</ion-button
+            >
+          </ion-col>
+          <ion-col>
+            <ion-button
+              size="large"
+              fill="outline"
+              shape="round"
+              @click="handleInput(3)"
+              >3</ion-button
+            >
+          </ion-col>
+        </ion-row>
+
+        <!-- Numbers 4, 5, 6 -->
+        <ion-row class="ion-text-center">
+          <ion-col>
+            <ion-button
+              size="large"
+              fill="outline"
+              shape="round"
+              @click="handleInput(4)"
+              >4</ion-button
+            >
+          </ion-col>
+          <ion-col>
+            <ion-button
+              size="large"
+              fill="outline"
+              shape="round"
+              @click="handleInput(5)"
+              >5</ion-button
+            >
+          </ion-col>
+          <ion-col>
+            <ion-button
+              size="large"
+              fill="outline"
+              shape="round"
+              @click="handleInput(6)"
+              >6</ion-button
+            >
+          </ion-col>
+        </ion-row>
+
+        <!-- Numbers 7, 8, 9 -->
+        <ion-row class="ion-text-center">
+          <ion-col>
+            <ion-button
+              size="large"
+              fill="outline"
+              shape="round"
+              @click="handleInput(7)"
+              >7</ion-button
+            >
+          </ion-col>
+          <ion-col>
+            <ion-button
+              size="large"
+              fill="outline"
+              shape="round"
+              @click="handleInput(8)"
+              >8</ion-button
+            >
+          </ion-col>
+          <ion-col>
+            <ion-button
+              size="large"
+              fill="outline"
+              shape="round"
+              @click="handleInput(9)"
+              >9</ion-button
+            >
+          </ion-col>
+        </ion-row>
+
+        <!-- Number 0 -->
+        <ion-row class="ion-text-center">
+          <ion-col>
+            <ion-button
+              size="large"
+              fill="outline"
+              shape="round"
+              @click="handleInput(0)"
+              :disabled="clickInProgress"
+              >0</ion-button
+            >
+          </ion-col>
+        </ion-row>
+
+        <!-- Clear label -->
+        <ion-row class="ion-text-center">
+          <ion-col>
+            <ion-button fill="clear" color="dark" @click="clearInput"
+              >Clear</ion-button
+            >
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -71,13 +203,15 @@ import {
   IonRow,
   IonCol,
   IonText,
-  IonItem,
-  IonInput,
-  IonLabel,
   alertController,
   loadingController,
 } from "@ionic/vue";
-import { informationCircleOutline, appsOutline } from "ionicons/icons";
+import {
+  informationCircleOutline,
+  appsOutline,
+  ellipseOutline,
+  ellipse,
+} from "ionicons/icons";
 import { useStore } from "vuex";
 import { generateAccount } from "@/lib/account";
 import tatsuyaService from "@/apiService/tatsuyaService";
@@ -98,23 +232,33 @@ export default defineComponent({
     IonRow,
     IonCol,
     IonText,
-    IonItem,
-    IonInput,
-    IonLabel,
   },
   data() {
     return {
       pin: "",
       confirmPin: "",
-      isLoading: false,
-    };
+      isLoading: false
+    }
   },
   methods: {
+    handleInput(n: number) {
+        this.pin += String(n);
+
+        if (this.pin.length > 6) {
+          return;
+        }
+
+        console.log(this.pin)
+    },
+    clearInput() {
+      this.pin = "";
+    },
     async next() {
       this.isLoading = true;
       this.store.commit("registerPin", Number(this.pin));
 
       // Check that both PINs match
+      /*
       if (this.pin != this.confirmPin) {
         this.isLoading = false;
 
@@ -127,6 +271,7 @@ export default defineComponent({
 
         return alert.present();
       }
+      */
 
       // Begin the submitting process and show a loading popup
       await loadingController
@@ -158,7 +303,7 @@ export default defineComponent({
                 this.store.dispatch("login", {
                   username,
                   sessionToken,
-                  rootKey
+                  rootKey,
                 });
 
                 // Push to Discover page
@@ -203,20 +348,16 @@ export default defineComponent({
       router,
       informationCircleOutline,
       appsOutline,
+      ellipse,
+      ellipseOutline,
     };
   },
 });
 </script>
 
 <style scoped>
-ion-grid {
-  height: 100%;
-}
-
-ion-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
+.ellipses {
+  padding: 0;
+  margin: 0;
 }
 </style>
