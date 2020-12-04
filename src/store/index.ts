@@ -38,26 +38,27 @@ export const store = createStore({
             state.registration.pin = 0;
         },
         setSessionState(state, sessionData) {
+            state.authentication.rootKey = sessionData.rootKey;
             state.authentication.sessionToken = sessionData.sessionToken;
             state.authentication.username = sessionData.username;
 
-            localStorage.setItem("feirmAccount", sessionData);
+            localStorage.setItem("session", JSON.stringify(sessionData));
         },
     },
     actions: {
         initialize({ commit }) {
             // Load existing session if its in storage
-            const session = localStorage.getItem("feirmAccount");
+            const session = localStorage.getItem("session");
 
             if (session) {
-                commit("setSessionState", session);
+                commit("setSessionState", JSON.parse(session));
             }
         },
         clearRegistrationState({ commit }) {
             commit("clearRegistration")
         },
-        login({ commit }, authenticationToken) {
-            commit("setAuthenticationTokens", authenticationToken);
+        login({ commit }, sessionData) {
+            commit("setSessionState", sessionData);
         },
         logout({ commit }) {
             commit("clearAuthenticationTokens");
@@ -65,14 +66,14 @@ export const store = createStore({
     },
     getters: {
         isUserLoggedIn: (state, getters) => {
-            return !!state.authentication.sessionToken && getters.getRefreshTokenExpirationDate > new Date()
+            return !!state.authentication.sessionToken && getters.getSessionExpirationDate > new Date()
         },
-        getSessionExpirationDate: state => {
-            if (!state.authentication.sessionToken) {
+        getSessionExpirationDate: (state, getters) => {
+            if (!getters.getSessionToken) {
                 return null;
             }
 
-            const token: any = jwt_decode(state.authentication.sessionToken);
+            const token: any = jwt_decode(getters.getSessionToken);
             if (!token.exp) {
                 return null;
             }
@@ -82,7 +83,7 @@ export const store = createStore({
             return date;
         },
         getSessionToken: state => state.authentication.sessionToken,
-        getUsername: state => state.authentication.sessionToken,
+        getUsername: state => state.authentication.username,
         getRegistration: state => state.registration // Return the entire registration state
     }
 })
