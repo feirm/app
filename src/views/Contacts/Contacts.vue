@@ -17,7 +17,7 @@
 
       <!-- Floating button -->
       <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-        <ion-fab-button>
+        <ion-fab-button @click="router.push({ path: '/services/contacts/new' })">
           <ion-icon :icon="addOutline"></ion-icon>
         </ion-fab-button>
       </ion-fab>
@@ -42,6 +42,7 @@ import {
   loadingController,
 } from "@ionic/vue";
 import { addOutline } from "ionicons/icons";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "Contacts",
@@ -67,6 +68,9 @@ export default defineComponent({
     await loading.present();
   },
   setup() {
+    // Get router instance
+    const router = useRouter();
+
     const contacts: Contact[] = [];
 
     /* TODO
@@ -83,6 +87,7 @@ export default defineComponent({
     contacts.push(exampleContact);
 
     return {
+      router,
       contacts,
       addOutline,
     };
