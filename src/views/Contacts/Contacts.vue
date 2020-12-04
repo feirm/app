@@ -27,6 +27,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { Contact } from "@/lib/contacts";
 import {
   IonPage,
   IonHeader,
@@ -66,15 +67,6 @@ export default defineComponent({
     await loading.present();
   },
   setup() {
-    // Individual contact interface
-    interface Contact {
-      FirstName: string;
-      LastName: string;
-      FeirmID: string;
-      PhoneNumber: string;
-      Email: string;
-    }
-
     const contacts: Contact[] = [];
 
     /* TODO
