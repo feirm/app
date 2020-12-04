@@ -150,6 +150,7 @@ async function loginAccount(
         username: username,
         signature: bufferToHex(signature)
       }
+
       await tatsuyaApi.loginAccount(token).then(res => {
         // Construct the session object
         const session = {
@@ -158,7 +159,7 @@ async function loginAccount(
           username: res.data.username
         }
 
-        store.dispatch("login", JSON.stringify(session));
+        store.dispatch("login", session);
         router.push({ path: "/" })
       });
     });
