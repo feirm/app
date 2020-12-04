@@ -48,6 +48,13 @@ const routes: Array<RouteRecordRaw> = [
       requiresAuth: false,
     },
   },
+  {
+    path: "/auth/register/confirmPin",
+    component: () => import("@/views/Auth/Register/ConfirmPIN.vue"),
+    meta: {
+      requiresAuth: false,
+    },
+  },
   // Main page routes
   {
     path: "/tabs/",
