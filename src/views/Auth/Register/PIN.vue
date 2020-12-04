@@ -35,7 +35,6 @@
                 maxlength="6"
                 minlength="6"
                 type="password"
-                inputmode="numeric"
               ></ion-input>
             </ion-item>
             <ion-item>
@@ -45,7 +44,6 @@
                 maxlength="6"
                 minlength="6"
                 type="password"
-                inputmode="numeric"
               ></ion-input>
             </ion-item>
           </ion-col>
