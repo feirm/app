@@ -51,11 +51,9 @@ import {
   IonCol,
   IonRow,
   IonGrid,
-  alertController,
-  loadingController,
 } from "@ionic/vue";
 import router from "@/router";
-import { loginAccount } from "@/lib/account";
+import { useStore } from "vuex";
 
 export default defineComponent({
   name: "Login",
@@ -90,12 +88,23 @@ export default defineComponent({
         return;
       }
 
+      // Commit username + password to Vuex
+      this.store.commit("loginUsername", this.username);
+      this.store.commit("loginPassword", this.password);
+
       router.push({ path: "/auth/login/pin" });
     },
     register() {
       router.push({ path: "/auth/register" });
     },
   },
+  setup() {
+    const store = useStore();
+
+    return {
+      store
+    }
+  }
 });
 </script>
 
