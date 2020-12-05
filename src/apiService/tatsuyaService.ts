@@ -1,5 +1,6 @@
 import { tatsuyaApi } from "@/apiService/Api";
 import { Account } from "@/lib/account";
+import { EncryptedContact } from '@/lib/contacts';
 
 // Export all endpoints for authentication API
 export default {
@@ -36,4 +37,12 @@ export default {
     loginAccount(token: any) {
         return tatsuyaApi.post(`/v1/login`, token)
     },
+    // Add new contact
+    newContact(contact: EncryptedContact) {
+        return tatsuyaApi.post(`/v1/contacts/new`, contact);
+    },
+    // Fetch all contacts
+    fetchContacts() {
+        return tatsuyaApi.get(`v1/contacts/all`);
+    }
 }
