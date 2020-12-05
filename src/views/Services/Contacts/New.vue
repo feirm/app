@@ -6,11 +6,8 @@
           <ion-back-button></ion-back-button>
         </ion-buttons>
         <ion-buttons slot="secondary">
-          <ion-button @click="presentAlert">
-            <ion-icon
-              slot="icon-only"
-              :icon="informationCircleOutline"
-            ></ion-icon>
+          <ion-button @click="encryptContact">
+            <ion-text>Done</ion-text>
           </ion-button>
         </ion-buttons>
         <ion-title>New Contact</ion-title>
@@ -54,7 +51,6 @@
           ></ion-input>
         </ion-item>
       </ion-item-group>
-      <ion-button expand="block" @click="encryptContact">Save</ion-button>
     </ion-content>
   </ion-page>
 </template>
