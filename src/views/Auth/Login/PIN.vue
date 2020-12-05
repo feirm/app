@@ -200,8 +200,7 @@ import {
   ellipse,
 } from "ionicons/icons";
 import { useStore } from "vuex";
-import { generateAccount } from "@/lib/account";
-import tatsuyaService from "@/apiService/tatsuyaService";
+import { loginAccount } from "@/lib/account";
 import { useRouter } from "vue-router";
 
 export default defineComponent({
@@ -234,13 +233,42 @@ export default defineComponent({
         return;
       }
 
-      console.log(this.confirmPin);
+      // Commit PIN to Vuex
+      this.store.commit("loginPin", Number(this.confirmPin)); 
     },
     clearInput() {
       this.confirmPin = "";
+      this.store.commit("loginPin", 0);
     },
     async next() {
-    //   TODO
+        this.isLoading = true;
+
+        await loadingController.create({
+            message: "Signing in..."
+        }).then(async (a) => {
+            a.present().then(async () => {
+                console.log(this.store.getters.getLoginState);
+                await loginAccount(this.store.getters.getLoginState.username, this.store.getters.getLoginState.password, this.store.getters.getLoginState.pin)
+                .then(() => {
+                    this.isLoading = false;
+                })
+                .catch(async (err) => {
+                    this.isLoading = false;
+
+                    const alert = await alertController.create({
+                        header: "Sign in error!",
+                        message: err.response.data.error,
+                        buttons: ["Okay"]
+                    })
+
+                    return alert.present();
+                });
+
+                if (!this.isLoading) {
+                    a.dismiss();
+                }
+            })
+        })
     },
     async presentAlert() {
       const alert = await alertController.create({
