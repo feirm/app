@@ -15,7 +15,7 @@ const tatsuyaApi = axios.create({
 // Interceptors for new session token
 tatsuyaApi.interceptors.request.use(
   (config) => {
-    const sessionToken = store.getters.sessionToken;
+    const sessionToken = store.getters.getSessionToken;
 
     if (sessionToken) {
       config.headers.Authorization = "Bearer " + sessionToken;
