@@ -13,7 +13,7 @@ interface Contact {
 
 // Encrypted contact payload
 interface EncryptedContact {
-    encryptedPayload: string;
+    cipherText: string;
     iv: string;
 }
 
@@ -39,7 +39,7 @@ async function CreateEncryptedContact(contact: Contact): Promise<EncryptedContac
     );
 
     const encryptedContact = {
-        encryptedPayload: bufferToHex(cipherText),
+        cipherText: bufferToHex(cipherText),
         iv: bufferToHex(contactIv)
     } as EncryptedContact;
     return encryptedContact;
