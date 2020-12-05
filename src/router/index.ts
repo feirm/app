@@ -15,7 +15,14 @@ const routes: Array<RouteRecordRaw> = [
   // Authentication routes
   {
     path: "/auth/login",
-    component: () => import("@/views/Auth/Login.vue"),
+    component: () => import("@/views/Auth/Login/Login.vue"),
+    meta: {
+      requiresAuth: false,
+    },
+  },
+  {
+    path: "/auth/login/pin",
+    component: () => import("@/views/Auth/Login/PIN.vue"),
     meta: {
       requiresAuth: false,
     },

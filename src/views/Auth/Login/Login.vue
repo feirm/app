@@ -20,15 +20,6 @@
                     <ion-label position="floating">Password</ion-label>
                     <ion-input v-model="password" type="password"></ion-input>
                   </ion-item>
-                  <ion-item>
-                    <ion-label position="floating">PIN</ion-label>
-                    <ion-input
-                      v-model="pin"
-                      maxlength="6"
-                      minlength="6"
-                      type="password"
-                    ></ion-input>
-                  </ion-item>
                   <br />
                   <ion-button expand="block" type="submit">Login</ion-button>
                 </form>
@@ -87,41 +78,19 @@ export default defineComponent({
     return {
       username: "",
       password: "",
-      pin: "",
       isLoading: false,
     };
   },
   methods: {
-    async login() {
-      this.isLoading = true;
+    login() {
+      if (this.username.length < 3) {
+        return;
+      }
+      if (this.password.length < 1) {
+        return;
+      }
 
-      await loadingController
-        .create({
-          message: "Signing you in...",
-        })
-        .then(async (a) => {
-          a.present().then(async () => {
-            await loginAccount(this.username, this.password, Number(this.pin))
-              .then(() => {
-                this.isLoading = false;
-              })
-              .catch(async (err) => {
-                this.isLoading = false;
-
-                const alert = await alertController.create({
-                  header: "Sign in error!",
-                  message: err.response.data.error,
-                  buttons: ["Okay"],
-                });
-
-                return alert.present();
-              });
-
-            if (!this.isLoading) {
-              a.dismiss();
-            }
-          });
-        });
+      router.push({ path: "/auth/login/pin" });
     },
     register() {
       router.push({ path: "/auth/register" });
