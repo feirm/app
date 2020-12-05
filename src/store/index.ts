@@ -11,6 +11,11 @@ export const store = createStore({
             pin: 0,
             confirmPin: 0
         },
+        login: {
+            username: "",
+            password: "",
+            pin: 0
+        },
         authentication: {
             rootKey: "",
             sessionToken: "",
@@ -36,6 +41,16 @@ export const store = createStore({
         },
         registerRootKey(state, key) {
             state.authentication.rootKey = key;
+        },
+        // Mutations for login process
+        loginUsername(state, username) {
+            state.login.username = username;
+        },
+        loginPassword(state, password) {
+            state.login.password = password;
+        },
+        loginPin(state, pin) {
+            state.login.pin = pin;
         },
         setSessionState(state, sessionData) {
             state.authentication.rootKey = sessionData.rootKey;
@@ -92,6 +107,7 @@ export const store = createStore({
         getSessionToken: state => state.authentication.sessionToken,
         getUsername: state => state.authentication.username,
         getRootKey: state => state.authentication.rootKey,
-        getRegistration: state => state.registration // Return the entire registration state
+        getRegistration: state => state.registration, // Return the entire registration state
+        getLoginState: state => state.login // Return the entire login state
     }
 })
