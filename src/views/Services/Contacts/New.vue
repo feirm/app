@@ -74,6 +74,7 @@ import {
 import { informationCircleOutline } from "ionicons/icons";
 import { Contact, CreateEncryptedContact } from "@/lib/contacts";
 import { useRouter } from "vue-router";
+import tatsuyaService from "@/apiService/tatsuyaService";
 
 export default defineComponent({
   name: "NewContact",
@@ -126,11 +127,11 @@ export default defineComponent({
 
       // Encrypt the payload
       const encryptedContact = await CreateEncryptedContact(contact);
-      alert(JSON.stringify(encryptedContact));
 
-      //   TODO: Submit payload to API
+      // Submit payload to API
+      await tatsuyaService.newContact(encryptedContact);
 
-      //   Return to contacts screen
+      // Return to contacts screen
       this.router.push({ path: "/tabs/contacts" });
     },
   },
