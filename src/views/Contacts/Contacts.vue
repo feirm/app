@@ -6,18 +6,15 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      <ion-item v-for="contact in contacts" :key="contact" :button="true">
-        <ion-avatar slot="start">
-          <img
-            src="https://avatars0.githubusercontent.com/u/33553891?s=200&v=4"
-          />
-        </ion-avatar>
-        <p>{{ contact.FirstName }} {{ contact.LastName }}</p>
+      <ion-item v-for="contact in contacts" :key="contact.id" :button="true">
+        {{ contact.id }}
       </ion-item>
 
       <!-- Floating button -->
       <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-        <ion-fab-button @click="router.push({ path: '/services/contacts/new' })">
+        <ion-fab-button
+          @click="router.push({ path: '/services/contacts/new' })"
+        >
           <ion-icon :icon="addOutline"></ion-icon>
         </ion-fab-button>
       </ion-fab>
@@ -26,8 +23,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
-import { Contact } from "@/lib/contacts";
+import { defineComponent, ref } from "vue";
 import {
   IonPage,
   IonHeader,
@@ -38,11 +34,10 @@ import {
   IonFabButton,
   IonIcon,
   IonItem,
-  IonAvatar,
-  loadingController,
 } from "@ionic/vue";
 import { addOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
+import tatsuyaService from "@/apiService/tatsuyaService";
 
 export default defineComponent({
   name: "Contacts",
@@ -56,39 +51,32 @@ export default defineComponent({
     IonFabButton,
     IonIcon,
     IonItem,
-    IonAvatar,
   },
-  async created() {
-    // Simulate loading
-    const loading = await loadingController.create({
-      message: "Fetching and decrypting contacts...",
-      duration: 2000,
-    });
-
-    await loading.present();
+  created() {
+    this.fetchContacts();
+    console.log(this.data);
   },
   setup() {
     // Get router instance
     const router = useRouter();
 
-    const contacts: Contact[] = [];
+    const data = ref(null);
+    const error = ref(null);
 
-    /* TODO
-    1. Fetch encrypted contact blobs
-    2. Decrypt encrypted blob into contacts array
-    */
-
-    // Example contact
-    const exampleContact = {
-      FirstName: "Feirm",
-      LastName: "Blockchain",
-    } as Contact;
-
-    contacts.push(exampleContact);
+    const fetchContacts = async () => {
+      try {
+        const response = await tatsuyaService.fetchContacts();
+        data.value = response.data;
+      } catch (e) {
+        error.value = e;
+      }
+    }
 
     return {
       router,
-      contacts,
+      data,
+      error,
+      fetchContacts,
       addOutline,
     };
   },
