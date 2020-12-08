@@ -21,6 +21,7 @@
     "argon2-browser": "^1.15.2",
     "axios": "^0.21.0",
     "base64-loader": "^1.0.0",
+    "bip32": "^2.0.6",
     "bip39": "^3.0.3",
     "bitcoinjs-lib": "^5.2.0",
     "core-js": "^3.6.5",
