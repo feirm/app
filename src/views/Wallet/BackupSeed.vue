@@ -113,7 +113,13 @@ export default defineComponent({
             }
 
             // If all is valid, then move on...
-            // TODO
+            const congratulationsAlert = await alertController.create({
+                header: "Congratulations! 🥳",
+                message: "You have successfully verified your 24-word mnemonic!",
+                buttons: ["Okay"]
+            })
+
+            return congratulationsAlert.present();
         }
     },
     setup() {
