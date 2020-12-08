@@ -8,14 +8,8 @@ interface Wallet {
 
 // Derive a new mnemonic
 async function GenerateMnemonic(): Promise<string> {
-    // Generate some entropy
     const entropy = window.crypto.getRandomValues(new Uint8Array(32));
-
-    // Derive mnemonic from entropy
     const mnemonic = entropyToMnemonic(bufferToHex(entropy));
-
-    console.log(mnemonic);
-
     return mnemonic;
 }
 
