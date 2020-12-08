@@ -7,7 +7,7 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <ion-item v-for="contact in contacts" :key="contact.id" :button="true">
-        {{ contact.id }}
+        {{ contact }}
       </ion-item>
 
       <!-- Floating button -->
@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent } from "vue";
 import {
   IonPage,
   IonHeader,
@@ -52,31 +52,26 @@ export default defineComponent({
     IonIcon,
     IonItem,
   },
-  created() {
-    this.fetchContacts();
-    console.log(this.data);
+  data() {
+    return {
+      contacts: []
+    }
+  },
+  async created() {
+    try {
+      await tatsuyaService.fetchContacts().then(res => {
+        this.contacts = res.data;
+      })
+    } catch(e) {
+      console.log("Fetching contacts error:", e.response.data.error);
+    }
   },
   setup() {
     // Get router instance
     const router = useRouter();
 
-    const data = ref(null);
-    const error = ref(null);
-
-    const fetchContacts = async () => {
-      try {
-        const response = await tatsuyaService.fetchContacts();
-        data.value = response.data;
-      } catch (e) {
-        error.value = e;
-      }
-    }
-
     return {
       router,
-      data,
-      error,
-      fetchContacts,
       addOutline,
     };
   },
