@@ -6,6 +6,10 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
+      <ion-refresher slot="fixed" @ionRefresh="refreshContacts($event)">
+        <ion-refresher-content></ion-refresher-content>
+      </ion-refresher>
+
       <ion-item v-for="contact in contacts" :key="contact.id" :button="true">
         {{ contact.FirstName}} {{ contact.LastName }}
       </ion-item>
@@ -34,6 +38,8 @@ import {
   IonFabButton,
   IonIcon,
   IonItem,
+  IonRefresher,
+  IonRefresherContent
 } from "@ionic/vue";
 import { addOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
@@ -52,6 +58,8 @@ export default defineComponent({
     IonFabButton,
     IonIcon,
     IonItem,
+    IonRefresher,
+    IonRefresherContent
   },
   data() {
     return {
@@ -67,6 +75,25 @@ export default defineComponent({
       })
     } catch(e) {
       console.log("Fetching contacts error:", e);
+    }
+  },
+  methods: {
+    async refreshContacts(event: any) {
+      // Refresh contacts (tidy this later)
+      try {
+        await tatsuyaService.fetchContacts().then(res => {
+          DecryptContacts(res.data).then(contacts => {
+            this.contacts = contacts;
+          })
+        })
+      } catch(e) {
+        console.log("Fetching contacts error:", e);
+      }
+
+      // Introduce some delay before closing the refresher
+      setTimeout(() => {
+        event.target.complete();
+      }, 1000)
     }
   },
   setup() {
