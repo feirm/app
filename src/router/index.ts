@@ -88,6 +88,10 @@ const routes: Array<RouteRecordRaw> = [
         path: "wallet/newSeed",
         component: () => import("@/views/Wallet/NewSeed.vue")
       },
+      {
+        path: "wallet/backupSeed",
+        component: () => import("@/views/Wallet/BackupSeed.vue")
+      },
 
       // Account
       {

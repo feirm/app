@@ -18,7 +18,7 @@
             </h1>
         </ion-content>
         <ion-footer class="ion-no-border ion-padding">
-            <ion-button expand="block">Next</ion-button>
+            <ion-button expand="block" @click="router.push({ path: '/tabs/wallet/backupSeed' })">Next</ion-button>
         </ion-footer>
     </ion-page>
 </template>
@@ -38,6 +38,7 @@ import {
 } from "@ionic/vue";
 import { GenerateMnemonic } from "@/lib/wallet";
 import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
     name: "NewSeed",
@@ -66,9 +67,11 @@ export default defineComponent({
     },
     setup() {
         const store = useStore();
+        const router = useRouter();
 
         return {
-            store
+            store,
+            router
         }
     }
 })
