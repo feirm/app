@@ -2,11 +2,16 @@
   <ion-page>
     <ion-header>
       <ion-toolbar class="ion-text-center">
-      <ion-title>Wallets</ion-title>
+      <ion-title>Wallet</ion-title>
     </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      <ion-button @click="newWallet">Generate wallets</ion-button>
+      <ion-text class="ion-text-center">
+        <p v-if="wallets.length === 0">
+          It appears that you do not have a wallet. Are you ready to start?
+        </p>
+        <ion-button expand="block" @click="router.push({ path: '/tabs/wallet/newSeed' })">Create a wallet</ion-button>
+      </ion-text>
     </ion-content>
   </ion-page>
 </template>
@@ -19,9 +24,12 @@ import {
   IonToolbar,
   IonTitle,
   IonHeader,
-  IonButton
+  IonButton,
+  IonText
 } from "@ionic/vue";
 import { walletOutline } from "ionicons/icons";
+import { GenerateMnemonic } from "@/lib/wallet";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "WalletOverview",
@@ -31,16 +39,21 @@ export default defineComponent({
     IonToolbar,
     IonTitle,
     IonHeader,
-    IonButton
+    IonButton,
+    IonText
   },
-  methods: {
-    newWallet() {
-      console.log("hello")
+  data() {
+    return {
+      wallets: []
     }
   },
   setup() {
+    const router = useRouter();
+
     return {
+      router,
       walletOutline,
+      GenerateMnemonic
     };
   },
 });
