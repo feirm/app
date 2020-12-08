@@ -20,6 +20,9 @@ export const store = createStore({
             rootKey: "",
             sessionToken: "",
             username: ""
+        },
+        wallet: {
+            mnemonic: ""
         }
     },
     mutations: {
@@ -65,6 +68,10 @@ export const store = createStore({
             state.authentication.username = "";
 
             localStorage.removeItem("session");
+        },
+        // Mutations for wallet
+        setMnemonic(state, mnemonic) {
+            state.wallet.mnemonic = mnemonic;
         }
     },
     actions: {
@@ -108,6 +115,9 @@ export const store = createStore({
         getUsername: state => state.authentication.username,
         getRootKey: state => state.authentication.rootKey,
         getRegistration: state => state.registration, // Return the entire registration state
-        getLoginState: state => state.login // Return the entire login state
+        getLoginState: state => state.login, // Return the entire login state
+
+        // Wallet
+        getWalletMnemonic: state => state.wallet.mnemonic
     }
 })
