@@ -7,7 +7,7 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <ion-item v-for="contact in contacts" :key="contact.id" :button="true">
-        {{ contact }}
+        {{ contact.FirstName}} {{ contact.LastName }}
       </ion-item>
 
       <!-- Floating button -->
@@ -38,6 +38,7 @@ import {
 import { addOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import tatsuyaService from "@/apiService/tatsuyaService";
+import { DecryptContacts } from "@/lib/contacts";
 
 export default defineComponent({
   name: "Contacts",
@@ -60,7 +61,10 @@ export default defineComponent({
   async created() {
     try {
       await tatsuyaService.fetchContacts().then(res => {
-        this.contacts = res.data;
+        const dec = DecryptContacts(res.data).then(contacts => {
+          console.log(contacts)
+          this.contacts = contacts;
+        })
       })
     } catch(e) {
       console.log("Fetching contacts error:", e.response.data.error);
