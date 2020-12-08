@@ -37,6 +37,7 @@ import {
     IonFooter,
 } from "@ionic/vue";
 import { GenerateMnemonic } from "@/lib/wallet";
+import { useStore } from "vuex";
 
 export default defineComponent({
     name: "NewSeed",
@@ -59,6 +60,16 @@ export default defineComponent({
     async mounted() {
         const seed = await GenerateMnemonic()
         this.mnemonic = seed;
+
+        // Store mnemonic in Vuex
+        this.store.commit("setMnemonic", this.mnemonic);
+    },
+    setup() {
+        const store = useStore();
+
+        return {
+            store
+        }
     }
 })
 </script>
