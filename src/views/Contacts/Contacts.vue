@@ -61,13 +61,12 @@ export default defineComponent({
   async created() {
     try {
       await tatsuyaService.fetchContacts().then(res => {
-        const dec = DecryptContacts(res.data).then(contacts => {
-          console.log(contacts)
+        DecryptContacts(res.data).then(contacts => {
           this.contacts = contacts;
         })
       })
     } catch(e) {
-      console.log("Fetching contacts error:", e.response.data.error);
+      console.log("Fetching contacts error:", e);
     }
   },
   setup() {
