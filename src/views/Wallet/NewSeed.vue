@@ -18,9 +18,7 @@
             </h1>
         </ion-content>
         <ion-footer class="ion-no-border ion-padding">
-            <ion-toolbar>
-                <ion-button expand="block">Next</ion-button>
-            </ion-toolbar>
+            <ion-button expand="block">Next</ion-button>
         </ion-footer>
     </ion-page>
 </template>
