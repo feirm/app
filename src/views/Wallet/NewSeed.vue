@@ -13,9 +13,9 @@
                 <p>As the Feirm Platform is non-custodial, you own your private keys. In order to make it easy for you to backup and remember, we give you a string of 24 words. Please be sure to write these down on paper and store them securely. A digital copy is NOT recommended.</p>
                 <p>Please note that if you lose these words, you will not be able to access your funds again, so be sure to save them carefully.</p>
             </ion-text>
-            <h2 class="ion-text-center">
+            <h1 class="ion-text-center">
                 <b>{{ mnemonic }}</b>
-            </h2>
+            </h1>
         </ion-content>
         <ion-footer class="ion-no-border ion-padding">
             <ion-toolbar>
