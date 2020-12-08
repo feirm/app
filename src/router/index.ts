@@ -78,10 +78,18 @@ const routes: Array<RouteRecordRaw> = [
         path: "discover",
         component: () => import("@/views/Discover.vue"),
       },
+
+      // Wallet
       {
         path: "wallet",
         component: () => import("@/views/Wallet/Overview.vue"),
       },
+      {
+        path: "wallet/newSeed",
+        component: () => import("@/views/Wallet/NewSeed.vue")
+      },
+
+      // Account
       {
         path: "contacts",
         component: () => import("@/views/Contacts/Contacts.vue"),
