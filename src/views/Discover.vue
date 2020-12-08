@@ -9,42 +9,9 @@
       <!-- Content goes in here -->
       <ion-item-group>
         <ion-list-header>Explore the Feirm Ecosystem</ion-list-header>
-        <ion-item
-          lines="none"
-          color="light"
-          router-link="/services/qr"
-          button="true"
-        >
-          <ion-icon slot="end" :icon="qrCodeOutline" color="primary"></ion-icon>
-          <ion-label>Scan QR Code</ion-label>
-        </ion-item>
-        <ion-item lines="none" color="light" button="true" @click="notAvailableAlert('News feed')">
-          <ion-icon
-            slot="end"
-            :icon="newspaperOutline"
-            color="primary"
-          ></ion-icon>
-          <ion-label>News Feed</ion-label>
-        </ion-item>
-        <ion-item lines="none" color="light" button="true" @click="notAvailableAlert('Feirm Pay')">
-          <ion-icon slot="end" :icon="cashOutline" color="primary"></ion-icon>
-          <ion-label>Feirm Pay</ion-label>
-        </ion-item>
-        <ion-item lines="none" color="light" button="true" @click="notAvailableAlert('Marketplace')">
-          <ion-icon slot="end" :icon="basketOutline" color="primary"></ion-icon>
-          <ion-label>Marketplace</ion-label>
-        </ion-item>
-        <ion-item lines="none" color="light" button="true" @click="notAvailableAlert('Games')">
-          <ion-icon
-            slot="end"
-            :icon="gameControllerOutline"
-            color="primary"
-          ></ion-icon>
-          <ion-label>Games</ion-label>
-        </ion-item>
-        <ion-item lines="none" color="light" button="true" @click="notAvailableAlert('Faucet')">
-          <ion-icon slot="end" :icon="waterOutline" color="primary"></ion-icon>
-          <ion-label>Faucet</ion-label>
+        <ion-item v-for="service in services" :key="service.Name" :router-link="service.Route" lines="none" color="light" button="true">
+           <ion-icon slot="end" :icon="service.Icon" color="primary"></ion-icon>
+           <ion-label>{{ service.Name }}</ion-label>
         </ion-item>
       </ion-item-group>
 
@@ -101,13 +68,9 @@ import {
 import {
   qrCodeOutline,
   logoDiscord,
-  cashOutline,
   newspaperOutline,
-  basketOutline,
   gameControllerOutline,
-  waterOutline,
   logoTwitter,
-  paperPlaneOutline
 } from "ionicons/icons";
 
 export default {
@@ -124,18 +87,6 @@ export default {
     IonListHeader,
   },
   setup() {
-    function checkFingerprint() {
-      if (window.PublicKeyCredential) {
-        window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable().then(
-          (supported) => {
-            alert(supported);
-          }
-        );
-      } else {
-        alert(false);
-      }
-    }
-
     async function notAvailableAlert(service: string) {
       const alert = await alertController.create({
         header: "Not available!",
@@ -146,18 +97,33 @@ export default {
       return alert.present();
     }
 
+    // Services interface
+    interface Service {
+      Name: string;
+      Route: string;
+      Icon: string;
+    }
+
+    // List of all services
+    const services = [
+      {
+        Name: "Scan QR Code",
+        Route: "/services/qr",
+        Icon: qrCodeOutline
+      },
+      {
+        Name: "News Feed",
+        Route: "",
+        Icon: newspaperOutline
+      }
+    ] as Service[];
+
     return {
-      qrCodeOutline,
       logoDiscord,
-      cashOutline,
-      newspaperOutline,
-      basketOutline,
       gameControllerOutline,
-      waterOutline,
       logoTwitter,
-      checkFingerprint,
-      paperPlaneOutline,
-      notAvailableAlert
+      notAvailableAlert,
+      services
     };
   },
 };
