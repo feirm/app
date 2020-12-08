@@ -55,6 +55,7 @@ import {
     alertController
 } from "@ionic/vue";
 import { useStore } from "vuex";
+import { DeriveWallet } from "@/lib/wallet";
 
 export default defineComponent({
     name: "NewSeed",
@@ -83,6 +84,9 @@ export default defineComponent({
             secondWord: "",
             thirdWord: ""
         }
+    },
+    async mounted() {
+        await DeriveWallet(this.store.getters.getWalletMnemonic)
     },
     methods: {
         ordinal: function(n: any) {

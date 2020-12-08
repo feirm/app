@@ -1,10 +1,20 @@
 import { entropyToMnemonic, mnemonicToSeed } from "bip39";
 import { fromSeed } from "bip32";
 import bufferToHex from './bufferToHex';
+import { payments } from 'bitcoinjs-lib';
+import * as coininfo from "coininfo";
+
+// Feirm network
+const feirm = coininfo.feirm.main
+const feirmNetwork = feirm.toBitcoinJS()
 
 // Wallet interface
 interface Wallet {
-    Seed: string;
+    Mnemonic: string;
+    RootKey: string;
+    ExtendedPrivateKey: string;
+    ExtendedPublicKey: string;
+    Index: number;
 }
 
 // Derive a new mnemonic
@@ -19,24 +29,26 @@ async function DeriveWallet(mnemonic: string): Promise<any> {
     // Derive seed from mnemonic
     const seed = await mnemonicToSeed(mnemonic);
 
-    // Feirm Network
-    const feirmNetwork = {
-        messagePrefix: "\x18DarkNet Signed Message:\n",
-        bip32: {
-            public: 0x0488b21e,
-            private: 0x0488ade4
-        },
-        pubKeyHash: 0xc,
-        scriptHash: 0x39,
-        wif: 0x37
-    }
-
     // BIP-44
     const rootKey = fromSeed(seed, feirmNetwork);
+
+    // m / 44' / 193' / 0' / 0 / address
     const addressNode = rootKey.derivePath("m/44'/193'/0'/0");
 
-    console.log("xprivkey:", addressNode.toBase58())
-    console.log("xpubkey:", addressNode.neutered().toBase58())
+    console.log("master root key:", rootKey.toBase58())
+    console.log("extended private key:", addressNode.toBase58())
+    console.log("extended public key:", addressNode.neutered().toBase58())
+
+    for (let i = 0; i < 20; i++) {
+        const addressNode = rootKey.derive(i);
+
+        const address = payments.p2pkh({
+            pubkey: addressNode.publicKey,
+            network: feirmNetwork
+        });
+
+        console.log(address.address);
+    }
 }
 
 export {
