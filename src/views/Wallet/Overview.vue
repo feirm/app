@@ -23,10 +23,10 @@
           <ion-card-content>
             <ion-col>
               <ion-row>
-                <h2>{{ balance }} XFE</h2>
+                <h1>{{ balance }} XFE</h1>
               </ion-row>
               <ion-row>
-                <p>$0.00</p>
+                <p>${{ fiatBalance }}</p>
               </ion-row>
             </ion-col>
           </ion-card-content>
@@ -93,6 +93,7 @@ export default defineComponent({
   data() {
     return {
       balance: 0,
+      fiatBalance: 0,
       wallet: {} as Wallet
     }
   },
