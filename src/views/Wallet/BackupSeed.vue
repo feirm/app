@@ -56,6 +56,7 @@ import {
 } from "@ionic/vue";
 import { useStore } from "vuex";
 import { DeriveWallet } from "@/lib/wallet";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
     name: "NewSeed",
@@ -84,9 +85,6 @@ export default defineComponent({
             secondWord: "",
             thirdWord: ""
         }
-    },
-    async mounted() {
-        await DeriveWallet(this.store.getters.getWalletMnemonic)
     },
     methods: {
         ordinal: function(n: any) {
@@ -120,7 +118,13 @@ export default defineComponent({
             const congratulationsAlert = await alertController.create({
                 header: "Congratulations! 🥳",
                 message: "You have successfully verified your 24-word mnemonic!",
-                buttons: ["Okay"]
+                buttons: [{
+                    text: "Okay",
+                    handler: async () => {
+                        await DeriveWallet(this.store.getters.getWalletMnemonic);
+                        this.router.push({ path: "/tabs/wallet" })
+                    }
+                }]
             })
 
             return congratulationsAlert.present();
@@ -128,9 +132,11 @@ export default defineComponent({
     },
     setup() {
         const store = useStore();
+        const router = useRouter();
 
         return {
-            store
+            store,
+            router
         }
     }
 })
