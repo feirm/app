@@ -102,9 +102,11 @@ export default defineComponent({
       this.wallet = JSON.parse(wallet!);
 
       // Fetch account balance
-      await blockBookService.getXpub(this.wallet.coin.extendedPublicKey).then(res => {
-        this.balance = Number(res.data.balance);
-      })
+      setInterval(async() => {
+        await blockBookService.getXpub(this.wallet.coin.extendedPublicKey).then(res => {
+          this.balance = Number(res.data.balance);
+        })
+      }, 2000)
     } catch (e) {
       console.log(e);
     }
