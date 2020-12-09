@@ -1,7 +1,7 @@
 import { entropyToMnemonic, mnemonicToSeed } from "bip39";
 import { fromSeed } from "bip32";
+import { v4 as uuidv4 } from "uuid";
 import bufferToHex from './bufferToHex';
-import { payments } from 'bitcoinjs-lib';
 import * as coininfo from "coininfo";
 
 // Feirm network
@@ -10,11 +10,15 @@ const feirmNetwork = feirm.toBitcoinJS()
 
 // Wallet interface
 interface Wallet {
-    Mnemonic: string;
-    RootKey: string;
-    ExtendedPrivateKey: string;
-    ExtendedPublicKey: string;
-    Index: number;
+    id: string;
+    mnemonic: string;
+    coin: {
+        name: string;
+        rootKey: string;
+        extendedPrivateKey: string;
+        extendedPublicKey: string;
+        index: number;
+    };
 }
 
 // Derive a new mnemonic
@@ -24,34 +28,37 @@ async function GenerateMnemonic(): Promise<string> {
     return mnemonic;
 }
 
-// Take a mnemonic and derive an BTC BIP-44 wallet
-async function DeriveWallet(mnemonic: string): Promise<any> {
+// Take a mnemonic and derive an XFE BIP-44 wallet
+async function DeriveWallet(mnemonic: string): Promise<Wallet> {
     // Derive seed from mnemonic
     const seed = await mnemonicToSeed(mnemonic);
 
     // BIP-44
     const rootKey = fromSeed(seed, feirmNetwork);
 
-    // m / 44' / 193' / 0' / 0 / address
-    const addressNode = rootKey.derivePath("m/44'/0'/0'");
+    const derivationPath = "m/44'/0'/0'"
+    const addressNode = rootKey.derivePath(derivationPath);
 
-    console.log("master root key:", rootKey.toBase58())
-    console.log("extended private key:", addressNode.toBase58())
-    console.log("extended public key:", addressNode.neutered().toBase58())
+    // Assemble the wallet
+    const wallet = {
+        id: uuidv4(),
+        mnemonic: mnemonic,
+        coin: {
+            name: "Feirm",
+            rootKey: rootKey.toBase58(),
+            extendedPrivateKey: addressNode.toBase58(),
+            extendedPublicKey: addressNode.neutered().toBase58(),
+            index: 0
+        }
+    } as Wallet;
 
-    for (let i = 0; i < 20; i++) {
-        const addressNode = rootKey.derivePath("m/44'/0'/0'/0/" + i);
-
-        const address = payments.p2pkh({
-            pubkey: addressNode.publicKey,
-            network: feirmNetwork
-        });
-
-        console.log(address.address);
-    }
+    localStorage.setItem("wallet", JSON.stringify(wallet));
+    
+    return wallet;
 }
 
 export {
     GenerateMnemonic,
-    DeriveWallet
+    DeriveWallet,
+    Wallet
 }
