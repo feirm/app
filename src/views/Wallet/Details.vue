@@ -8,25 +8,34 @@
         <ion-title>Feirm (XFE)</ion-title>
       </ion-toolbar>
     </ion-header>
-    <ion-content :fullscreen="true" class="ion-padding"> </ion-content>
+    <ion-content :fullscreen="true" class="ion-padding ion-text-center">
+      <h1>Receiving Address</h1>
+      <img :src="addressQr" />
+      <br />
+      <br />
+      <code>
+        {{ address }}
+      </code>
+      <p>Send any amount of Feirm (XFE) to this address.</p>
+    </ion-content>
     <ion-footer class="ion-no-border ion-padding">
-        <ion-row>
-          <ion-col>
-            <ion-fab-button color="light" size="small">
-              <ion-icon :icon="arrowUpOutline"></ion-icon>
-            </ion-fab-button>
-          </ion-col>
-          <ion-col>
-            <ion-fab-button color="light" size="small">
-              <ion-icon :icon="refreshCircleOutline"></ion-icon>
-            </ion-fab-button>
-          </ion-col>
-          <ion-col>
-            <ion-fab-button color="light" size="small">
-              <ion-icon :icon="settingsOutline"></ion-icon>
-            </ion-fab-button>
-          </ion-col>
-        </ion-row>
+      <ion-row>
+        <ion-col>
+          <ion-fab-button color="light" size="small">
+            <ion-icon :icon="arrowUpOutline"></ion-icon>
+          </ion-fab-button>
+        </ion-col>
+        <ion-col>
+          <ion-fab-button color="light" size="small">
+            <ion-icon :icon="refreshCircleOutline"></ion-icon>
+          </ion-fab-button>
+        </ion-col>
+        <ion-col>
+          <ion-fab-button color="light" size="small">
+            <ion-icon :icon="settingsOutline"></ion-icon>
+          </ion-fab-button>
+        </ion-col>
+      </ion-row>
     </ion-footer>
   </ion-page>
 </template>
@@ -52,6 +61,10 @@ import {
   refreshCircleOutline,
   settingsOutline,
 } from "ionicons/icons";
+import QRCode from "qrcode";
+import { useStore } from "vuex";
+import { bip32, payments } from "bitcoinjs-lib";
+import * as coininfo from "coininfo";
 
 export default defineComponent({
   name: "Details",
@@ -69,8 +82,37 @@ export default defineComponent({
     IonTitle,
     IonBackButton,
   },
-  setup() {
+  data() {
     return {
+      addressQr: "",
+      address: "" as any,
+    };
+  },
+  ionViewWillEnter() {
+    // Derive an address
+    // TODO Implement proper BIP44 index check
+    const feirm = coininfo.feirm.main;
+    const feirmNetwork = feirm.toBitcoinJS();
+
+    const xpub = this.store.getters.getWallet.coin.extendedPublicKey;
+    const { address } = payments.p2pkh({
+      pubkey: bip32.fromBase58(xpub).derive(0).derive(0).publicKey,
+      network: feirmNetwork,
+    });
+
+    this.address = address;
+
+    QRCode.toDataURL(this.address, {
+      width: 200,
+    }).then((url) => {
+      this.addressQr = url;
+    });
+  },
+  setup() {
+    const store = useStore();
+
+    return {
+      store,
       arrowUpOutline,
       refreshCircleOutline,
       settingsOutline,
@@ -81,8 +123,13 @@ export default defineComponent({
 
 <style scoped>
 ion-footer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+code {
+  padding: 15px;
+  font-size: 12px;
 }
 </style>
