@@ -38,7 +38,7 @@
         <h6 class="ion-text-center">Your Wallets</h6>
 
         <!-- Showcase wallets/coins -->
-        <ion-card color="light" button="true">
+        <ion-card color="light" button="true" @click="detailedWallet(store.getters.getWallet.id)">
           <ion-card-content>
             <ion-item lines="none" color="light">
               <ion-avatar>
@@ -47,11 +47,11 @@
               <ion-grid>
                 <ion-row>
                   <ion-col>
-                    <p>Feirm (XFE)</p>
+                    <p class="ion-text-right">Feirm (XFE)</p>
                   </ion-col>
                   <ion-col>
                     <ion-text color="primary">
-                      <p color="primary">{{ balance }} XFE</p>
+                      <p class="ion-text-center">{{ balance }} XFE</p>
                     </ion-text>
                   </ion-col>
                 </ion-row>
@@ -152,6 +152,11 @@ export default defineComponent({
       .then((res) => {
         this.fiatBalance = res.data.feirm.usd * this.balance;
       });
+  },
+  methods: {
+    detailedWallet(id: string) {
+      this.router.push("/tabs/wallet/" + id)
+    }
   },
   setup() {
     const router = useRouter();
