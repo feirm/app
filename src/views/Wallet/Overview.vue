@@ -22,16 +22,41 @@
 
       <!-- Present the wallet/coins in a nice format -->
       <div v-if="wallet">
-        <ion-card button="true">
+        <ion-card color="light">
           <ion-card-content>
             <ion-col>
               <ion-row>
-                <h1>{{ balance }} XFE</h1>
+                <p>Balance</p>
               </ion-row>
               <ion-row>
-                <p>${{ fiatBalance }}</p>
+                <h1>${{ fiatBalance }}</h1>
               </ion-row>
             </ion-col>
+          </ion-card-content>
+        </ion-card>
+
+        <h6 class="ion-text-center">Your Wallets</h6>
+
+        <!-- Showcase wallets/coins -->
+        <ion-card color="light" button="true">
+          <ion-card-content>
+            <ion-item lines="none" color="light">
+              <ion-avatar>
+                <img src="https://avatars0.githubusercontent.com/u/33553891?s=200&v=4">
+              </ion-avatar>
+              <ion-grid>
+                <ion-row>
+                  <ion-col>
+                    <p>Feirm (XFE)</p>
+                  </ion-col>
+                  <ion-col>
+                    <ion-text color="primary">
+                      <p color="primary">{{ balance }} XFE</p>
+                    </ion-text>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-item>
           </ion-card-content>
         </ion-card>
       </div>
@@ -67,12 +92,16 @@ import {
   IonNote,
   IonCard,
   IonCardContent,
+  IonItem,
+  IonAvatar,
+  IonText
 } from "@ionic/vue";
 import { walletOutline } from "ionicons/icons";
 import { GenerateMnemonic, Wallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
 import blockBookService from "@/apiService/blockBookService";
 import axios from "axios";
+import { useStore } from "vuex";
 
 export default defineComponent({
   name: "WalletOverview",
@@ -90,6 +119,9 @@ export default defineComponent({
     IonNote,
     IonCard,
     IonCardContent,
+    IonItem,
+    IonAvatar,
+    IonText
   },
   data() {
     return {
@@ -100,13 +132,10 @@ export default defineComponent({
   },
   async ionViewWillEnter() {
     try {
-      const wallet = localStorage.getItem("wallet");
-      this.wallet = JSON.parse(wallet!);
-
       // Fetch account balance
       setInterval(async () => {
         await blockBookService
-          .getXpub(this.wallet.coin.extendedPublicKey)
+          .getXpub(this.store.getters.getWallet.coin.extendedPublicKey)
           .then((res) => {
             this.balance = Number(res.data.balance);
           });
@@ -126,9 +155,11 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter();
+    const store = useStore();
 
     return {
       router,
+      store,
       walletOutline,
       GenerateMnemonic,
     };
