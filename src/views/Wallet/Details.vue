@@ -10,16 +10,10 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding"> </ion-content>
     <ion-footer class="ion-no-border ion-padding">
-      <ion-grid>
-        <ion-row class="ion-padding">
+        <ion-row>
           <ion-col>
             <ion-fab-button color="light" size="small">
               <ion-icon :icon="arrowUpOutline"></ion-icon>
-            </ion-fab-button>
-          </ion-col>
-          <ion-col>
-            <ion-fab-button color="light" size="small">
-              <ion-icon :icon="arrowDownOutline"></ion-icon>
             </ion-fab-button>
           </ion-col>
           <ion-col>
@@ -33,7 +27,6 @@
             </ion-fab-button>
           </ion-col>
         </ion-row>
-      </ion-grid>
     </ion-footer>
   </ion-page>
 </template>
@@ -46,7 +39,6 @@ import {
   IonFabButton,
   IonIcon,
   IonRow,
-  IonGrid,
   IonCol,
   IonFooter,
   IonHeader,
@@ -56,7 +48,6 @@ import {
   IonBackButton,
 } from "@ionic/vue";
 import {
-  arrowDownOutline,
   arrowUpOutline,
   refreshCircleOutline,
   settingsOutline,
@@ -70,7 +61,6 @@ export default defineComponent({
     IonFabButton,
     IonIcon,
     IonRow,
-    IonGrid,
     IonCol,
     IonFooter,
     IonHeader,
@@ -81,7 +71,6 @@ export default defineComponent({
   },
   setup() {
     return {
-      arrowDownOutline,
       arrowUpOutline,
       refreshCircleOutline,
       settingsOutline,
@@ -89,3 +78,11 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+ion-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
