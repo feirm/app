@@ -3,6 +3,7 @@ import { fromSeed } from "bip32";
 import { v4 as uuidv4 } from "uuid";
 import bufferToHex from './bufferToHex';
 import * as coininfo from "coininfo";
+import { payments, bip32 } from "bitcoinjs-lib";
 
 // Feirm network
 const feirm = coininfo.feirm.main
@@ -52,13 +53,25 @@ async function DeriveWallet(mnemonic: string): Promise<Wallet> {
         }
     } as Wallet;
 
+    // Save the wallet object in localStorage
     localStorage.setItem("wallet", JSON.stringify(wallet));
     
     return wallet;
 }
 
+// Derive a new address from xpub and index
+function DeriveAddress(xpub: string, index: number): string {
+    const { address } = payments.p2pkh({
+      pubkey: bip32.fromBase58(xpub).derive(0).derive(index).publicKey,
+      network: feirmNetwork,
+    });
+
+    return address!;
+}
+
 export {
     GenerateMnemonic,
     DeriveWallet,
+    DeriveAddress,
     Wallet
 }

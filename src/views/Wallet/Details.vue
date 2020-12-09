@@ -63,8 +63,7 @@ import {
 } from "ionicons/icons";
 import QRCode from "qrcode";
 import { useStore } from "vuex";
-import { bip32, payments } from "bitcoinjs-lib";
-import * as coininfo from "coininfo";
+import { DeriveAddress } from "@/lib/wallet";
 
 export default defineComponent({
   name: "Details",
@@ -90,15 +89,8 @@ export default defineComponent({
   },
   ionViewWillEnter() {
     // Derive an address
-    // TODO Implement proper BIP44 index check
-    const feirm = coininfo.feirm.main;
-    const feirmNetwork = feirm.toBitcoinJS();
-
     const xpub = this.store.getters.getWallet.coin.extendedPublicKey;
-    const { address } = payments.p2pkh({
-      pubkey: bip32.fromBase58(xpub).derive(0).derive(0).publicKey,
-      network: feirmNetwork,
-    });
+    const address = DeriveAddress(xpub, this.store.getters.getWallet.coin.index)
 
     this.address = address;
 
