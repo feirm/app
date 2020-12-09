@@ -9,7 +9,7 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding"> </ion-content>
-    <ion-footer class="ion-padding">
+    <ion-footer class="ion-no-border ion-padding">
       <ion-grid>
         <ion-row class="ion-padding">
           <ion-col>
