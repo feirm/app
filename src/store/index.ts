@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import { createStore } from 'vuex';
 import jwt_decode from "jwt-decode";
+import { Wallet } from "@/lib/wallet";
 
 export const store = createStore({
     state: {
@@ -21,9 +22,7 @@ export const store = createStore({
             sessionToken: "",
             username: ""
         },
-        wallet: {
-            mnemonic: ""
-        }
+        wallet: {} as Wallet
     },
     mutations: {
         // Mutations for registration process
@@ -72,15 +71,23 @@ export const store = createStore({
         // Mutations for wallet
         setMnemonic(state, mnemonic) {
             state.wallet.mnemonic = mnemonic;
+        },
+        setWalletState(state, wallet) {
+            state.wallet = wallet;
         }
     },
     actions: {
         initialize({ commit }) {
             // Load existing session if its in storage
             const session = localStorage.getItem("session");
+            const wallet = localStorage.getItem("wallet");
 
             if (session) {
                 commit("setSessionState", JSON.parse(session));
+            }
+
+            if (wallet) {
+                commit("setWalletState", JSON.parse(wallet));
             }
         },
         clearRegistrationState({ commit }) {
@@ -118,6 +125,7 @@ export const store = createStore({
         getLoginState: state => state.login, // Return the entire login state
 
         // Wallet
-        getWalletMnemonic: state => state.wallet.mnemonic
+        getWalletMnemonic: state => state.wallet.mnemonic,
+        getWallet: state => state.wallet
     }
 })
