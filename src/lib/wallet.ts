@@ -33,14 +33,14 @@ async function DeriveWallet(mnemonic: string): Promise<any> {
     const rootKey = fromSeed(seed, feirmNetwork);
 
     // m / 44' / 193' / 0' / 0 / address
-    const addressNode = rootKey.derivePath("m/44'/193'/0'/0");
+    const addressNode = rootKey.derivePath("m/44'/0'/0'");
 
     console.log("master root key:", rootKey.toBase58())
     console.log("extended private key:", addressNode.toBase58())
     console.log("extended public key:", addressNode.neutered().toBase58())
 
     for (let i = 0; i < 20; i++) {
-        const addressNode = rootKey.derive(i);
+        const addressNode = rootKey.derivePath("m/44'/0'/0'/0/" + i);
 
         const address = payments.p2pkh({
             pubkey: addressNode.publicKey,
