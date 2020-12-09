@@ -7,11 +7,14 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <ion-text class="ion-text-center">
-        <p v-if="wallets.length === 0">
+        <p v-if="!wallet">
           It appears that you do not have a wallet. Are you ready to start?
         </p>
-        <ion-button expand="block" @click="router.push({ path: '/tabs/wallet/newSeed' })">Create a wallet</ion-button>
+        <ion-button v-if="!wallet" expand="block" @click="router.push({ path: '/tabs/wallet/newSeed' })">Create a wallet</ion-button>
       </ion-text>
+      <ion-card button="true">
+        <ion-card-title>{{ wallet }}</ion-card-title>
+      </ion-card>
     </ion-content>
   </ion-page>
 </template>
@@ -25,10 +28,12 @@ import {
   IonTitle,
   IonHeader,
   IonButton,
-  IonText
+  IonText,
+  IonCard,
+  IonCardTitle
 } from "@ionic/vue";
 import { walletOutline } from "ionicons/icons";
-import { GenerateMnemonic } from "@/lib/wallet";
+import { GenerateMnemonic, Wallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
 
 export default defineComponent({
@@ -40,11 +45,21 @@ export default defineComponent({
     IonTitle,
     IonHeader,
     IonButton,
-    IonText
+    IonText,
+    IonCard,
+    IonCardTitle
   },
   data() {
     return {
-      wallets: []
+      wallet: {} as Wallet
+    }
+  },
+  ionViewWillEnter() {
+    try {
+      const wallet = localStorage.getItem("wallet");
+      this.wallet = JSON.parse(wallet!);
+    } catch (e) {
+      console.log(e);
     }
   },
   setup() {
