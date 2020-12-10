@@ -245,8 +245,8 @@ export default defineComponent({
 
       //   Check that PINs are matching
       if (
-        this.store.state.registration.pin !=
-        this.store.state.registration.confirmPin
+        this.store.getters.getRegistration.pin !=
+        this.store.getters.getRegistration.confirmPin
       ) {
         const alert = await alertController.create({
           header: "Error!",
