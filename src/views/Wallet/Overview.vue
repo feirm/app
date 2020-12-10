@@ -142,13 +142,14 @@ export default defineComponent({
         // Fetch account balance
         setInterval(async () => {
           await blockBookService
-            .getXpub(this.store.getters.getWallet.coin.extendedPublicKey)
+            .getXpub(this.store.getters.getWallet.coins[0].extendedPublicKey)
             .then((res) => {
               this.balance = Number(res.data.balance);
 
               // Update account index
               const wallet = this.store.getters.getWallet as Wallet;
-              wallet.coin.index = res.data.usedTokens;
+
+              wallet.coins[0].index = res.data.usedTokens;
               localStorage.setItem("wallet", JSON.stringify(wallet));
             });
         }, 2000);

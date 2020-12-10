@@ -89,8 +89,8 @@ export default defineComponent({
   },
   ionViewWillEnter() {
     // Derive an address
-    const xpub = this.store.getters.getWallet.coin.extendedPublicKey;
-    const address = DeriveAddress(xpub, this.store.getters.getWallet.coin.index)
+    const xpub = this.store.getters.getWallet.coins[0].extendedPublicKey;
+    const address = DeriveAddress(xpub, this.store.getters.getWallet.coins[0].index)
 
     this.address = address;
 
