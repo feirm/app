@@ -162,6 +162,13 @@ router.beforeEach(async (to, from, next) => {
 
     const res = await tatsuyaService.getLoginToken(username);
 
+    // If the response status code is 400, then clear the state and redirect to login
+    // (Something has gone wrong server side)
+    if (res.status === 400) {
+      store.dispatch("logout");
+      return next("/auth/login");
+    }
+
     // Create signature
     const signature = nacl.sign.detached(
       new TextEncoder().encode(res.data.nonce),
