@@ -18,26 +18,13 @@ interface Wallet {
   coins: [
     {
       name: string;
+      ticker: string;
       rootKey: string;
       extendedPrivateKey: string;
       extendedPublicKey: string;
+      balance: number;
       index: number;
       blockbook: string;
-
-      // Network information
-      network: {
-        bip44: number;
-        txVersion: number;
-        messagePrefix: string;
-        bech32: string;
-        bip32: {
-          private: number;
-          public: number;
-        };
-        pubKeyHash: number;
-        scriptHash: number;
-        wif: number;
-      };
     }
   ];
 }
@@ -67,32 +54,19 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
   const wallet = {
     id: uuidv4(),
     mnemonic: mnemonic,
-    coins: [] as {}
+    coins: [] as {},
   } as Wallet;
 
   // Generate coin data
   const coin = {
     name: coinData.data.coinInformation.name,
+    ticker: coinData.data.coinInformation.ticker.toLowerCase(),
     rootKey: rootKey.toBase58(),
     extendedPrivateKey: addressNode.toBase58(),
     extendedPublicKey: addressNode.neutered().toBase58(),
+    balance: 0,
     index: 0,
     blockbook: coinData.data.coinInformation.blockbook,
-
-    // Network information
-    network: {
-      bip44: coinData.data.coinInformation.bip44,
-      txVersion: coinData.data.coinInformation.txVersion,
-      messagePrefix: coinData.data.coinInformation.networks.p2pkh.messagePrefix,
-      bech32: coinData.data.coinInformation.networks.p2pkh.bech32,
-      bip32: {
-        private: coinData.data.coinInformation.networks.p2pkh.bip32.private,
-        public: coinData.data.coinInformation.networks.p2pkh.bip32.private,
-      },
-      pubKeyHash: coinData.data.coinInformation.networks.p2pkh.pubKeyHash,
-      scriptHash: coinData.data.coinInformation.networks.p2pkh.scriptHash,
-      wif: coinData.data.coinInformation.networks.p2pkh.wif,
-    },
   };
 
   wallet.coins.push(coin);
@@ -113,7 +87,22 @@ function DeriveAddress(xpub: string, index: number): string {
     network: feirmNetwork,
   });
 
-  return address!;
+  return address as string;
 }
 
-export { GenerateMnemonic, DeriveWallet, DeriveAddress, Wallet };
+// Find an existing coin wallet based on ticker from user input
+function FindWallet(ticker: string): any {
+  const coins = store.getters.getCoins;
+
+  // Iterate over each of the items until we get a match
+  coins.forEach((coin) => {
+    if (coin.ticker === ticker.toLowerCase()) {
+      return coin;
+    }
+  });
+
+  // Didnt find anything, so just return
+  return;
+}
+
+export { GenerateMnemonic, DeriveWallet, DeriveAddress, FindWallet, Wallet };
