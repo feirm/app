@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import bufferToHex from './bufferToHex';
 import * as coininfo from "coininfo";
 import { payments, bip32 } from "bitcoinjs-lib";
+import azureService from '@/apiService/azureService';
 
 // Feirm network
 const feirm = coininfo.feirm.main
@@ -29,10 +30,15 @@ async function GenerateMnemonic(): Promise<string> {
     return mnemonic;
 }
 
-// Take a mnemonic and derive an XFE BIP-44 wallet
-async function DeriveWallet(mnemonic: string): Promise<Wallet> {
+// Take a mnemonic and derive a wallet for a coin
+async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
     // Derive seed from mnemonic
     const seed = await mnemonicToSeed(mnemonic);
+
+    // Fetch the coin data for the provided ticker and assemble network information from it
+    await azureService.getCoin(ticker).then(res => {
+        alert(res.data);
+    })
 
     // BIP-44
     const rootKey = fromSeed(seed, feirmNetwork);
