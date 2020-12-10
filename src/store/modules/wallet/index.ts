@@ -51,6 +51,7 @@ export const wallet = {
   getters: {
       getWalletMnemonic: state => state.wallet.mnemonic,
       getWallet: state => state.wallet,
+      getCoins: state => state.wallet.coins,
       isWalletPresent: state => {
         if (state.wallet.id == "") {
           return false
