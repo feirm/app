@@ -25,7 +25,10 @@
         @click="router.push({ path: '/tabs/wallet/newSeed' })"
         >Get Started</ion-button
       >
-      <ion-note color="dark">Restore from backup</ion-note>
+      <br />
+      <ion-note color="dark" @click="restorePrompt"
+        >Restore from backup</ion-note
+      >
     </ion-footer>
   </ion-page>
 </template>
@@ -44,10 +47,12 @@ import {
   IonRow,
   IonCol,
   IonNote,
+  alertController,
 } from "@ionic/vue";
 import { walletOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import { DeriveWallet } from "@/lib/wallet";
 
 export default defineComponent({
   name: "WalletOverview",
@@ -63,6 +68,52 @@ export default defineComponent({
     IonRow,
     IonCol,
     IonNote,
+  },
+  methods: {
+    async restorePrompt() {
+      const alert = await alertController.create({
+        header: "Wallet Recovery",
+        message:
+          "Please enter your 24-word mnemonic which you backed up when originally creating your wallet.",
+        inputs: [
+          {
+            name: "mnemonic",
+            type: "text",
+          },
+        ],
+        buttons: [
+          {
+            text: "Cancel",
+          },
+          {
+            text: "Restore Wallet",
+            handler: async (inputs) => {
+              // Derive an XFE wallet from the mnemonic
+              try {
+                await DeriveWallet(inputs.mnemonic, "xfe");
+                this.router.push({
+                  path: "/tabs/wallet",
+                });
+              } catch (e) {
+                const eAlert = await alertController.create({
+                  header: "Recovery Error!",
+                  message: e,
+                  buttons: [
+                    {
+                      text: "Okay!",
+                    },
+                  ],
+                });
+
+                return eAlert.present();
+              }
+            },
+          },
+        ],
+      });
+
+      return alert.present();
+    },
   },
   setup() {
     const router = useRouter();
