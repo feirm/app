@@ -91,8 +91,13 @@ tatsuyaApi.interceptors.response.use(
 
 // Blockbook API
 const blockBookApi = axios.create({
-  baseURL: "https://blockbook.feirm.com/api"
-})
+  baseURL: "https://blockbook.feirm.com/api",
+});
+
+// Azure API
+const azureApi = axios.create({
+  baseURL: "http://localhost:3001",
+});
 
 // Export all Axios instances
-export { tatsuyaApi, blockBookApi };
+export { tatsuyaApi, blockBookApi, azureApi };
