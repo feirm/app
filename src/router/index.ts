@@ -100,6 +100,10 @@ const routes: Array<RouteRecordRaw> = [
         path: "wallet/:id",
         component: () => import("@/views/Wallet/Details.vue")
       },
+      {
+        path: "wallet/:id/settings",
+        component: () => import("@/views/Wallet/Settings/Settings.vue")
+      },
 
       // Account
       {
