@@ -85,6 +85,10 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/Wallet/Overview.vue"),
       },
       {
+        path: "wallet/getStarted",
+        component: () => import("@/views/Wallet/GetStarted.vue")
+      },
+      {
         path: "wallet/newSeed",
         component: () => import("@/views/Wallet/NewSeed.vue")
       },
