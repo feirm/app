@@ -7,7 +7,7 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
       <!-- Show if wallet is not present -->
-      <ion-grid v-if="!wallet">
+      <ion-grid v-if="!store.getters.isWalletPresent">
         <ion-row>
           <ion-col class="ion-text-center">
             <ion-img src="/assets/logo.png"></ion-img>
@@ -21,7 +21,7 @@
       </ion-grid>
 
       <!-- Present the wallet/coins in a nice format -->
-      <div v-if="wallet">
+      <div v-if="store.getters.isWalletPresent">
         <ion-card color="light">
           <ion-card-content>
             <ion-col>
@@ -38,11 +38,17 @@
         <h6 class="ion-text-center">Your Wallets</h6>
 
         <!-- Showcase wallets/coins -->
-        <ion-card color="light" button="true" @click="detailedWallet(store.getters.getWallet.id)">
+        <ion-card
+          color="light"
+          button="true"
+          @click="detailedWallet(store.getters.getWallet.id)"
+        >
           <ion-card-content>
             <ion-item lines="none" color="light">
               <ion-avatar>
-                <img src="https://avatars0.githubusercontent.com/u/33553891?s=200&v=4">
+                <img
+                  src="https://avatars0.githubusercontent.com/u/33553891?s=200&v=4"
+                />
               </ion-avatar>
               <ion-grid>
                 <ion-row>
@@ -63,7 +69,7 @@
     </ion-content>
     <!-- Show footer if wallet is not present -->
     <ion-footer
-      v-if="!wallet"
+      v-if="!store.getters.isWalletPresent"
       class="ion-no-border ion-padding ion-text-center"
     >
       <ion-button
@@ -94,7 +100,7 @@ import {
   IonCardContent,
   IonItem,
   IonAvatar,
-  IonText
+  IonText,
 } from "@ionic/vue";
 import { walletOutline } from "ionicons/icons";
 import { GenerateMnemonic, Wallet } from "@/lib/wallet";
@@ -121,7 +127,7 @@ export default defineComponent({
     IonCardContent,
     IonItem,
     IonAvatar,
-    IonText
+    IonText,
   },
   data() {
     return {
@@ -131,37 +137,39 @@ export default defineComponent({
     };
   },
   async ionViewWillEnter() {
-    try {
-      // Fetch account balance
-      setInterval(async () => {
-        await blockBookService
-          .getXpub(this.store.getters.getWallet.coin.extendedPublicKey)
-          .then((res) => {
-            this.balance = Number(res.data.balance);
+    if (this.store.getters.isWalletPresent) {
+      try {
+        // Fetch account balance
+        setInterval(async () => {
+          await blockBookService
+            .getXpub(this.store.getters.getWallet.coin.extendedPublicKey)
+            .then((res) => {
+              this.balance = Number(res.data.balance);
 
-            // Update account index
-            const wallet = this.store.getters.getWallet as Wallet;
-            wallet.coin.index = res.data.usedTokens
-            localStorage.setItem("wallet", JSON.stringify(wallet));
-          });
-      }, 2000);
-    } catch (e) {
-      console.log(e);
+              // Update account index
+              const wallet = this.store.getters.getWallet as Wallet;
+              wallet.coin.index = res.data.usedTokens;
+              localStorage.setItem("wallet", JSON.stringify(wallet));
+            });
+        }, 2000);
+      } catch (e) {
+        console.log(e);
+      }
+
+      // Fetch the Feirm USD price
+      await axios
+        .get(
+          "https://api.coingecko.com/api/v3/simple/price?ids=feirm&vs_currencies=usd"
+        )
+        .then((res) => {
+          this.fiatBalance = res.data.feirm.usd * this.balance;
+        });
     }
-
-    // Fetch the Feirm USD price
-    await axios
-      .get(
-        "https://api.coingecko.com/api/v3/simple/price?ids=feirm&vs_currencies=usd"
-      )
-      .then((res) => {
-        this.fiatBalance = res.data.feirm.usd * this.balance;
-      });
   },
   methods: {
     detailedWallet(id: string) {
-      this.router.push("/tabs/wallet/" + id)
-    }
+      this.router.push("/tabs/wallet/" + id);
+    },
   },
   setup() {
     const router = useRouter();
