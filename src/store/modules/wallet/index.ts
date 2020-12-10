@@ -25,6 +25,9 @@ export const wallet = {
         commit("setWalletState", JSON.parse(wallet));
       }
     },
+    deleteWallet({ commit }) {
+      commit("deleteWalletState")
+    }
   },
   getters: {
       getWalletMnemonic: state => state.wallet.mnemonic,
