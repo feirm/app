@@ -19,6 +19,7 @@ interface Wallet {
     {
       name: string;
       ticker: string;
+      icon: string;
       rootKey: string;
       extendedPrivateKey: string;
       extendedPublicKey: string;
@@ -61,6 +62,7 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
   const coin = {
     name: coinData.data.coinInformation.name,
     ticker: coinData.data.coinInformation.ticker.toLowerCase(),
+    icon: coinData.data.coinInformation.icon,
     rootKey: rootKey.toBase58(),
     extendedPrivateKey: addressNode.toBase58(),
     extendedPublicKey: addressNode.neutered().toBase58(),
