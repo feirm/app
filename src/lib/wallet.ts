@@ -97,7 +97,7 @@ function FindWallet(ticker: string): any {
   // Iterate over each of the items until we get a match
   coins.forEach((coin) => {
     if (coin.ticker === ticker.toLowerCase()) {
-      return coin;
+      return JSON.stringify(coin);
     }
   });
 
