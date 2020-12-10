@@ -31,7 +31,7 @@
           </ion-fab-button>
         </ion-col>
         <ion-col>
-          <ion-fab-button color="light" size="small">
+          <ion-fab-button color="light" size="small" @click="router.push({ path: '/tabs/wallet/' + store.getters.getWalletId + '/settings' })">
             <ion-icon :icon="settingsOutline"></ion-icon>
           </ion-fab-button>
         </ion-col>
@@ -64,6 +64,7 @@ import {
 import QRCode from "qrcode";
 import { useStore } from "vuex";
 import { DeriveAddress } from "@/lib/wallet";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "Details",
@@ -102,9 +103,11 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
+    const router = useRouter();
 
     return {
       store,
+      router,
       arrowUpOutline,
       refreshCircleOutline,
       settingsOutline,
