@@ -68,7 +68,7 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
   const coin = {
     name: coinData.data.coinInformation.name,
     ticker: coinData.data.coinInformation.ticker.toLowerCase(),
-    icon: coinData.data.coinInformation.icon,
+    icon: encodeURI(coinData.data.coinInformation.icon),
     rootKey: rootKey.toBase58(),
     extendedPrivateKey: addressNode.toBase58(),
     extendedPublicKey: addressNode.neutered().toBase58(),
