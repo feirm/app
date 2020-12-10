@@ -70,6 +70,7 @@ import {
   logoDiscord,
   newspaperOutline,
   gameControllerOutline,
+  paperPlaneOutline,
   logoTwitter,
 } from "ionicons/icons";
 
@@ -121,6 +122,7 @@ export default {
     return {
       logoDiscord,
       gameControllerOutline,
+      paperPlaneOutline,
       logoTwitter,
       notAvailableAlert,
       services
