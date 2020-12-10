@@ -6,22 +6,8 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      <!-- Show if wallet is not present -->
-      <ion-grid v-if="!store.getters.isWalletPresent">
-        <ion-row>
-          <ion-col class="ion-text-center">
-            <ion-img src="/assets/logo.png"></ion-img>
-            <h1>Feirm Wallet</h1>
-            <p>
-              It appears that you don't have a wallet created. Would you like to
-              get started, or restore from a backup? 💰
-            </p>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-
       <!-- Present the wallet/coins in a nice format -->
-      <div v-if="store.getters.isWalletPresent">
+      <div>
         <ion-card color="light">
           <ion-card-content>
             <ion-col>
@@ -67,18 +53,6 @@
         </ion-card>
       </div>
     </ion-content>
-    <!-- Show footer if wallet is not present -->
-    <ion-footer
-      v-if="!store.getters.isWalletPresent"
-      class="ion-no-border ion-padding ion-text-center"
-    >
-      <ion-button
-        expand="block"
-        @click="router.push({ path: '/tabs/wallet/newSeed' })"
-        >Get Started</ion-button
-      >
-      <ion-note color="dark">Restore from backup</ion-note>
-    </ion-footer>
   </ion-page>
 </template>
 
@@ -90,12 +64,9 @@ import {
   IonToolbar,
   IonTitle,
   IonHeader,
-  IonButton,
-  IonFooter,
   IonGrid,
   IonRow,
   IonCol,
-  IonNote,
   IonCard,
   IonCardContent,
   IonItem,
@@ -103,10 +74,8 @@ import {
   IonText,
 } from "@ionic/vue";
 import { walletOutline } from "ionicons/icons";
-import { GenerateMnemonic, Wallet } from "@/lib/wallet";
+import { Wallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
-import blockBookService from "@/apiService/blockBookService";
-import axios from "axios";
 import { useStore } from "vuex";
 
 export default defineComponent({
@@ -117,12 +86,9 @@ export default defineComponent({
     IonToolbar,
     IonTitle,
     IonHeader,
-    IonButton,
-    IonFooter,
     IonGrid,
     IonRow,
     IonCol,
-    IonNote,
     IonCard,
     IonCardContent,
     IonItem,
@@ -137,34 +103,12 @@ export default defineComponent({
     };
   },
   async ionViewWillEnter() {
-    if (this.store.getters.isWalletPresent) {
-      try {
-        // Fetch account balance
-        setInterval(async () => {
-          await blockBookService
-            .getXpub(this.store.getters.getWallet.coins[0].extendedPublicKey)
-            .then((res) => {
-              this.balance = Number(res.data.balance);
-
-              // Update account index
-              const wallet = this.store.getters.getWallet as Wallet;
-
-              wallet.coins[0].index = res.data.usedTokens;
-              localStorage.setItem("wallet", JSON.stringify(wallet));
-            });
-        }, 2000);
-      } catch (e) {
-        console.log(e);
-      }
-
-      // Fetch the Feirm USD price
-      await axios
-        .get(
-          "https://api.coingecko.com/api/v3/simple/price?ids=feirm&vs_currencies=usd"
-        )
-        .then((res) => {
-          this.fiatBalance = res.data.feirm.usd * this.balance;
-        });
+    const walletPresent = this.store.getters.isWalletPresent;
+    if (!walletPresent) {
+      // Assume the user has removed the wallet somehow, or they are a new user
+      this.router.push({
+        path: "/tabs/wallet/getStarted"
+      })
     }
   },
   methods: {
@@ -180,7 +124,6 @@ export default defineComponent({
       router,
       store,
       walletOutline,
-      GenerateMnemonic,
     };
   },
 });
