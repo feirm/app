@@ -21,13 +21,15 @@
           </ion-card-content>
         </ion-card>
 
-        <h6 class="ion-text-center">Your Wallets</h6>
+        <h6 class="ion-text-center">Your Coins</h6>
 
-        <!-- Showcase wallets/coins -->
+        <!-- Showcase coins -->
         <ion-card
+          v-for="coin in store.getters.getWallet.coins"
+          v-bind:key="coin"
           color="light"
           button="true"
-          @click="detailedWallet(store.getters.getWallet.id)"
+          @click="detailedWallet(store.getters.getWalletId)"
         >
           <ion-card-content>
             <ion-item lines="none" color="light">
@@ -39,11 +41,15 @@
               <ion-grid>
                 <ion-row>
                   <ion-col>
-                    <p class="ion-text-right">Feirm (XFE)</p>
+                    <p class="ion-text-right">
+                      {{ coin.name }} ({{ coin.ticker.toUpperCase() }})
+                    </p>
                   </ion-col>
                   <ion-col>
                     <ion-text color="primary">
-                      <p class="ion-text-center">{{ balance }} XFE</p>
+                      <p class="ion-text-center">
+                        {{ coin.balance }} {{ coin.ticker.toUpperCase() }}
+                      </p>
                     </ion-text>
                   </ion-col>
                 </ion-row>
@@ -107,8 +113,8 @@ export default defineComponent({
     if (!walletPresent) {
       // Assume the user has removed the wallet somehow, or they are a new user
       this.router.push({
-        path: "/tabs/wallet/getStarted"
-      })
+        path: "/tabs/wallet/getStarted",
+      });
     }
   },
   methods: {
