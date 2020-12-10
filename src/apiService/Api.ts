@@ -96,7 +96,7 @@ const blockBookApi = axios.create({
 
 // Azure API
 const azureApi = axios.create({
-  baseURL: "http://localhost:3001",
+  baseURL: "https://azure.feirm.com",
 });
 
 // Export all Axios instances
