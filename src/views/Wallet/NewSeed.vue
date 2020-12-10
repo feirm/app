@@ -63,7 +63,7 @@ export default defineComponent({
         this.mnemonic = seed;
 
         // Store mnemonic in Vuex
-        this.store.commit("setMnemonic", this.mnemonic);
+        this.store.commit("setWalletMnemonic", this.mnemonic);
     },
     setup() {
         const store = useStore();
