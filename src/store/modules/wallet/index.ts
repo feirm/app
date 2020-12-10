@@ -29,6 +29,7 @@ export const wallet = {
   getters: {
       getWalletMnemonic: state => state.wallet.mnemonic,
       getWallet: state => state.wallet,
+      getWalletId: state => state.wallet.id,
       getCoins: state => state.wallet.coins,
       isWalletPresent: state => {
         if (Object.keys(state.wallet).length === 0) {
