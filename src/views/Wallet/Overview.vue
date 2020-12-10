@@ -35,7 +35,7 @@
             <ion-item lines="none" color="light">
               <ion-avatar>
                 <img
-                  src="https://avatars0.githubusercontent.com/u/33553891?s=200&v=4"
+                  :src="coin.icon"
                 />
               </ion-avatar>
               <ion-grid>
