@@ -1,4 +1,4 @@
-import { entropyToMnemonic, mnemonicToSeed } from "bip39";
+import { entropyToMnemonic, mnemonicToSeed, validateMnemonic } from "bip39";
 import { fromSeed } from "bip32";
 import { v4 as uuidv4 } from "uuid";
 import bufferToHex from "./bufferToHex";
@@ -39,6 +39,12 @@ async function GenerateMnemonic(): Promise<string> {
 
 // Take a mnemonic and derive a wallet for a coin
 async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
+  // First of all, lets validate the mnemonic
+  const valid = validateMnemonic(mnemonic);
+  if (!valid) {
+    throw new Error("The mnemonic provided is not valid!");
+  }
+
   // Derive seed from mnemonic
   const seed = await mnemonicToSeed(mnemonic);
 
