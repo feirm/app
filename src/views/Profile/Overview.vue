@@ -62,6 +62,7 @@ export default defineComponent({
             handler: () => {
               // Clear Vuex state
               this.store.dispatch("logout");
+              this.store.dispatch("deleteWallet");
 
               // Push to login page
               this.router.push({ path: "/" });
