@@ -36,6 +36,7 @@ export const wallet = {
       state.wallet.mnemonic = mnemonic;
     },
     setWalletState(state, wallet) {
+      localStorage.setItem("wallet", JSON.stringify(wallet));
       state.wallet = wallet;
     },
   },
