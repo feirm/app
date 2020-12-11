@@ -95,13 +95,14 @@ import {
   IonBackButton,
   loadingController,
   alertController,
+  toastController,
 } from "@ionic/vue";
 import {
   arrowUpOutline,
   refreshCircleOutline,
   settingsOutline,
   clipboard,
-  shareSocial
+  shareSocial,
 } from "ionicons/icons";
 import QRCode from "qrcode";
 import { useStore } from "vuex";
@@ -141,9 +142,28 @@ export default defineComponent({
         text: this.address,
       });
     },
-    copyToClipboard() {
-      console.log("Copy to clipboard...")
-    }
+    async copyToClipboard() {
+      await navigator.clipboard
+        .writeText(this.address)
+        .then(async () => {
+          const toast = await toastController.create({
+            message: "Address was copied to your clipboard! ✅",
+            duration: 2000,
+            cssClass: "toast"
+          });
+
+          toast.present();
+        })
+        .catch(async (err) => {
+          // Error alert
+          const errorAlert = await alertController.create({
+            header: "Clipboard Error!",
+            message: err,
+            buttons: ["Okay!"],
+          });
+          errorAlert.present();
+        });
+    },
   },
   async ionViewWillEnter() {
     // Fetch coin information from wallet
@@ -177,10 +197,8 @@ export default defineComponent({
               );
 
               this.isLoading = false;
-            });
-            if (!this.isLoading) {
               a.dismiss();
-            }
+            });
           })
           .catch(async (err) => {
             this.isLoading = false;
@@ -193,6 +211,9 @@ export default defineComponent({
             });
             errorAlert.present();
           });
+        if (!this.isLoading) {
+          a.dismiss();
+        }
       });
   },
   setup() {
@@ -206,7 +227,7 @@ export default defineComponent({
       refreshCircleOutline,
       settingsOutline,
       clipboard,
-      shareSocial
+      shareSocial,
     };
   },
 });
