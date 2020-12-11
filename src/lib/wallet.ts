@@ -104,9 +104,10 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
 }
 
 // Derive a new address from xpub and index
-async function DeriveAddress(xpub: string, ticker: string, index: number): Promise<string> {
+async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
   // Fetch the coin data for the provided ticker and assemble network information from it
   const coinData = await azureService.getCoin(ticker);
+  const xpubData = await blockBookService.getXpub(xpub);
 
   // Set the network
   const network = coinData.data.coinInformation.networks.p2pkh;
@@ -118,7 +119,7 @@ async function DeriveAddress(xpub: string, ticker: string, index: number): Promi
     pubkey: bip32
       .fromBase58(xpub)
       .derive(0)
-      .derive(index).publicKey,
+      .derive(xpubData.data.usedTokens).publicKey,
     network: network,
   });
 
