@@ -9,17 +9,33 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding ion-text-center">
-      <h1>Receiving Address</h1>
-      <img :src="addressQr" />
-      <br />
-      <br />
-      <code>
-        {{ address }}
-      </code>
-      <p>
-        Send any amount of {{ coin.name }} ({{ upperTicker.toUpperCase() }}) to
-        this address.
-      </p>
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <h4>Deposit address for {{ coin.name }}</h4>
+            <img :src="addressQr" />
+            <br />
+            <br />
+            <ion-button
+              fill="clear"
+              expand="block"
+              class="address"
+              color="primary"
+              @click="share"
+            >
+              {{ address }}
+            </ion-button>
+            <ion-button expand="block" @click="clipboard">
+              Copy to clipboard
+            </ion-button>
+            <p>
+              Send any amount of {{ coin.name }} ({{
+                upperTicker.toUpperCase()
+              }}) to this address.
+            </p>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-content>
     <ion-footer class="ion-no-border ion-padding">
       <ion-row>
@@ -63,6 +79,7 @@ import {
   IonContent,
   IonFabButton,
   IonIcon,
+  IonGrid,
   IonRow,
   IonCol,
   IonFooter,
@@ -91,6 +108,7 @@ export default defineComponent({
     IonContent,
     IonFabButton,
     IonIcon,
+    IonGrid,
     IonRow,
     IonCol,
     IonFooter,
@@ -108,6 +126,17 @@ export default defineComponent({
       coin: {} as Coin,
       isLoading: false,
     };
+  },
+  methods: {
+    share() {
+      navigator.share({
+        title: `${this.coin.name} Address`,
+        text: this.address,
+      });
+    },
+    clipboard() {
+      console.log("Copy to clipboard...")
+    }
   },
   async ionViewWillEnter() {
     // Fetch coin information from wallet
@@ -181,8 +210,21 @@ ion-footer {
   justify-content: center;
 }
 
-code {
-  padding: 15px;
-  font-size: 12px;
+.address {
+  font-size: 11px;
+  font-weight: bold;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+ion-grid {
+  height: 100%;
+}
+
+ion-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 </style>
