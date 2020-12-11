@@ -7,13 +7,13 @@ export const auth = {
       username: "",
       email: "",
       password: "",
-      pin: 0,
-      confirmPin: 0,
+      pin: "",
+      confirmPin: "",
     },
     login: {
       username: "",
       password: "",
-      pin: 0,
+      pin: "",
     },
     authentication: {
       rootKey: "",

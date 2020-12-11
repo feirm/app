@@ -10,7 +10,7 @@ import router from '@/router';
 interface Account {
   username: string;
   email: string;
-  pin: number;
+  pin: string;
   rootPasswordSalt: string;
   rootPublicKey: string;
   encryptedRootKey: {
@@ -27,7 +27,7 @@ async function generateAccount(
   username: string,
   email: string,
   password: string,
-  pin: number
+  pin: string
 ): Promise<Account> {
   // Generate 16 random bytes of salt
   const saltArray: Uint8Array = new Uint8Array(16);
@@ -99,7 +99,7 @@ async function generateAccount(
 async function loginAccount(
   username: string,
   password: string,
-  pin: number
+  pin: string
 ): Promise<null> {
   // Fetch the encrypted account blob
   await tatsuyaApi.fetchEncryptedAccount(username, pin).then(async (res) => {

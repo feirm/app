@@ -248,7 +248,7 @@ export default defineComponent({
       this.pin = "";
     },
     async next() {
-      this.store.commit("registerPin", Number(this.pin));
+      this.store.commit("registerPin", this.pin);
       this.router.push({ path: "/auth/register/confirmPin" })
     },
     async presentAlert() {

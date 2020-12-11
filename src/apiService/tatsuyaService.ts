@@ -27,7 +27,7 @@ export default {
         })
     },
     // Fetch an encrypted account blob
-    fetchEncryptedAccount(user: string, pin: number) {
+    fetchEncryptedAccount(user: string, pin: string) {
         return tatsuyaApi.post(`/v1/login/fetchAccount`, {
             username: user,
             pin: pin
