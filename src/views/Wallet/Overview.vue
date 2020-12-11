@@ -124,6 +124,8 @@ export default defineComponent({
       this.router.push({
         path: "/tabs/wallet/getStarted",
       });
+
+      return;
     }
 
     // Loading controller
