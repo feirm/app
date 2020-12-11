@@ -66,7 +66,7 @@ export default defineComponent({
       contacts: []
     }
   },
-  async created() {
+  async ionViewWillEnter() {
     try {
       await tatsuyaService.fetchContacts().then(res => {
         DecryptContacts(res.data).then(contacts => {
