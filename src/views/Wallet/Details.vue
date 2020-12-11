@@ -132,7 +132,6 @@ export default defineComponent({
       address: "" as any,
       upperTicker: "",
       coin: {} as Coin,
-      isLoading: false,
     };
   },
   methods: {
@@ -169,9 +168,6 @@ export default defineComponent({
     // Fetch coin information from wallet
     const ticker = this.$route.params.coin as string;
 
-    // Set loading to true
-    this.isLoading = true;
-
     // Begin the submitting process and show a loading popup
     await loadingController
       .create({
@@ -195,13 +191,10 @@ export default defineComponent({
                   this.addressQr = qr;
                 }
               );
-
-              this.isLoading = false;
               a.dismiss();
             });
           })
           .catch(async (err) => {
-            this.isLoading = false;
             a.dismiss();
 
             // Error alert
@@ -212,9 +205,6 @@ export default defineComponent({
             });
             errorAlert.present();
           });
-        if (!this.isLoading) {
-          a.dismiss();
-        }
       });
   },
   setup() {
