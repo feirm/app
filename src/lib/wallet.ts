@@ -108,7 +108,7 @@ async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
   // Fetch the coin data for the provided ticker and assemble network information from it
   const coinData = await azureService.getCoin(ticker);
   const xpubData = await blockBookService.getXpub(xpub);
-
+  
   // Set the network
   const network = coinData.data.coinInformation.networks.p2pkh;
   network.pubKeyHash = network.pubKeyHash[0];
@@ -119,7 +119,7 @@ async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
     pubkey: bip32
       .fromBase58(xpub)
       .derive(0)
-      .derive(xpubData.data.usedTokens).publicKey,
+      .derive(xpubData.data.usedTokens ? xpubData.data.usedTokens : 0).publicKey,
     network: network,
   });
 
