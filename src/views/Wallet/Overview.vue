@@ -135,6 +135,11 @@ export default defineComponent({
         a.present().then(async () => {
           // Fetch latest wallet balances from Blockbook
           const coins = this.store.getters.getCoins;
+
+          // Reset cumulative fiat balance
+          this.fiatBalance = 0
+
+          // Iterate over each coin
           coins.forEach(async (coin) => {
             await axios
               .get(`${coin.blockbook}/api/v2/xpub/${coin.extendedPublicKey}`)
