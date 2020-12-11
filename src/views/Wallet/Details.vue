@@ -16,7 +16,10 @@
       <code>
         {{ address }}
       </code>
-      <p>Send any amount of {{ coin.name }} ({{ upperTicker.toUpperCase() }}) to this address.</p>
+      <p>
+        Send any amount of {{ coin.name }} ({{ upperTicker.toUpperCase() }}) to
+        this address.
+      </p>
     </ion-content>
     <ion-footer class="ion-no-border ion-padding">
       <ion-row>
@@ -68,6 +71,8 @@ import {
   IonButtons,
   IonTitle,
   IonBackButton,
+  loadingController,
+  alertController,
 } from "@ionic/vue";
 import {
   arrowUpOutline,
@@ -101,21 +106,58 @@ export default defineComponent({
       address: "" as any,
       upperTicker: "",
       coin: {} as Coin,
+      isLoading: false,
     };
   },
   async ionViewWillEnter() {
     // Fetch coin information from wallet
     const ticker = this.$route.params.coin as string;
 
-    const coin = await FindWallet(ticker);
-    this.coin = coin;
-    this.upperTicker = coin.ticker;
+    // Set loading to true
+    this.isLoading = true;
 
-    // Derive a new address from the Xpub and Index
-    this.address = await DeriveAddress(coin.extendedPublicKey, ticker, coin.index);
-    QRCode.toDataURL(this.address, { width: 200 }).then((qr) => {
-      this.addressQr = qr;
-    });
+    // Begin the submitting process and show a loading popup
+    await loadingController
+      .create({
+        message: "Loading address...",
+      })
+      .then((a) => {
+        a.present()
+          .then(async () => {
+            await FindWallet(ticker).then(async (coin) => {
+              this.coin = coin;
+              this.upperTicker = coin.ticker;
+
+              // Derive a new address
+              this.address = await DeriveAddress(
+                coin.extendedPublicKey,
+                ticker
+              );
+
+              await QRCode.toDataURL(this.address, { width: 200 }).then(
+                (qr) => {
+                  this.addressQr = qr;
+                }
+              );
+
+              this.isLoading = false;
+            });
+            if (!this.isLoading) {
+              a.dismiss();
+            }
+          })
+          .catch(async (err) => {
+            this.isLoading = false;
+
+            // Error alert
+            const errorAlert = await alertController.create({
+              header: "Error fetching address!",
+              message: err,
+              buttons: ["Okay!"],
+            });
+            errorAlert.present();
+          });
+      });
   },
   setup() {
     const store = useStore();
