@@ -5,7 +5,7 @@
         <ion-buttons slot="start">
           <ion-back-button></ion-back-button>
         </ion-buttons>
-        <ion-title>{{ coin.name }} ({{ coin.ticker }})</ion-title>
+        <ion-title>{{ coin.name }} ({{ upperTicker.toUpperCase() }})</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding ion-text-center">
@@ -16,7 +16,7 @@
       <code>
         {{ address }}
       </code>
-      <p>Send any amount of {{ coin.name }} ({{ coin.ticker }}) to this address.</p>
+      <p>Send any amount of {{ coin.name }} ({{ upperTicker.toUpperCase() }}) to this address.</p>
     </ion-content>
     <ion-footer class="ion-no-border ion-padding">
       <ion-row>
@@ -40,7 +40,7 @@
                   '/tabs/wallet/' +
                   store.getters.getWalletId +
                   '/' +
-                  coin.ticker.toLowerCase() +
+                  coin.ticker +
                   '/settings',
               })
             "
@@ -99,19 +99,17 @@ export default defineComponent({
     return {
       addressQr: "",
       address: "" as any,
+      upperTicker: "",
       coin: {} as Coin,
     };
   },
   async ionViewWillEnter() {
     // Fetch coin information from wallet
     const ticker = this.$route.params.coin as string;
-    console.log(ticker)
 
     const coin = await FindWallet(ticker);
     this.coin = coin;
-
-    // Hacky, but it works
-    this.coin.ticker = ticker.toUpperCase();
+    this.upperTicker = coin.ticker;
 
     // Derive a new address from the Xpub and Index
     this.address = DeriveAddress(coin.extendedPublicKey, coin.index);
