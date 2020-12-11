@@ -15,7 +15,7 @@
                 <p>Balance</p>
               </ion-row>
               <ion-row>
-                <h1>${{ fiatBalance }}</h1>
+                <h1>${{ fiatBalance.toFixed(2) }}</h1>
               </ion-row>
             </ion-col>
           </ion-card-content>
@@ -34,9 +34,7 @@
           <ion-card-content>
             <ion-item lines="none" color="light">
               <ion-avatar>
-                <img
-                  :src="coin.icon"
-                />
+                <img :src="coin.icon" />
               </ion-avatar>
               <ion-grid>
                 <ion-row>
@@ -48,7 +46,8 @@
                   <ion-col>
                     <ion-text color="primary">
                       <p class="ion-text-center">
-                        {{ (coin.balance / 100000000).toFixed(2) }} {{ coin.ticker.toUpperCase() }}
+                        {{ (coin.balance / 100000000).toFixed(2) }}
+                        {{ coin.ticker.toUpperCase() }}
                       </p>
                     </ion-text>
                   </ion-col>
@@ -82,7 +81,9 @@ import {
   IonAvatar,
   IonText,
   IonIcon,
-  IonButton
+  IonButton,
+  loadingController,
+  alertController,
 } from "@ionic/vue";
 import { walletOutline, addCircleOutline } from "ionicons/icons";
 import { Wallet } from "@/lib/wallet";
@@ -107,7 +108,7 @@ export default defineComponent({
     IonAvatar,
     IonText,
     IonIcon,
-    IonButton
+    IonButton,
   },
   data() {
     return {
@@ -125,15 +126,48 @@ export default defineComponent({
       });
     }
 
-    // Fetch latest wallet balances from Blockbook
-    const coins = this.store.getters.getCoins;
-    coins.forEach(async(coin) => {
-      await axios.get(`${coin.blockbook}/api/v2/xpub/${coin.extendedPublicKey}`).then(res => {
-        coin.balance = res.data.balance;
+    // Loading controller
+    await loadingController
+      .create({
+        message: "Loading balances...",
       })
-    });
+      .then((a) => {
+        a.present().then(async () => {
+          // Fetch latest wallet balances from Blockbook
+          const coins = this.store.getters.getCoins;
+          coins.forEach(async (coin) => {
+            await axios
+              .get(`${coin.blockbook}/api/v2/xpub/${coin.extendedPublicKey}`)
+              .then((res) => {
+                coin.balance = res.data.balance;
+              });
 
-    await axios.get("")
+            // Fetch cumulative fiat balance for USD
+            await axios
+              .get(
+                `https://api.coingecko.com/api/v3/simple/price?ids=${coin.name.toLowerCase()}&vs_currencies=usd`
+              )
+              .then((res) => {
+                // Need to make this dynamic
+                this.fiatBalance +=
+                  res.data.feirm.usd * (coin.balance / 100000000);
+              });
+          });
+
+          a.dismiss();
+        })
+        .catch(async (err) => {
+          a.dismiss();
+
+          const error = await alertController.create({
+            header: "Error fetching balances!",
+            message: err,
+            buttons: ["Okay!"]
+          })
+
+          return error.present();
+        });
+      });
   },
   methods: {
     detailedWallet(id: string, coin: string) {
@@ -148,7 +182,7 @@ export default defineComponent({
       router,
       store,
       walletOutline,
-      addCircleOutline
+      addCircleOutline,
     };
   },
 });
