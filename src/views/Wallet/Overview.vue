@@ -88,6 +88,7 @@ import { walletOutline, addCircleOutline } from "ionicons/icons";
 import { Wallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import axios from "axios";
 
 export default defineComponent({
   name: "WalletOverview",
@@ -123,6 +124,16 @@ export default defineComponent({
         path: "/tabs/wallet/getStarted",
       });
     }
+
+    // Fetch latest wallet balances from Blockbook
+    const coins = this.store.getters.getCoins;
+    coins.forEach(async(coin) => {
+      await axios.get(`${coin.blockbook}/api/v2/xpub/${coin.extendedPublicKey}`).then(res => {
+        coin.balance = res.data.balance;
+      })
+    });
+
+    await axios.get("")
   },
   methods: {
     detailedWallet(id: string, coin: string) {
