@@ -5,7 +5,7 @@
         <ion-buttons slot="start">
           <ion-back-button></ion-back-button>
         </ion-buttons>
-        <ion-title>Feirm (XFE)</ion-title>
+        <ion-title>{{ coin.name }} ({{ coin.ticker }})</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding ion-text-center">
@@ -16,7 +16,7 @@
       <code>
         {{ address }}
       </code>
-      <p>Send any amount of Feirm (XFE) to this address.</p>
+      <p>Send any amount of {{ coin.name }} ({{ coin.ticker }}) to this address.</p>
     </ion-content>
     <ion-footer class="ion-no-border ion-padding">
       <ion-row>
@@ -31,7 +31,20 @@
           </ion-fab-button>
         </ion-col>
         <ion-col>
-          <ion-fab-button color="light" size="small" @click="router.push({ path: '/tabs/wallet/' + store.getters.getWalletId + '/settings' })">
+          <ion-fab-button
+            color="light"
+            size="small"
+            @click="
+              router.push({
+                path:
+                  '/tabs/wallet/' +
+                  store.getters.getWalletId +
+                  '/' +
+                  coin.ticker.toLowerCase() +
+                  '/settings',
+              })
+            "
+          >
             <ion-icon :icon="settingsOutline"></ion-icon>
           </ion-fab-button>
         </ion-col>
@@ -63,7 +76,7 @@ import {
 } from "ionicons/icons";
 import QRCode from "qrcode";
 import { useStore } from "vuex";
-import { DeriveAddress } from "@/lib/wallet";
+import { Coin, DeriveAddress, FindWallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
 
 export default defineComponent({
@@ -86,19 +99,22 @@ export default defineComponent({
     return {
       addressQr: "",
       address: "" as any,
+      coin: {} as Coin,
     };
   },
   ionViewWillEnter() {
-    // Derive an address
-    const xpub = this.store.getters.getWallet.coins[0].extendedPublicKey;
-    const address = DeriveAddress(xpub, this.store.getters.getWallet.coins[0].index)
+    // Fetch coin information from wallet
+    const ticker = this.$route.params.coin as string;
+    const coin = FindWallet(ticker);
+    this.coin = coin;
 
-    this.address = address;
+    // Hacky, but it works
+    this.coin.ticker = ticker.toUpperCase();
 
-    QRCode.toDataURL(this.address, {
-      width: 200,
-    }).then((url) => {
-      this.addressQr = url;
+    // Derive a new address from the Xpub and Index
+    this.address = DeriveAddress(coin.extendedPublicKey, coin.index);
+    QRCode.toDataURL(this.address, { width: 200 }).then((qr) => {
+      this.addressQr = qr;
     });
   },
   setup() {

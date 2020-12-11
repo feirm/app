@@ -29,7 +29,7 @@
           v-bind:key="coin"
           color="light"
           button="true"
-          @click="detailedWallet(store.getters.getWalletId)"
+          @click="detailedWallet(store.getters.getWalletId, coin.ticker)"
         >
           <ion-card-content>
             <ion-item lines="none" color="light">
@@ -118,8 +118,8 @@ export default defineComponent({
     }
   },
   methods: {
-    detailedWallet(id: string) {
-      this.router.push("/tabs/wallet/" + id);
+    detailedWallet(id: string, coin: string) {
+      this.router.push("/tabs/wallet/" + id + "/" + coin);
     },
   },
   setup() {
