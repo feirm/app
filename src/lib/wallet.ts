@@ -90,7 +90,7 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
     rootKey: rootKey.toBase58(),
     extendedPrivateKey: addressNode.toBase58(),
     extendedPublicKey: addressNode.neutered().toBase58(),
-    balance: xpubData.data.balance,
+    balance: 0,
     index: xpubData.data.usedTokens,
     blockbook: coinData.data.coinInformation.blockbook,
   };
