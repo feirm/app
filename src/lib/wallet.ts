@@ -5,6 +5,7 @@ import bufferToHex from "./bufferToHex";
 import { payments, bip32 } from "bitcoinjs-lib";
 import azureService from "@/apiService/azureService";
 import { store } from "@/store";
+import blockBookService from '@/apiService/blockBookService';
 
 // Wallet interface
 interface Wallet {
@@ -71,6 +72,9 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
   const derivationPath = "m/44'/0'/0'";
   const addressNode = rootKey.derivePath(derivationPath);
 
+  // Fetch xpub data, specifically the last index
+  const xpubData = await blockBookService.getXpub(addressNode.neutered().toBase58())
+
   // Assemble the wallet
   const wallet = {
     id: uuidv4(),
@@ -86,8 +90,8 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
     rootKey: rootKey.toBase58(),
     extendedPrivateKey: addressNode.toBase58(),
     extendedPublicKey: addressNode.neutered().toBase58(),
-    balance: 0,
-    index: 0,
+    balance: xpubData.data.balance,
+    index: xpubData.data.usedTokens,
     blockbook: coinData.data.coinInformation.blockbook,
   };
 
