@@ -102,10 +102,12 @@ export default defineComponent({
       coin: {} as Coin,
     };
   },
-  ionViewWillEnter() {
+  async ionViewWillEnter() {
     // Fetch coin information from wallet
     const ticker = this.$route.params.coin as string;
-    const coin = FindWallet(ticker);
+    console.log(ticker)
+
+    const coin = await FindWallet(ticker);
     this.coin = coin;
 
     // Hacky, but it works

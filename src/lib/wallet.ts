@@ -112,7 +112,7 @@ function DeriveAddress(xpub: string, index: number): string {
 }
 
 // Find an existing coin wallet based on ticker from user input
-function FindWallet(ticker: string): Coin {
+async function FindWallet(ticker: string): Promise<Coin> {
   const wallet = store.getters.getWallet as Wallet;
   let coin = {} as Coin;
 
