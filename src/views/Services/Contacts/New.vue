@@ -109,21 +109,21 @@ export default defineComponent({
         FeirmID: this.feirmId,
         PhoneNumber: this.phoneNumber,
         Email: this.email,
-			} as Contact;
-			
-			// Validate fields (very basic and awful)
-			if (contact.FirstName == "") {
-				this.showMessage("First name field cannot be empty.")
-				return
-			}
-			if (contact.LastName == "") {
-				this.showMessage("Last name field cannot be empty.")
-				return
-			}
-			if (contact.FeirmID == "") {
-				this.showMessage("Feirm ID field cannot be empty.")
-				return
-			}
+      } as Contact;
+
+      // Validate fields (very basic and awful)
+      if (contact.FirstName == "") {
+        this.showMessage("First name field cannot be empty.");
+        return;
+      }
+      if (contact.LastName == "") {
+        this.showMessage("Last name field cannot be empty.");
+        return;
+      }
+      if (contact.FeirmID == "") {
+        this.showMessage("Feirm ID field cannot be empty.");
+        return;
+      }
 
       // Encrypt the payload
       const encryptedContact = await CreateEncryptedContact(contact);
@@ -131,27 +131,35 @@ export default defineComponent({
       // Submit payload to API
       await tatsuyaService.newContact(encryptedContact);
 
+      // Wipe contact data
+      // TODO Optimise
+      this.firstName = "";
+      this.lastName = "";
+      this.feirmId = "";
+      this.phoneNumber = "";
+      this.email = "";
+
       // Return to contacts screen
       this.router.push({ path: "/tabs/contacts" });
     },
   },
   setup() {
-		const router = useRouter();
-		
-		async function showMessage(message: string) {
-			const alert = await alertController.create({
-				header: "Error!",
-				message: message,
-				buttons: ["Okay"]
-			})
+    const router = useRouter();
 
-			return alert.present();
-		}
+    async function showMessage(message: string) {
+      const alert = await alertController.create({
+        header: "Error!",
+        message: message,
+        buttons: ["Okay"],
+      });
+
+      return alert.present();
+    }
 
     return {
       router,
-			informationCircleOutline,
-			showMessage
+      informationCircleOutline,
+      showMessage,
     };
   },
 });
