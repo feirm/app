@@ -247,7 +247,6 @@ export default defineComponent({
             message: "Signing in..."
         }).then(async (a) => {
             a.present().then(async () => {
-                console.log(this.store.getters.getLoginState);
                 await loginAccount(this.store.getters.getLoginState.username, this.store.getters.getLoginState.password, this.store.getters.getLoginState.pin)
                 .then(() => {
                     this.isLoading = false;

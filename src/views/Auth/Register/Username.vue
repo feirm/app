@@ -95,9 +95,6 @@ export default defineComponent({
   methods: {
     next() {
       this.store.commit("registerUsername", this.username);
-
-      console.log(JSON.stringify(this.store.getters.getRegistration))
-
       router.push({ path: "/auth/register/email" });
     },
     async checkUsername(username: string) {

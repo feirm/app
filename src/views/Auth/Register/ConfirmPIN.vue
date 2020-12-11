@@ -233,8 +233,6 @@ export default defineComponent({
       if (this.confirmPin.length > 6) {
         return;
       }
-
-      console.log(this.confirmPin);
     },
     clearInput() {
       this.confirmPin = "";

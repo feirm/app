@@ -243,8 +243,6 @@ export default defineComponent({
       if (this.pin.length > 6) {
         return;
       }
-
-      console.log(this.pin);
     },
     clearInput() {
       this.pin = "";
