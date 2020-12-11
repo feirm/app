@@ -202,6 +202,7 @@ export default defineComponent({
           })
           .catch(async (err) => {
             this.isLoading = false;
+            a.dismiss();
 
             // Error alert
             const errorAlert = await alertController.create({
