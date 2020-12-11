@@ -112,7 +112,7 @@ export default defineComponent({
     this.upperTicker = coin.ticker;
 
     // Derive a new address from the Xpub and Index
-    this.address = DeriveAddress(coin.extendedPublicKey, coin.index);
+    this.address = await DeriveAddress(coin.extendedPublicKey, ticker, coin.index);
     QRCode.toDataURL(this.address, { width: 200 }).then((qr) => {
       this.addressQr = qr;
     });

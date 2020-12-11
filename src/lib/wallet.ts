@@ -2,14 +2,9 @@ import { entropyToMnemonic, mnemonicToSeed, validateMnemonic } from "bip39";
 import { fromSeed } from "bip32";
 import { v4 as uuidv4 } from "uuid";
 import bufferToHex from "./bufferToHex";
-import * as coininfo from "coininfo";
 import { payments, bip32 } from "bitcoinjs-lib";
 import azureService from "@/apiService/azureService";
 import { store } from "@/store";
-
-// Feirm network
-const feirm = coininfo.feirm.main;
-const feirmNetwork = feirm.toBitcoinJS();
 
 // Wallet interface
 interface Wallet {
@@ -64,8 +59,14 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
   // Fetch the coin data for the provided ticker and assemble network information from it
   const coinData = await azureService.getCoin(ticker);
 
+  // Set the network
+  const network = coinData.data.coinInformation.networks.p2pkh;
+  network.pubKeyHash = network.pubKeyHash[0];
+  network.scriptHash  = network.scriptHash[0];
+  network.wif = network.wif[0];
+
   // BIP-44
-  const rootKey = fromSeed(seed, feirmNetwork);
+  const rootKey = fromSeed(seed, network);
 
   const derivationPath = "m/44'/0'/0'";
   const addressNode = rootKey.derivePath(derivationPath);
@@ -99,13 +100,22 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
 }
 
 // Derive a new address from xpub and index
-function DeriveAddress(xpub: string, index: number): string {
+async function DeriveAddress(xpub: string, ticker: string, index: number): Promise<string> {
+  // Fetch the coin data for the provided ticker and assemble network information from it
+  const coinData = await azureService.getCoin(ticker);
+
+  // Set the network
+  const network = coinData.data.coinInformation.networks.p2pkh;
+  network.pubKeyHash = network.pubKeyHash[0];
+  network.scriptHash  = network.scriptHash[0];
+  network.wif = network.wif[0];
+
   const { address } = payments.p2pkh({
     pubkey: bip32
       .fromBase58(xpub)
       .derive(0)
       .derive(index).publicKey,
-    network: feirmNetwork,
+    network: network,
   });
 
   return address as string;
