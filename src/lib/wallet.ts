@@ -30,6 +30,19 @@ interface Wallet {
   ];
 }
 
+// Coin interface
+interface Coin {
+  name: string;
+  ticker: string;
+  icon: string;
+  rootKey: string;
+  extendedPrivateKey: string;
+  extendedPublicKey: string;
+  balance: number;
+  index: number;
+  blockbook: string;
+}
+
 // Derive a new mnemonic
 async function GenerateMnemonic(): Promise<string> {
   const entropy = window.crypto.getRandomValues(new Uint8Array(32));
@@ -99,18 +112,18 @@ function DeriveAddress(xpub: string, index: number): string {
 }
 
 // Find an existing coin wallet based on ticker from user input
-function FindWallet(ticker: string): any {
-  const coins = store.getters.getCoins;
+function FindWallet(ticker: string): Coin {
+  const wallet = store.getters.getWallet as Wallet;
+  let coin = {} as Coin;
 
   // Iterate over each of the items until we get a match
-  coins.forEach((coin) => {
-    if (coin.ticker === ticker.toLowerCase()) {
-      return JSON.stringify(coin);
+  wallet.coins.forEach((c) => {
+    if (ticker.toLowerCase() === c.ticker) {
+      coin = c;
     }
   });
 
-  // Didnt find anything, so just return
-  return;
+  return coin;
 }
 
-export { GenerateMnemonic, DeriveWallet, DeriveAddress, FindWallet, Wallet };
+export { GenerateMnemonic, DeriveWallet, DeriveAddress, FindWallet, Wallet, Coin};
