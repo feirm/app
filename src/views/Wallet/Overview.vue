@@ -57,6 +57,9 @@
             </ion-item>
           </ion-card-content>
         </ion-card>
+        <ion-button fill="clear" expand="block">
+          <ion-icon slot="icon-only" :icon="addCircleOutline"></ion-icon>
+        </ion-button>
       </div>
     </ion-content>
   </ion-page>
@@ -78,8 +81,10 @@ import {
   IonItem,
   IonAvatar,
   IonText,
+  IonIcon,
+  IonButton
 } from "@ionic/vue";
-import { walletOutline } from "ionicons/icons";
+import { walletOutline, addCircleOutline } from "ionicons/icons";
 import { Wallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
@@ -100,6 +105,8 @@ export default defineComponent({
     IonItem,
     IonAvatar,
     IonText,
+    IonIcon,
+    IonButton
   },
   data() {
     return {
@@ -130,6 +137,7 @@ export default defineComponent({
       router,
       store,
       walletOutline,
+      addCircleOutline
     };
   },
 });
