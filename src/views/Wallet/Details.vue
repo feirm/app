@@ -25,8 +25,13 @@
             >
               {{ address }}
             </ion-button>
-            <ion-button expand="block" @click="clipboard">
+            <ion-button expand="block" @click="copyToClipboard">
+              <ion-icon slot="start" :icon="clipboard"></ion-icon>
               Copy to clipboard
+            </ion-button>
+            <ion-button expand="block" @click="share">
+              <ion-icon slot="start" :icon="shareSocial"></ion-icon>
+              Share address
             </ion-button>
             <p>
               Send any amount of {{ coin.name }} ({{
@@ -95,6 +100,8 @@ import {
   arrowUpOutline,
   refreshCircleOutline,
   settingsOutline,
+  clipboard,
+  shareSocial
 } from "ionicons/icons";
 import QRCode from "qrcode";
 import { useStore } from "vuex";
@@ -134,7 +141,7 @@ export default defineComponent({
         text: this.address,
       });
     },
-    clipboard() {
+    copyToClipboard() {
       console.log("Copy to clipboard...")
     }
   },
@@ -198,6 +205,8 @@ export default defineComponent({
       arrowUpOutline,
       refreshCircleOutline,
       settingsOutline,
+      clipboard,
+      shareSocial
     };
   },
 });
