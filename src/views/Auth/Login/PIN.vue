@@ -234,7 +234,7 @@ export default defineComponent({
       }
 
       // Commit PIN to Vuex
-      this.store.commit("loginPin", Number(this.confirmPin)); 
+      this.store.commit("loginPin", this.confirmPin); 
     },
     clearInput() {
       this.confirmPin = "";
