@@ -48,7 +48,7 @@
                   <ion-col>
                     <ion-text color="primary">
                       <p class="ion-text-center">
-                        {{ coin.balance }} {{ coin.ticker.toUpperCase() }}
+                        {{ (coin.balance / 100000000).toFixed(2) }} {{ coin.ticker.toUpperCase() }}
                       </p>
                     </ion-text>
                   </ion-col>
