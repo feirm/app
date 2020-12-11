@@ -97,11 +97,11 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/Wallet/BackupSeed.vue")
       },
       {
-        path: "wallet/:id",
+        path: "wallet/:id/:coin",
         component: () => import("@/views/Wallet/Details.vue")
       },
       {
-        path: "wallet/:id/settings",
+        path: "wallet/:id/:coin/settings",
         component: () => import("@/views/Wallet/Settings/Settings.vue")
       },
 
