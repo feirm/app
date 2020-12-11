@@ -85,24 +85,12 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/Wallet/Overview.vue"),
       },
       {
-        path: "wallet/getStarted",
-        component: () => import("@/views/Wallet/GetStarted.vue")
-      },
-      {
-        path: "wallet/newSeed",
-        component: () => import("@/views/Wallet/NewSeed.vue")
-      },
-      {
-        path: "wallet/backupSeed",
-        component: () => import("@/views/Wallet/BackupSeed.vue")
-      },
-      {
         path: "wallet/:id/:coin",
-        component: () => import("@/views/Wallet/Details.vue")
+        component: () => import("@/views/Wallet/Details.vue"),
       },
       {
         path: "wallet/:id/:coin/settings",
-        component: () => import("@/views/Wallet/Settings/Settings.vue")
+        component: () => import("@/views/Wallet/Settings/Settings.vue"),
       },
 
       // Account
@@ -116,6 +104,20 @@ const routes: Array<RouteRecordRaw> = [
       },
     ],
   },
+  // Wallet Service
+  {
+    path: "/wallet/getStarted",
+    component: () => import("@/views/Wallet/GetStarted.vue"),
+  },
+  {
+    path: "/wallet/newSeed",
+    component: () => import("@/views/Wallet/NewSeed.vue"),
+  },
+  {
+    path: "/wallet/backupSeed",
+    component: () => import("@/views/Wallet/BackupSeed.vue"),
+  },
+  // QR Service
   {
     path: "/services/qr",
     component: () => import("@/views/Services/QRCode/Scan.vue"),

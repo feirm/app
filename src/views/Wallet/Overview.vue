@@ -122,7 +122,7 @@ export default defineComponent({
     if (!walletPresent) {
       // Assume the user has removed the wallet somehow, or they are a new user
       this.router.push({
-        path: "/tabs/wallet/getStarted",
+        path: "/wallet/getStarted",
       });
 
       return;

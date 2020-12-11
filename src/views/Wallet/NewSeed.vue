@@ -18,7 +18,7 @@
             </h1>
         </ion-content>
         <ion-footer class="ion-no-border ion-padding">
-            <ion-button expand="block" @click="router.push({ path: '/tabs/wallet/backupSeed' })">Next</ion-button>
+            <ion-button expand="block" @click="router.push({ path: '/wallet/backupSeed' })">Next</ion-button>
         </ion-footer>
     </ion-page>
 </template>

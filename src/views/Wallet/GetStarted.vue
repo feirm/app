@@ -2,6 +2,9 @@
   <ion-page>
     <ion-header>
       <ion-toolbar class="ion-text-center">
+        <ion-buttons slot="start">
+          <ion-back-button></ion-back-button>
+        </ion-buttons>
         <ion-title>Wallet</ion-title>
       </ion-toolbar>
     </ion-header>
@@ -22,7 +25,7 @@
     <ion-footer class="ion-no-border ion-padding ion-text-center">
       <ion-button
         expand="block"
-        @click="router.push({ path: '/tabs/wallet/newSeed' })"
+        @click="router.push({ path: '/wallet/newSeed' })"
         >Get Started</ion-button
       >
       <br />
@@ -42,6 +45,8 @@ import {
   IonTitle,
   IonHeader,
   IonButton,
+  IonButtons,
+  IonBackButton,
   IonFooter,
   IonGrid,
   IonRow,
@@ -68,6 +73,8 @@ export default defineComponent({
     IonRow,
     IonCol,
     IonNote,
+    IonButtons,
+    IonBackButton
   },
   methods: {
     async restorePrompt() {
