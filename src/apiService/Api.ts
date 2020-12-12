@@ -96,7 +96,7 @@ const blockBookApi = axios.create({
 
 // Azure API
 const azureApi = axios.create({
-  baseURL: "https://azure.feirm.com",
+  baseURL: process.env.VUE_APP_AZURE_API_URL,
 });
 
 // Export all Axios instances
