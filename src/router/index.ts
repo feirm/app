@@ -113,6 +113,10 @@ const routes: Array<RouteRecordRaw> = [
     path: "/wallet/backupSeed",
     component: () => import("@/views/Wallet/BackupSeed.vue"),
   },
+  {
+    path: "/wallet/addCoin",
+    component: () => import("@/views/Wallet/AddCoin.vue")
+  },
   // QR Service
   {
     path: "/services/qr",

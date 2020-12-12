@@ -56,7 +56,7 @@
             </ion-item>
           </ion-card-content>
         </ion-card>
-        <ion-button fill="clear" expand="block">
+        <ion-button fill="clear" expand="block" @click="addCoin">
           <ion-icon slot="icon-only" :icon="addCircleOutline"></ion-icon>
         </ion-button>
       </div>
@@ -180,6 +180,9 @@ export default defineComponent({
     detailedWallet(id: string, coin: string) {
       this.router.push("/tabs/wallet/" + id + "/" + coin);
     },
+    addCoin() {
+      this.router.push("/wallet/addCoin");
+    }
   },
   setup() {
     const router = useRouter();
