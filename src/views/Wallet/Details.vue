@@ -54,24 +54,6 @@
             <ion-icon :icon="refreshCircleOutline"></ion-icon>
           </ion-fab-button>
         </ion-col>
-        <ion-col>
-          <ion-fab-button
-            color="light"
-            size="small"
-            @click="
-              router.push({
-                path:
-                  '/tabs/wallet/' +
-                  store.getters.getWalletId +
-                  '/' +
-                  coin.ticker +
-                  '/settings',
-              })
-            "
-          >
-            <ion-icon :icon="settingsOutline"></ion-icon>
-          </ion-fab-button>
-        </ion-col>
       </ion-row>
     </ion-footer>
   </ion-page>
@@ -100,7 +82,6 @@ import {
 import {
   arrowUpOutline,
   refreshCircleOutline,
-  settingsOutline,
   clipboard,
   shareSocial,
 } from "ionicons/icons";
@@ -216,7 +197,6 @@ export default defineComponent({
       router,
       arrowUpOutline,
       refreshCircleOutline,
-      settingsOutline,
       clipboard,
       shareSocial,
     };
