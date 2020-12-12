@@ -145,4 +145,53 @@ async function FindWallet(ticker: string): Promise<Coin> {
   return coin;
 }
 
-export { GenerateMnemonic, DeriveWallet, DeriveAddress, FindWallet, Wallet, Coin};
+// Add a coin to wallet
+async function AddCoinToWallet(ticker: string): Promise<Wallet> {
+  // Process of adding a new coin to wallet.
+  // 1. Fetch current full wallet from state/localStorage
+  const wallet = store.getters.getWallet as Wallet;
+
+  // Our full wallet will have the mnemonic we need to derive a seed.
+  const seed = await mnemonicToSeed(wallet.mnemonic);
+  
+  // Fetch the coin data for the provided ticker and assemble network information from it
+  const coinData = await azureService.getCoin(ticker);
+
+  // Set the network
+  const network = coinData.data.coinInformation.networks.p2pkh;
+  network.pubKeyHash = network.pubKeyHash[0];
+  network.scriptHash  = network.scriptHash[0];
+  network.wif = network.wif[0];
+
+  // BIP-44
+  const rootKey = fromSeed(seed, network);
+
+  const derivationPath = "m/44'/0'/0'";
+  const addressNode = rootKey.derivePath(derivationPath);
+
+  // Fetch xpub data, specifically the last index
+  const xpubData = await blockBookService.getXpub(addressNode.neutered().toBase58())
+
+  // Assemble coin data
+  const coin = {
+    name: coinData.data.coinInformation.name,
+    ticker: coinData.data.coinInformation.ticker.toLowerCase(),
+    icon: encodeURI(coinData.data.coinInformation.icon),
+    rootKey: rootKey.toBase58(),
+    extendedPrivateKey: addressNode.toBase58(),
+    extendedPublicKey: addressNode.neutered().toBase58(),
+    balance: 0,
+    index: xpubData.data.usedTokens,
+    blockbook: coinData.data.coinInformation.blockbook,
+  };
+
+  // Push the coin to our wallet
+  wallet.coins.push(coin);
+
+  // Update the wallet in Vuex
+  store.commit("setWalletState", wallet);
+
+  return wallet;
+}
+
+export { GenerateMnemonic, DeriveWallet, DeriveAddress, FindWallet, AddCoinToWallet, Wallet, Coin};
