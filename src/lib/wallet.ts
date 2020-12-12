@@ -106,6 +106,10 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
 // Derive a new address from xpub and index
 async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
   // Fetch the coin data for the provided ticker and assemble network information from it
+  if (!ticker) {
+    throw new Error("Ticker is not present!");
+  }
+
   const coinData = await azureService.getCoin(ticker);
   const xpubData = await blockBookService.getXpub(xpub);
   
