@@ -1,0 +1,144 @@
+<template>
+  <ion-page>
+    <ion-header>
+      <ion-toolbar class="ion-text-center">
+        <ion-buttons slot="start">
+          <ion-back-button></ion-back-button>
+        </ion-buttons>
+        <ion-title>Add Coin</ion-title>
+        <ion-buttons slot="secondary">
+          <ion-button @click="presentAlert">
+            <ion-icon
+              slot="icon-only"
+              :icon="informationCircleOutline"
+            ></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content :fullscreen="true" class="ion-padding">
+      <!-- TODO: Add search bar -->
+
+      <!-- List of all coins supported -->
+      <ion-list>
+        <ion-item
+          v-for="coin in coins"
+          v-bind:key="coin.name"
+          button="true"
+          @click="createCoinWallet(coin.name, coin.ticker)"
+        >
+          <ion-avatar slot="start">
+            <img :src="coin.icon" />
+          </ion-avatar>
+          <ion-label>
+            <h2>{{ coin.name }}</h2>
+            <p>{{ coin.ticker }}</p>
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    </ion-content>
+  </ion-page>
+</template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+import {
+  IonPage,
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonTitle,
+  IonButton,
+  IonBackButton,
+  IonIcon,
+  IonContent,
+  IonList,
+  IonItem,
+  IonAvatar,
+  IonLabel,
+  alertController,
+} from "@ionic/vue";
+import { informationCircleOutline } from "ionicons/icons";
+import azureService from "@/apiService/azureService";
+import { AddCoinToWallet } from "@/lib/wallet";
+import { useRouter } from "vue-router";
+
+export default defineComponent({
+  name: "AddCoin",
+  components: {
+    IonPage,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonTitle,
+    IonButton,
+    IonBackButton,
+    IonIcon,
+    IonContent,
+    IonList,
+    IonItem,
+    IonAvatar,
+    IonLabel,
+  },
+  data() {
+    return {
+      coins: [],
+    };
+  },
+  async ionViewWillEnter() {
+    // Fetch coins list
+    await azureService
+      .getCoins()
+      .then((res) => {
+        this.coins = res.data;
+      })
+      .catch(async (err) => {
+        // TODO: Error alert
+        console.log(err);
+      });
+  },
+  methods: {
+    async presentAlert() {
+      const alert = await alertController.create({
+        header: "Information",
+        message:
+          "Collecting some coins? You can store supported coins within your Feirm wallet! Take a look at the list on this page.",
+        buttons: ["Okay"],
+      });
+
+      return alert.present();
+    },
+    async createCoinWallet(coin: string, ticker: string) {
+      // Create a confirmation alert asking the user if they want to add a new coin
+      const confirmAlert = await alertController.create({
+        header: "Add new coin?",
+        message: `Do you want to add ${coin} (${ticker}) to your wallet?`,
+        buttons: [
+          {
+            text: "No",
+          },
+          {
+            text: "Yes",
+            handler: async () => {
+              // Add coin to wallet
+              await AddCoinToWallet(ticker).then(() => {
+                this.router.push({ path: "/tabs/wallet" });
+              });
+            },
+          },
+        ],
+      });
+
+      return confirmAlert.present();
+    },
+  },
+  setup() {
+    const router = useRouter();
+
+    return {
+      router,
+      informationCircleOutline,
+    };
+  },
+});
+</script>

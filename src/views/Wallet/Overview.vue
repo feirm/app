@@ -139,6 +139,7 @@ export default defineComponent({
           const coins = this.store.getters.getCoins;
 
           // Reset cumulative fiat balance
+          let fiatBal = 0;
           this.fiatBalance = 0
 
           // Iterate over each coin
@@ -146,20 +147,24 @@ export default defineComponent({
             await axios
               .get(`${coin.blockbook}/api/v2/xpub/${coin.extendedPublicKey}`)
               .then((res) => {
-                coin.balance = res.data.balance;
+                coin.balance = res.data.balance ? res.data.balance : 0;
               });
 
             // Fetch cumulative fiat balance for USD
+            // Hardcoded to Feirm for now
             await axios
               .get(
-                `https://api.coingecko.com/api/v3/simple/price?ids=${coin.name.toLowerCase()}&vs_currencies=usd`
+                `https://api.coingecko.com/api/v3/simple/price?ids=feirm&vs_currencies=usd`
               )
               .then((res) => {
                 // Need to make this dynamic
-                this.fiatBalance +=
+                fiatBal +=
                   res.data.feirm.usd * (coin.balance / 100000000);
               });
           });
+
+          // Update balance
+          this.fiatBalance = fiatBal;
 
           a.dismiss();
         })
