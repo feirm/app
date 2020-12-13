@@ -5,57 +5,30 @@
         <ion-buttons slot="start">
           <ion-back-button></ion-back-button>
         </ion-buttons>
-        <ion-title>{{ coin.name }} ({{ upperTicker.toUpperCase() }})</ion-title>
+        <ion-title>{{ coin.name }} ({{ ticker.toUpperCase() }})</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding ion-text-center">
       <ion-grid>
-        <ion-row>
+        <ion-row class="ion-text-center">
           <ion-col>
-            <h4>Deposit address for {{ coin.name }}</h4>
-            <img :src="addressQr" />
-            <br />
-            <br />
-            <ion-button
-              fill="clear"
-              expand="block"
-              class="address"
-              color="primary"
-              @click="share"
-            >
-              {{ address }}
-            </ion-button>
-            <ion-button expand="block" @click="copyToClipboard">
-              <ion-icon slot="start" :icon="clipboard"></ion-icon>
-              Copy to clipboard
-            </ion-button>
-            <ion-button expand="block" @click="share">
-              <ion-icon slot="start" :icon="shareSocial"></ion-icon>
-              Share address
-            </ion-button>
-            <p>
-              Send any amount of {{ coin.name }} ({{
-                upperTicker.toUpperCase()
-              }}) to this address.
-            </p>
+            <ion-fab-button color="primary">
+              <ion-icon :icon="arrowUpOutline"></ion-icon>
+            </ion-fab-button>
+          </ion-col>
+          <ion-col>
+            <ion-fab-button color="success" @click="receiveModal">
+              <ion-icon color="light" :icon="arrowDownOutline"></ion-icon>
+            </ion-fab-button>
+          </ion-col>
+          <ion-col>
+            <ion-fab-button color="warning">
+              <ion-icon :icon="refreshCircleOutline"></ion-icon>
+            </ion-fab-button>
           </ion-col>
         </ion-row>
       </ion-grid>
     </ion-content>
-    <ion-footer class="ion-no-border ion-padding">
-      <ion-row>
-        <ion-col>
-          <ion-fab-button color="light" size="small">
-            <ion-icon :icon="arrowUpOutline"></ion-icon>
-          </ion-fab-button>
-        </ion-col>
-        <ion-col>
-          <ion-fab-button color="light" size="small">
-            <ion-icon :icon="refreshCircleOutline"></ion-icon>
-          </ion-fab-button>
-        </ion-col>
-      </ion-row>
-    </ion-footer>
   </ion-page>
 </template>
 
@@ -69,26 +42,22 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonFooter,
   IonHeader,
   IonToolbar,
   IonButtons,
   IonTitle,
   IonBackButton,
-  loadingController,
-  alertController,
-  toastController,
+  modalController,
 } from "@ionic/vue";
 import {
   arrowUpOutline,
+  arrowDownOutline,
   refreshCircleOutline,
-  clipboard,
-  shareSocial,
 } from "ionicons/icons";
-import QRCode from "qrcode";
 import { useStore } from "vuex";
-import { Coin, DeriveAddress, FindWallet } from "@/lib/wallet";
+import { Coin, FindWallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
+import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
 
 export default defineComponent({
   name: "Details",
@@ -100,7 +69,6 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    IonFooter,
     IonHeader,
     IonToolbar,
     IonButtons,
@@ -109,84 +77,31 @@ export default defineComponent({
   },
   data() {
     return {
-      addressQr: "",
-      address: "" as any,
-      upperTicker: "",
       coin: {} as Coin,
+      ticker: ""
     };
   },
-  methods: {
-    share() {
-      navigator.share({
-        title: `${this.coin.name} Address`,
-        text: this.address,
-      });
-    },
-    async copyToClipboard() {
-      await navigator.clipboard
-        .writeText(this.address)
-        .then(async () => {
-          const toast = await toastController.create({
-            message: "Address was copied to your clipboard! ✅",
-            duration: 2000,
-            cssClass: "toast"
-          });
-
-          toast.present();
-        })
-        .catch(async (err) => {
-          // Error alert
-          const errorAlert = await alertController.create({
-            header: "Clipboard Error!",
-            message: err,
-            buttons: ["Okay!"],
-          });
-          errorAlert.present();
-        });
-    },
-  },
   async ionViewWillEnter() {
-    // Fetch coin information from wallet
+    // Fetch coin information from blockbook
     const ticker = this.$route.params.coin as string;
 
-    // Begin the submitting process and show a loading popup
-    await loadingController
-      .create({
-        message: "Loading address...",
-      })
-      .then((a) => {
-        a.present()
-          .then(async () => {
-            await FindWallet(ticker).then(async (coin) => {
-              this.coin = coin;
-              this.upperTicker = coin.ticker;
-
-              // Derive a new address
-              this.address = await DeriveAddress(
-                coin.extendedPublicKey,
-                ticker
-              );
-
-              await QRCode.toDataURL(this.address, { width: 200 }).then(
-                (qr) => {
-                  this.addressQr = qr;
-                }
-              );
-              a.dismiss();
-            });
-          })
-          .catch(async (err) => {
-            a.dismiss();
-
-            // Error alert
-            const errorAlert = await alertController.create({
-              header: "Error fetching address!",
-              message: err,
-              buttons: ["Okay!"],
-            });
-            errorAlert.present();
-          });
+    await FindWallet(ticker).then((coin) => {
+      this.coin = coin;
+      this.ticker = coin.ticker;
+    });
+  },
+  methods: {
+    async receiveModal() {
+      const modal = await modalController.create({
+        component: ReceivingAddress,
+        componentProps: {
+          coin: this.coin.name,
+          ticker: this.coin.ticker,
+        },
       });
+
+      return modal.present();
+    },
   },
   setup() {
     const store = useStore();
@@ -196,9 +111,8 @@ export default defineComponent({
       store,
       router,
       arrowUpOutline,
+      arrowDownOutline,
       refreshCircleOutline,
-      clipboard,
-      shareSocial,
     };
   },
 });
