@@ -14,7 +14,7 @@
       </ion-buttons>
     </ion-toolbar>
   </ion-header>
-  <ion-content class="ion-padding ion-text-center">
+  <ion-content class="ion-padding ion-text-center" v-if="qrCode.length !== 0">
     <!-- QR Code -->
     <ion-img :src="qrCode"></ion-img>
 
@@ -54,6 +54,7 @@ import {
   toastController,
   alertController,
   modalController,
+  loadingController,
 } from "@ionic/vue";
 import {
   clipboard,
@@ -77,19 +78,47 @@ export default defineComponent({
     };
   },
   async mounted() {
-    // Derive an address for the coin based on the values we've got in this component.
-    // Iterate and find the wallet for this coin
-    await FindWallet(this.$props.ticker as string).then(async (coin) => {
-      // Derive a new address
-      const address = await DeriveAddress(coin.extendedPublicKey, coin.ticker);
+    // Wrap the entire address + qr derivation into a loading controller
+    await loadingController
+      .create({
+        message: "Loading address...",
+      })
+      .then((a) => {
+        a.present().then(async () => {
+          // Derive an address for the coin based on the values we've got in this component.
+          // Iterate and find the wallet for this coin
+          await FindWallet(this.$props.ticker as string)
+            .then(async (coin) => {
+              // Derive a new address
+              const address = await DeriveAddress(
+                coin.extendedPublicKey,
+                coin.ticker
+              );
 
-      // Generate a QR code of the address
-      await QRCode.toDataURL(address, { width: 200 }).then((qr) => {
-        this.qrCode = qr;
+              // Generate a QR code of the address
+              await QRCode.toDataURL(address, { width: 200 }).then((qr) => {
+                this.qrCode = qr;
+              });
+
+              this.address = address;
+
+              // Dismiss the loading controller
+              a.dismiss();
+            })
+            .catch(async (err) => {
+              // If we've got an error, dismiss the loading controller and show a popup error
+              a.dismiss();
+
+              const errorAlert = await alertController.create({
+                header: "Error!",
+                message: err,
+                buttons: ["Close"],
+              });
+
+              return errorAlert.present();
+            });
+        });
       });
-
-      this.address = address;
-    });
   },
   methods: {
     share() {
