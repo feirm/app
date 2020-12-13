@@ -5,7 +5,7 @@ import bufferToHex from "./bufferToHex";
 import { payments, bip32 } from "bitcoinjs-lib";
 import azureService from "@/apiService/azureService";
 import { store } from "@/store";
-import blockBookService from '@/apiService/blockBookService';
+import blockBookService from "@/apiService/blockBookService";
 
 // Wallet interface
 interface Wallet {
@@ -46,8 +46,8 @@ async function GenerateMnemonic(): Promise<string> {
   return mnemonic;
 }
 
-// Take a mnemonic and derive a wallet for a coin
-async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
+// Take a mnemonic and derive a wallet for a coin (based on ticker)
+async function DeriveWallet(mnemonic: string, ticker: string): Promise<any> {
   // First of all, lets validate the mnemonic
   const valid = validateMnemonic(mnemonic);
   if (!valid) {
@@ -55,50 +55,64 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
   }
 
   // Derive seed from mnemonic
-  const seed = await mnemonicToSeed(mnemonic);
+  const wallet = await mnemonicToSeed(mnemonic).then(async (seed) => {
+    // Fetch the coin data based on the ticker provided
+    await azureService.getCoin(ticker).then((coin) => {
+      // Form the network information
+      const network = coin.data.coinInformation.networks.p2pkh;
 
-  // Fetch the coin data for the provided ticker and assemble network information from it
-  const coinData = await azureService.getCoin(ticker);
+      network.pubKeyHash = network.pubKeyHash[0];
+      network.scriptHash = network.scriptHash[0];
+      network.wif = network.wif[0];
 
-  // Set the network
-  const network = coinData.data.coinInformation.networks.p2pkh;
-  network.pubKeyHash = network.pubKeyHash[0];
-  network.scriptHash  = network.scriptHash[0];
-  network.wif = network.wif[0];
+      // Set the derivation path
+      const derivationPath = "m/44'/" + coin.data.coinInformation.bip44 + "'/0'";
 
-  // BIP-44
-  const rootKey = fromSeed(seed, network);
+      // Generate the root key
+      const rootKey = fromSeed(seed, network);
 
-  const derivationPath = "m/44'/0'/0'";
-  const addressNode = rootKey.derivePath(derivationPath);
+      // Derive the address node from root key
+      const addressNode = rootKey.derivePath(derivationPath);
 
-  // Fetch xpub data, specifically the last index
-  const xpubData = await blockBookService.getXpub(addressNode.neutered().toBase58())
+      // Now that we've got our address node, we can begin to either create a new wallet, or append to an existing one.
+      // But first, lets assemble all the coin data
+      const cData = {
+        name: coin.data.coinInformation.name,
+        ticker: coin.data.coinInformation.ticker.toLowerCase(),
+        icon: encodeURI(coin.data.coinInformation.icon),
+        rootKey: rootKey.toBase58(),
+        extendedPrivateKey: addressNode.toBase58(),
+        extendedPublicKey: addressNode.neutered().toBase58(),
+        blockbook: coin.data.coinInformation.blockbook,
+      } as Coin;
 
-  // Assemble the wallet
-  const wallet = {
-    id: uuidv4(),
-    mnemonic: mnemonic,
-    coins: [] as {},
-  } as Wallet;
+      // If there is a wallet, then append the coin to it
+      const existingWallet = localStorage.getItem("wallet");
+      if (existingWallet) {
+        // We need to parse the wallet so its available to us
+        const pWallet = JSON.parse(existingWallet) as Wallet;
 
-  // Generate coin data
-  const coin = {
-    name: coinData.data.coinInformation.name,
-    ticker: coinData.data.coinInformation.ticker.toLowerCase(),
-    icon: encodeURI(coinData.data.coinInformation.icon),
-    rootKey: rootKey.toBase58(),
-    extendedPrivateKey: addressNode.toBase58(),
-    extendedPublicKey: addressNode.neutered().toBase58(),
-    balance: 0,
-    index: xpubData.data.usedTokens,
-    blockbook: coinData.data.coinInformation.blockbook,
-  };
+        // Push the coin data to it
+        pWallet.coins.push(cData);
 
-  wallet.coins.push(coin);
+        // Return the full wallet interface
+        return pWallet;
+      }
 
-  // Save the wallet in Vuex
-  store.commit("setWalletState", wallet);
+      // If we made it here, we are going to assume a wallet doesn't exist, so lets generate one
+      const nWallet = {
+        id: uuidv4(),
+        mnemonic: mnemonic,
+        coins: [] as {}
+      } as Wallet;
+
+      // Push the coin data to our new wallet
+      nWallet.coins.push(cData);
+
+      // Return the newly created wallet
+      return nWallet;
+    });
+  });
 
   return wallet;
 }
@@ -112,18 +126,19 @@ async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
 
   const coinData = await azureService.getCoin(ticker);
   const xpubData = await blockBookService.getXpub(xpub);
-  
+
   // Set the network
   const network = coinData.data.coinInformation.networks.p2pkh;
   network.pubKeyHash = network.pubKeyHash[0];
-  network.scriptHash  = network.scriptHash[0];
+  network.scriptHash = network.scriptHash[0];
   network.wif = network.wif[0];
 
   const { address } = payments.p2pkh({
     pubkey: bip32
       .fromBase58(xpub)
       .derive(0)
-      .derive(xpubData.data.usedTokens ? xpubData.data.usedTokens : 0).publicKey,
+      .derive(xpubData.data.usedTokens ? xpubData.data.usedTokens : 0)
+      .publicKey,
     network: network,
   });
 
@@ -145,53 +160,11 @@ async function FindWallet(ticker: string): Promise<Coin> {
   return coin;
 }
 
-// Add a coin to wallet
-async function AddCoinToWallet(ticker: string): Promise<Wallet> {
-  // Process of adding a new coin to wallet.
-  // 1. Fetch current full wallet from state/localStorage
-  const wallet = store.getters.getWallet as Wallet;
-
-  // Our full wallet will have the mnemonic we need to derive a seed.
-  const seed = await mnemonicToSeed(wallet.mnemonic);
-  
-  // Fetch the coin data for the provided ticker and assemble network information from it
-  const coinData = await azureService.getCoin(ticker);
-
-  // Set the network
-  const network = coinData.data.coinInformation.networks.p2pkh;
-  network.pubKeyHash = network.pubKeyHash[0];
-  network.scriptHash  = network.scriptHash[0];
-  network.wif = network.wif[0];
-
-  // BIP-44
-  const rootKey = fromSeed(seed, network);
-
-  const derivationPath = "m/44'/0'/0'";
-  const addressNode = rootKey.derivePath(derivationPath);
-
-  // Fetch xpub data, specifically the last index
-  const xpubData = await blockBookService.getXpub(addressNode.neutered().toBase58())
-
-  // Assemble coin data
-  const coin = {
-    name: coinData.data.coinInformation.name,
-    ticker: coinData.data.coinInformation.ticker.toLowerCase(),
-    icon: encodeURI(coinData.data.coinInformation.icon),
-    rootKey: rootKey.toBase58(),
-    extendedPrivateKey: addressNode.toBase58(),
-    extendedPublicKey: addressNode.neutered().toBase58(),
-    balance: 0,
-    index: xpubData.data.usedTokens,
-    blockbook: coinData.data.coinInformation.blockbook,
-  };
-
-  // Push the coin to our wallet
-  wallet.coins.push(coin);
-
-  // Update the wallet in Vuex
-  store.commit("setWalletState", wallet);
-
-  return wallet;
-}
-
-export { GenerateMnemonic, DeriveWallet, DeriveAddress, FindWallet, AddCoinToWallet, Wallet, Coin};
+export {
+  GenerateMnemonic,
+  DeriveWallet,
+  DeriveAddress,
+  FindWallet,
+  Wallet,
+  Coin,
+};
