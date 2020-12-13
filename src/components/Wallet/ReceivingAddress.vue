@@ -8,9 +8,9 @@
       </ion-buttons>
       <ion-title>{{ coin }} ({{ ticker.toUpperCase() }}) Address</ion-title>
       <ion-buttons slot="secondary">
-          <ion-button @click="help">
-              <ion-icon slot="icon-only" :icon="helpCircleOutline"></ion-icon>
-          </ion-button>
+        <ion-button @click="help">
+          <ion-icon slot="icon-only" :icon="helpCircleOutline"></ion-icon>
+        </ion-button>
       </ion-buttons>
     </ion-toolbar>
   </ion-header>
@@ -55,7 +55,12 @@ import {
   alertController,
   modalController,
 } from "@ionic/vue";
-import { clipboard, shareSocial, close, helpCircleOutline } from "ionicons/icons";
+import {
+  clipboard,
+  shareSocial,
+  close,
+  helpCircleOutline,
+} from "ionicons/icons";
 import { FindWallet, DeriveAddress } from "@/lib/wallet";
 import QRCode from "qrcode";
 
@@ -118,21 +123,22 @@ export default defineComponent({
       await modalController.dismiss();
     },
     async help() {
-        const alert = await alertController.create({
-            header: "Seeing a new address?",
-            message: "Feirm makes use of BIP32/44 to derive a new address each time a previous one has been used as an attempt to prevent you from being tracked.",
-            buttons: ["Okay!"]
-        })
+      const alert = await alertController.create({
+        header: "Seeing a new address?",
+        message:
+          "Feirm makes use of BIP32/44 to derive a new address each time a previous one has been used as an attempt to prevent you from being tracked.",
+        buttons: ["Okay!"],
+      });
 
-        return alert.present();
-    }
+      return alert.present();
+    },
   },
   setup() {
     return {
       clipboard,
       shareSocial,
       close,
-      helpCircleOutline
+      helpCircleOutline,
     };
   },
   components: {
