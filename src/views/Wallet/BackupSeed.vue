@@ -134,10 +134,11 @@ export default defineComponent({
             text: "Okay",
             handler: async () => {
               // Generate a wallet with Feirm as a coin
-              await DeriveWallet(
-                this.store.getters.getWalletMnemonic,
-                "xfe"
-              ).then(() => {
+              await DeriveWallet(this.store.getters.getWalletMnemonic, "xfe").then(wallet => {
+                // Save our wallet
+                this.store.commit("setWalletState", wallet);
+
+                // Navigate to wallets page
                 this.router.push({ path: "/tabs/wallet" });
               });
             },
