@@ -47,7 +47,7 @@ async function GenerateMnemonic(): Promise<string> {
 }
 
 // Take a mnemonic and derive a wallet for a coin (based on ticker)
-async function DeriveWallet(mnemonic: string, ticker: string): Promise<any> {
+async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
   // First of all, lets validate the mnemonic
   const valid = validateMnemonic(mnemonic);
   if (!valid) {
@@ -55,66 +55,63 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<any> {
   }
 
   // Derive seed from mnemonic
-  const wallet = await mnemonicToSeed(mnemonic).then(async (seed) => {
-    // Fetch the coin data based on the ticker provided
-    await azureService.getCoin(ticker).then((coin) => {
-      // Form the network information
-      const network = coin.data.coinInformation.networks.p2pkh;
+  const seed = await mnemonicToSeed(mnemonic);
 
-      network.pubKeyHash = network.pubKeyHash[0];
-      network.scriptHash = network.scriptHash[0];
-      network.wif = network.wif[0];
+  // Fetch the coin data based on the ticker provided
+  const coin = await azureService.getCoin(ticker);
 
-      // Set the derivation path
-      const derivationPath = "m/44'/" + coin.data.coinInformation.bip44 + "'/0'";
+  // Form the network information from coin data
+  const network = coin.data.coinInformation.networks.p2pkh;
+  network.pubKeyHash = network.pubKeyHash[0];
+  network.scriptHash = network.scriptHash[0];
+  network.wif = network.wif[0];
 
-      // Generate the root key
-      const rootKey = fromSeed(seed, network);
+  // Set the derivation path
+  const derivationPath = "m/44'/" + coin.data.coinInformation.bip44 + "'/0'";
 
-      // Derive the address node from root key
-      const addressNode = rootKey.derivePath(derivationPath);
+  // Generate the root key
+  const rootKey = fromSeed(seed, network);
 
-      // Now that we've got our address node, we can begin to either create a new wallet, or append to an existing one.
-      // But first, lets assemble all the coin data
-      const cData = {
-        name: coin.data.coinInformation.name,
-        ticker: coin.data.coinInformation.ticker.toLowerCase(),
-        icon: encodeURI(coin.data.coinInformation.icon),
-        rootKey: rootKey.toBase58(),
-        extendedPrivateKey: addressNode.toBase58(),
-        extendedPublicKey: addressNode.neutered().toBase58(),
-        blockbook: coin.data.coinInformation.blockbook,
-      } as Coin;
+  // Derive the address node from root key
+  const addressNode = rootKey.derivePath(derivationPath);
 
-      // If there is a wallet, then append the coin to it
-      const existingWallet = localStorage.getItem("wallet");
-      if (existingWallet) {
-        // We need to parse the wallet so its available to us
-        const pWallet = JSON.parse(existingWallet) as Wallet;
+  // Now that we've got our address node, we can begin to either create a new wallet, or append to an existing one.
+  // But first, lets assemble all the coin data
+  const cData = {
+    name: coin.data.coinInformation.name,
+    ticker: coin.data.coinInformation.ticker.toLowerCase(),
+    icon: encodeURI(coin.data.coinInformation.icon),
+    rootKey: rootKey.toBase58(),
+    extendedPrivateKey: addressNode.toBase58(),
+    extendedPublicKey: addressNode.neutered().toBase58(),
+    blockbook: coin.data.coinInformation.blockbook,
+  } as Coin;
 
-        // Push the coin data to it
-        pWallet.coins.push(cData);
+  // If there is a wallet, then append the coin to it
+  const existingWallet = localStorage.getItem("wallet");
+  if (existingWallet) {
+    // We need to parse the wallet so its available to us
+    const pWallet = JSON.parse(existingWallet) as Wallet;
 
-        // Return the full wallet interface
-        return pWallet;
-      }
+    // Push the coin data to it
+    pWallet.coins.push(cData);
 
-      // If we made it here, we are going to assume a wallet doesn't exist, so lets generate one
-      const nWallet = {
-        id: uuidv4(),
-        mnemonic: mnemonic,
-        coins: [] as {}
-      } as Wallet;
+    // Return the full wallet interface
+    return pWallet;
+  }
 
-      // Push the coin data to our new wallet
-      nWallet.coins.push(cData);
+  // If we made it here, we are going to assume a wallet doesn't exist, so lets generate one
+  const nWallet = {
+    id: uuidv4(),
+    mnemonic: mnemonic,
+    coins: [] as {},
+  } as Wallet;
 
-      // Return the newly created wallet
-      return nWallet;
-    });
-  });
+  // Push the coin data to our new wallet
+  nWallet.coins.push(cData);
 
-  return wallet;
+  // Return the newly created wallet
+  return nWallet;
 }
 
 // Derive a new address from xpub and index
