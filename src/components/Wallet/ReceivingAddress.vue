@@ -1,7 +1,11 @@
 <template>
   <ion-content class="ion-padding ion-text-center" v-if="qrCode.length !== 0">
     <!-- QR Code -->
-    <ion-img :src="qrCode"></ion-img>
+    <ion-card>
+      <ion-card-content>
+        <ion-img :src="qrCode"></ion-img>
+      </ion-card-content>
+    </ion-card>
 
     <!-- Address text functionality -->
     <ion-text>
@@ -32,6 +36,8 @@ import {
   IonImg,
   IonIcon,
   IonButton,
+  IonCard,
+  IonCardContent,
   toastController,
   alertController,
   modalController,
@@ -157,6 +163,8 @@ export default defineComponent({
     IonImg,
     IonIcon,
     IonButton,
+    IonCard,
+    IonCardContent
   },
 });
 </script>
