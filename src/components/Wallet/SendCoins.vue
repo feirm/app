@@ -16,7 +16,7 @@
         </ion-item>
 
         <!-- Send and Cancel buttons -->
-        <ion-button expand="block">Send Coins</ion-button>
+        <ion-button expand="block" @click="CreateSignedTransaction(this.$props.ticker, recipient, amount)">Send Coins</ion-button>
         <ion-button expand="block" color="danger" @click="closeModal">Cancel</ion-button>
     </ion-content>
 </template>
@@ -32,6 +32,7 @@ import {
     IonNote,
     modalController
 } from "@ionic/vue";
+import { CreateSignedTransaction } from "@/lib/wallet";
 
 export default defineComponent({
     name: "SendCoins",
@@ -51,6 +52,11 @@ export default defineComponent({
         },
         async closeModal() {
             await modalController.dismiss();
+        }
+    },
+    setup() {
+        return {
+            CreateSignedTransaction
         }
     },
     components: {

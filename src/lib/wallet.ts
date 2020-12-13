@@ -2,7 +2,7 @@ import { entropyToMnemonic, mnemonicToSeed, validateMnemonic } from "bip39";
 import { fromSeed } from "bip32";
 import { v4 as uuidv4 } from "uuid";
 import bufferToHex from "./bufferToHex";
-import { payments, bip32 } from "bitcoinjs-lib";
+import { payments, bip32, Psbt } from "bitcoinjs-lib";
 import azureService from "@/apiService/azureService";
 import { store } from "@/store";
 import axios from "axios";
@@ -163,11 +163,50 @@ async function FindWallet(ticker: string): Promise<Coin> {
   return coin;
 }
 
+// Construct a signed transaction for a coin.
+// We need the coin ticker to find the wallet in question, and to also fetch the network data.
+// We need the recipient address and amount to be sent.
+async function CreateSignedTransaction(ticker: string, recipient: string, amount: number): Promise<any> {
+  // Before starting anything, fetch the coin data from Azure API
+  const cData = await azureService.getCoin(ticker);
+
+  // We can now construct the network information for said coin (p2pkh)
+  const network = cData.data.coinInformation.networks.p2pkh;
+  network.pubKeyHash = network.pubKeyHash[0];
+  network.scriptHash = network.scriptHash[0];
+  network.wif = network.wif[0];
+
+  // Create and configure the transaction builder
+  const pbst = new Psbt({ network });
+  pbst.setVersion(cData.data.coinInformation.txVersion);
+
+  // Lets find our wallet
+  const wallet = await FindWallet(ticker);
+
+  // Fetch and form our inputs
+  // Fetch confirmed UTXOs from Blockbook
+  await axios.get(corsAnywhereUrl + cData.data.coinInformation.blockbook + "/api/v2/utxo/" + wallet.extendedPublicKey + "?confirmed=true").then(res => {
+    // Gather more information on each individual TXID
+    res.data.forEach(async(tx) => {
+      const blockbookTx = await axios.get(corsAnywhereUrl + cData.data.coinInformation.blockbook + "/api/v2/tx/" + tx.txid);
+      const transaction = blockbookTx.data;
+
+      console.log(transaction)
+
+      // Go through the transaction and add it as an input to the TX builder
+
+    });
+  })
+
+  return;
+}
+
 export {
   GenerateMnemonic,
   DeriveWallet,
   DeriveAddress,
   FindWallet,
+  CreateSignedTransaction,
   Wallet,
   Coin,
 };
