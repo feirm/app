@@ -40,7 +40,7 @@ interface Coin {
 }
 
 // CORS Anywhere
-const corsAnywhereUrl = "https://cors-anywhere.herokuapp.com/"
+const corsAnywhereUrl = "https://cors-anywhere.herokuapp.com/";
 
 // Derive a new mnemonic
 async function GenerateMnemonic(): Promise<string> {
@@ -133,7 +133,12 @@ async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
   network.wif = network.wif[0];
 
   // Fetch xpub data
-  const xpubData = await axios.get(corsAnywhereUrl + coinData.data.coinInformation.blockbook + "/api/v2/xpub/" + xpub);
+  const xpubData = await axios.get(
+    corsAnywhereUrl +
+      coinData.data.coinInformation.blockbook +
+      "/api/v2/xpub/" +
+      xpub
+  );
 
   // Derive an address using xpub data response
   const { address } = payments.p2pkh({
@@ -166,7 +171,11 @@ async function FindWallet(ticker: string): Promise<Coin> {
 // Construct a signed transaction for a coin.
 // We need the coin ticker to find the wallet in question, and to also fetch the network data.
 // We need the recipient address and amount to be sent.
-async function CreateSignedTransaction(ticker: string, recipient: string, amount: number): Promise<any> {
+async function CreateSignedTransaction(
+  ticker: string,
+  recipient: string,
+  amount: number
+): Promise<any> {
   // Before starting anything, fetch the coin data from Azure API
   const cData = await azureService.getCoin(ticker);
 
@@ -185,18 +194,41 @@ async function CreateSignedTransaction(ticker: string, recipient: string, amount
 
   // Fetch and form our inputs
   // Fetch confirmed UTXOs from Blockbook
-  await axios.get(corsAnywhereUrl + cData.data.coinInformation.blockbook + "/api/v2/utxo/" + wallet.extendedPublicKey + "?confirmed=true").then(res => {
-    // Gather more information on each individual TXID
-    res.data.forEach(async(tx) => {
-      const blockbookTx = await axios.get(corsAnywhereUrl + cData.data.coinInformation.blockbook + "/api/v2/tx/" + tx.txid);
-      const transaction = blockbookTx.data;
+  await axios
+    .get(
+      corsAnywhereUrl +
+        cData.data.coinInformation.blockbook +
+        "/api/v2/utxo/" +
+        wallet.extendedPublicKey +
+        "?confirmed=true"
+    )
+    .then((res) => {
+      // Gather more information on each individual TXID
+      res.data.forEach(async (tx) => {
+        const blockbookTx = await axios.get(
+          corsAnywhereUrl +
+            cData.data.coinInformation.blockbook +
+            "/api/v2/tx/" +
+            tx.txid
+        );
+        const transaction = blockbookTx.data;
 
-      console.log(transaction)
+        // Go through the transaction and add it as an input to the TX builder
+        pbst.addInput({
+          hash: transaction.txid,
+          index: tx.vout,
+          nonWitnessUtxo: Buffer.from(transaction.hex, "hex"),
+        });
+      });
 
-      // Go through the transaction and add it as an input to the TX builder
+      // Now that the inputs are sorted, we can create 2 outs - 1 for the recipient, and the other to a change address so we don't pay a significant TX fee.
+      pbst.addOutput({
+        address: recipient,
+        value: amount * 10000000,
+      });
 
+      // Derive 
     });
-  })
 
   return;
 }
