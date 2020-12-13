@@ -97,10 +97,10 @@ export default defineComponent({
             handler: async (inputs) => {
               // Derive an XFE wallet from the mnemonic
               try {
-                await DeriveWallet(inputs.mnemonic, "xfe");
-                this.router.push({
-                  path: "/tabs/wallet",
-                });
+                const wallet = await DeriveWallet(inputs.mnemonic, "xfe");
+                this.store.commit("setWalletState", wallet);
+
+                this.router.push({ path: "/tabs/wallet" });
               } catch (e) {
                 const eAlert = await alertController.create({
                   header: "Recovery Error!",
