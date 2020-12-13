@@ -20,7 +20,7 @@
       <!-- TODO: Add search bar -->
 
       <!-- List of all coins supported -->
-      <ion-list>
+      <ion-list v-if="coins.length !== 0">
         <ion-item
           v-for="coin in coins"
           v-bind:key="coin.name"
@@ -36,6 +36,9 @@
           </ion-label>
         </ion-item>
       </ion-list>
+
+      <!-- If there are no coins, show a message -->
+      <h2 v-if="coins.length === 0" class="ion-text-center">It appears that you've already added all the coins!</h2>
     </ion-content>
   </ion-page>
 </template>
