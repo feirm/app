@@ -1,19 +1,4 @@
 <template>
-  <ion-header class="ion-no-border">
-    <ion-toolbar class="ion-text-center">
-      <ion-buttons slot="start">
-        <ion-button @click="closeModal">
-          <ion-icon slot="icon-only" :icon="close"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-      <ion-title>{{ coin }} ({{ ticker.toUpperCase() }}) Address</ion-title>
-      <ion-buttons slot="secondary">
-        <ion-button @click="help">
-          <ion-icon slot="icon-only" :icon="helpCircleOutline"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-toolbar>
-  </ion-header>
   <ion-content class="ion-padding ion-text-center" v-if="qrCode.length !== 0">
     <!-- QR Code -->
     <ion-img :src="qrCode"></ion-img>
@@ -42,15 +27,11 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import {
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonContent,
   IonText,
   IonImg,
   IonIcon,
   IonButton,
-  IonButtons,
   toastController,
   alertController,
   modalController,
@@ -171,15 +152,11 @@ export default defineComponent({
     };
   },
   components: {
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
     IonText,
     IonImg,
     IonIcon,
     IonButton,
-    IonButtons,
   },
 });
 </script>
