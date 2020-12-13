@@ -39,6 +39,9 @@ interface Coin {
   blockbook: string;
 }
 
+// CORS Anywhere
+const corsAnywhereUrl = "https://cors-anywhere.herokuapp.com/"
+
 // Derive a new mnemonic
 async function GenerateMnemonic(): Promise<string> {
   const entropy = window.crypto.getRandomValues(new Uint8Array(32));
@@ -130,7 +133,7 @@ async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
   network.wif = network.wif[0];
 
   // Fetch xpub data
-  const xpubData = await axios.get(coinData.data.coinInformation.blockbook + "/api/v2/xpub/" + xpub);
+  const xpubData = await axios.get(corsAnywhereUrl + coinData.data.coinInformation.blockbook + "/api/v2/xpub/" + xpub);
 
   // Derive an address using xpub data response
   const { address } = payments.p2pkh({
