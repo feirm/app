@@ -101,6 +101,7 @@ export default defineComponent({
     async receiveModal() {
       const modal = await modalController.create({
         component: ReceivingAddress,
+        cssClass: "receivingAddressModal",
         componentProps: {
           coin: this.coin.name,
           ticker: this.coin.ticker,
