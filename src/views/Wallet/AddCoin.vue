@@ -25,7 +25,7 @@
           v-for="coin in coins"
           v-bind:key="coin.name"
           button="true"
-          @click="createCoinWallet(coin.name, coin.ticker)"
+          @click="createCoinWallet(store.getters.getWallet.mnemonic, coin.name, coin.ticker)"
         >
           <ion-avatar slot="start">
             <img :src="coin.icon" />
@@ -60,8 +60,9 @@ import {
 } from "@ionic/vue";
 import { informationCircleOutline } from "ionicons/icons";
 import azureService from "@/apiService/azureService";
-import { AddCoinToWallet } from "@/lib/wallet";
+import { DeriveWallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 
 export default defineComponent({
   name: "AddCoin",
@@ -108,7 +109,7 @@ export default defineComponent({
 
       return alert.present();
     },
-    async createCoinWallet(coin: string, ticker: string) {
+    async createCoinWallet(mnemonic: string, coin: string, ticker: string) {
       // Create a confirmation alert asking the user if they want to add a new coin
       const confirmAlert = await alertController.create({
         header: "Add new coin?",
@@ -121,9 +122,10 @@ export default defineComponent({
             text: "Yes",
             handler: async () => {
               // Add coin to wallet
-              await AddCoinToWallet(ticker).then(() => {
-                this.router.push({ path: "/tabs/wallet" });
-              });
+              const wallet = await DeriveWallet(mnemonic, ticker);
+              this.store.commit("setWalletState", wallet);
+
+              this.router.push({ path: "/tabs/wallet" });
             },
           },
         ],
@@ -134,9 +136,11 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter();
+    const store = useStore();
 
     return {
       router,
+      store,
       informationCircleOutline,
     };
   },
