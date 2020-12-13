@@ -17,7 +17,7 @@
       <ion-grid>
         <ion-row class="ion-text-center">
           <ion-col>
-            <ion-fab-button color="primary">
+            <ion-fab-button color="primary" @click="sendModal">
               <ion-icon :icon="arrowUpOutline"></ion-icon>
             </ion-fab-button>
           </ion-col>
@@ -64,7 +64,10 @@ import {
 import { useStore } from "vuex";
 import { Coin, FindWallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
+
+// Components
 import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
+import SendCoins from "@/components/Wallet/SendCoins.vue";
 
 export default defineComponent({
   name: "Details",
@@ -107,6 +110,18 @@ export default defineComponent({
           ticker: this.coin.ticker,
         },
       });
+
+      return modal.present();
+    },
+    async sendModal() {
+      const modal = await modalController.create({
+        component: SendCoins,
+        cssClass: "sendCoinsModal",
+        componentProps: {
+          coin: this.coin.name,
+          ticker: this.coin.ticker
+        }
+      })
 
       return modal.present();
     },
