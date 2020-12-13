@@ -6,6 +6,11 @@
           <ion-back-button></ion-back-button>
         </ion-buttons>
         <ion-title>{{ coin.name }} ({{ ticker.toUpperCase() }})</ion-title>
+        <ion-buttons slot="secondary">
+          <ion-button @click="removeCoin">
+            <ion-icon :icon="trashOutline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-buttons>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding ion-text-center">
@@ -48,11 +53,13 @@ import {
   IonTitle,
   IonBackButton,
   modalController,
+  alertController,
 } from "@ionic/vue";
 import {
   arrowUpOutline,
   arrowDownOutline,
   refreshCircleOutline,
+  trashOutline
 } from "ionicons/icons";
 import { useStore } from "vuex";
 import { Coin, FindWallet } from "@/lib/wallet";
@@ -102,6 +109,26 @@ export default defineComponent({
 
       return modal.present();
     },
+    async removeCoin() {
+      // TODO: Implement remove coin function
+      const alert = await alertController.create({
+        header: "Remove coin?",
+        message: "Don't worry, your funds won't be lost. They are just hidden from you. The coin can be added back at any time!",
+        buttons: [
+          {
+            text: "Cancel"
+          },
+          {
+            text: "Confirm",
+            handler: () => {
+              console.log("TODO: Delete coin...")
+            }
+          }
+        ]
+      })
+
+      return alert.present();
+    }
   },
   setup() {
     const store = useStore();
@@ -113,6 +140,7 @@ export default defineComponent({
       arrowUpOutline,
       arrowDownOutline,
       refreshCircleOutline,
+      trashOutline
     };
   },
 });
