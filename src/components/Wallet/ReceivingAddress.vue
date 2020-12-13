@@ -16,7 +16,7 @@
       </code>
     </ion-text>
 
-    <!-- Copy and share buttons -->
+    <!-- Copy, share and exit buttons -->
     <ion-button expand="block" @click="copyToClipboard">
       <ion-icon slot="start" :icon="clipboard"></ion-icon>
       Copy to clipboard
@@ -24,6 +24,10 @@
     <ion-button expand="block" @click="share">
       <ion-icon slot="start" :icon="shareSocial"></ion-icon>
       Share address
+    </ion-button>
+    <ion-button expand="block" @click="closeModal" color="danger">
+      <ion-icon slot="start" :icon="close"></ion-icon>
+      Close
     </ion-button>
   </ion-content>
 </template>
@@ -124,6 +128,8 @@ export default defineComponent({
           });
 
           toast.present();
+
+          await modalController.dismiss();
         })
         .catch(async (err) => {
           // Error alert
