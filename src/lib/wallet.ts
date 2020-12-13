@@ -5,7 +5,7 @@ import bufferToHex from "./bufferToHex";
 import { payments, bip32 } from "bitcoinjs-lib";
 import azureService from "@/apiService/azureService";
 import { store } from "@/store";
-import blockBookService from "@/apiService/blockBookService";
+import axios from "axios";
 
 // Wallet interface
 interface Wallet {
@@ -114,15 +114,14 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
   return nWallet;
 }
 
-// Derive a new address from xpub and index
+// Derive a new coin address from the Extended public key
 async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
-  // Fetch the coin data for the provided ticker and assemble network information from it
   if (!ticker) {
     throw new Error("Ticker is not present!");
   }
 
+  // Fetch the coin data for the provided ticker and assemble network information from it
   const coinData = await azureService.getCoin(ticker);
-  const xpubData = await blockBookService.getXpub(xpub);
 
   // Set the network
   const network = coinData.data.coinInformation.networks.p2pkh;
@@ -130,6 +129,10 @@ async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
   network.scriptHash = network.scriptHash[0];
   network.wif = network.wif[0];
 
+  // Fetch xpub data
+  const xpubData = await axios.get(coinData.data.coinInformation.blockbook + "/api/v2/xpub/" + xpub);
+
+  // Derive an address using xpub data response
   const { address } = payments.p2pkh({
     pubkey: bip32
       .fromBase58(xpub)
