@@ -236,7 +236,7 @@ http://ionicframework.com/docs/theming/ */
 /* Receiving address modal */
 .receivingAddressModal .modal-wrapper {
   max-height: 70%;
-  top: 20%;
+  bottom: -5%;
   position: absolute;
   display: block;
 }
