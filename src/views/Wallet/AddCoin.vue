@@ -60,7 +60,7 @@ import {
 } from "@ionic/vue";
 import { informationCircleOutline } from "ionicons/icons";
 import azureService from "@/apiService/azureService";
-import { DeriveWallet } from "@/lib/wallet";
+import { Coin, DeriveWallet, Wallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 
@@ -83,7 +83,7 @@ export default defineComponent({
   },
   data() {
     return {
-      coins: [],
+      coins: [] as Coin[],
     };
   },
   async ionViewWillEnter() {
@@ -91,7 +91,24 @@ export default defineComponent({
     await azureService
       .getCoins()
       .then((res) => {
-        this.coins = res.data;
+        const cData = res.data as Coin[];
+
+        // Fetch current wallet
+        const wallet = this.store.getters.getWallet as Wallet;
+
+        // Iterate over each coin and remove existing coins from response data
+        wallet.coins.forEach(coin => {
+          for (let i = 0; i < cData.length; i++) {
+            const c = cData[i] as Coin;
+
+            if (c.ticker.toLocaleLowerCase() === coin.ticker.toLocaleLowerCase()) {
+              // Remove the coin already in use
+              cData.splice(i, 1);
+            }
+          }
+        })
+
+        this.coins = cData;
       })
       .catch(async (err) => {
         // TODO: Error alert
