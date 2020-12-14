@@ -17,7 +17,7 @@
       <!-- Floating button -->
       <ion-fab vertical="bottom" horizontal="end" slot="fixed">
         <ion-fab-button
-          @click="router.push({ path: '/services/contacts/new' })"
+          @click="newContactModal"
         >
           <ion-icon :icon="addOutline"></ion-icon>
         </ion-fab-button>
@@ -39,12 +39,16 @@ import {
   IonIcon,
   IonItem,
   IonRefresher,
-  IonRefresherContent
+  IonRefresherContent,
+  modalController
 } from "@ionic/vue";
 import { addOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import tatsuyaService from "@/apiService/tatsuyaService";
 import { DecryptContacts } from "@/lib/contacts";
+
+// Components
+import NewContact from "@/components/Contacts/NewContact.vue";
 
 export default defineComponent({
   name: "Contacts",
@@ -78,6 +82,13 @@ export default defineComponent({
     }
   },
   methods: {
+    async newContactModal() {
+      const modal = await modalController.create({
+        component: NewContact
+      });
+
+      return modal.present();
+    },
     async refreshContacts(event: any) {
       // Refresh contacts (tidy this later)
       try {
