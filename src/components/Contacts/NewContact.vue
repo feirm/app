@@ -155,11 +155,13 @@ export default defineComponent({
               a.dismiss();
 
               // Create error alert
-              const alertError = alertController.create({
+              const alertError = await alertController.create({
                 header: "Error saving contact!",
                 message: err,
                 buttons: ["Close"],
               });
+
+              return alertError.present()
             });
         });
     },
