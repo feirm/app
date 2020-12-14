@@ -2,7 +2,7 @@ import { entropyToMnemonic, mnemonicToSeed, validateMnemonic } from "bip39";
 import { fromSeed } from "bip32";
 import { v4 as uuidv4 } from "uuid";
 import bufferToHex from "./bufferToHex";
-import { payments, bip32, Psbt } from "bitcoinjs-lib";
+import { payments, bip32, Psbt, ECPair } from "bitcoinjs-lib";
 import azureService from "@/apiService/azureService";
 import { store } from "@/store";
 import axios from "axios";
@@ -186,51 +186,77 @@ async function CreateSignedTransaction(
   network.wif = network.wif[0];
 
   // Create and configure the transaction builder
-  const pbst = new Psbt({ network });
-  pbst.setVersion(cData.data.coinInformation.txVersion);
+  const psbt = new Psbt({ network });
+  psbt.setVersion(cData.data.coinInformation.txVersion);
 
   // Lets find our wallet
   const wallet = await FindWallet(ticker);
 
+  // Derive the master BIP32 keypair
+  const masterKeypair = bip32.fromBase58(wallet.rootKey, network);
+
+   // Primary output
+  psbt.addOutput({
+    address: recipient,
+    value: amount * 100000000,
+  });
+
   // Fetch and form our inputs
-  // Fetch confirmed UTXOs from Blockbook
-  await axios
-    .get(
-      corsAnywhereUrl +
+  try {
+    await axios
+      .get(
         cData.data.coinInformation.blockbook +
-        "/api/v2/utxo/" +
-        wallet.extendedPublicKey +
-        "?confirmed=true"
-    )
-    .then((res) => {
-      // Gather more information on each individual TXID
-      res.data.forEach(async (tx) => {
-        const blockbookTx = await axios.get(
-          corsAnywhereUrl +
-            cData.data.coinInformation.blockbook +
-            "/api/v2/tx/" +
-            tx.txid
-        );
-        const transaction = blockbookTx.data;
+          "/api/v2/utxo/" +
+          wallet.extendedPublicKey
+      )
+      .then(async (res) => {
+        // Iterate through the transactions
+        for (let i = 0; i < res.data.length; i++) {
+          // We need to fetch the transaction specific details, so fetch the individual transaction
+          await axios
+            .get(
+              cData.data.coinInformation.blockbook +
+                "/api/v1/tx/" +
+                res.data[i].txid
+            )
+            .then(async (tx) => {
+              // We have our TX data, so we can add it to the transaction builder
+              try {
+                psbt.addInput({
+                  hash: tx.data.txid,
+                  index: res.data[i].vout,
+                  nonWitnessUtxo: Buffer.from(tx.data.hex, "hex"),
+                });
 
-        // Go through the transaction and add it as an input to the TX builder
-        pbst.addInput({
-          hash: transaction.txid,
-          index: tx.vout,
-          nonWitnessUtxo: Buffer.from(transaction.hex, "hex"),
-        });
+                console.log("Added TXID:", tx.data.txid, "to inputs...");
+              } catch (e) {
+                console.log("1")
+                throw new Error(e);
+              }
+
+              // Now try signing the input
+              try {
+                const wif = masterKeypair.derivePath(res.data[i].path).toWIF();
+                psbt.signInput(i, ECPair.fromWIF(wif, network));
+                console.log("Signed TXID:", res.data[i].txid);
+              } catch (e) {
+                console.log("2")
+                throw new Error(e);
+              }
+            });
+        }
       });
+  } catch (e) {
+    console.log("Error with TX:", e);
+  }
 
-      // Now that the inputs are sorted, we can create 2 outs - 1 for the recipient, and the other to a change address so we don't pay a significant TX fee.
-      pbst.addOutput({
-        address: recipient,
-        value: amount * 10000000,
-      });
+  // TODO Change address
 
-      // Derive 
-    });
+  // Finalise the transaction inputs
+  psbt.finalizeAllInputs();
 
-  return;
+  // Convert to hex
+  console.log(psbt.extractTransaction(true).toHex());
 }
 
 export {

@@ -91,6 +91,17 @@ export default defineComponent({
 
                     // Once complete, dismiss the loading controller
                     a.dismiss();
+                  }).catch(async(e) => {
+                    a.dismiss();
+
+                    // Show error alert
+                    const alert = await alertController.create({
+                      header: "Transaction Error",
+                      message: e,
+                      buttons: ["Close"]
+                    })
+
+                    return alert.present()
                   });
                 });
             },
