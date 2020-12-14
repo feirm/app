@@ -126,13 +126,6 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
-    path: "/services/contacts/new",
-    component: () => import("@/views/Services/Contacts/New.vue"),
-    meta: {
-      requiresAuth: true,
-    },
-  },
-  {
     path: "/update",
     component: () => import("@/views/Update.vue"),
     meta: {
