@@ -1,6 +1,7 @@
 import { store } from "@/store";
 import aes from "aes-js";
 import bufferToHex from "./bufferToHex";
+import hexStringToBytes from "./hexStringToBytes";
 
 // Decrypted contact payload
 interface Contact {
@@ -57,9 +58,11 @@ async function CreateEncryptedContact(
 }
 
 // Decrypt encrypted contacts
-async function DecryptContacts(contacts: EncryptedContact[]): Promise<Contact[]> {
-  // New list of decrypted contacts
-  const decryptedContacts = [] as Contact[];
+async function DecryptContacts(
+  contacts: EncryptedContact[]
+): Promise<Contact[]> {
+  // New list of empty decrypted contacts
+  const decryptedContacts = [] as any[];
 
   // Derive account encryption key from rootkey
   const encryptionKey = await window.crypto.subtle.digest(
@@ -67,29 +70,52 @@ async function DecryptContacts(contacts: EncryptedContact[]): Promise<Contact[]>
     new TextEncoder().encode(store.getters.getRootKey + "enc")
   );
 
-  // Attempt to decrypt each contact entry
-  for (let i = 0; i < contacts.length; i++) {
-    const contact = contacts[i];
+  // Export the key so its compatible with Web Crypto API
+  const exported = await window.crypto.subtle.importKey(
+    "raw",
+    encryptionKey,
+    {
+      name: "AES-CBC",
+    },
+    false,
+    ["encrypt", "decrypt"]
+  );
 
-    // IV formatting
-    const aesIv = aes.utils.hex.toBytes(contact.iv);
+  // Iterate over each item in the encrypted contacts array
+  await contacts.forEach(async (contact) => {
+    // Output each individual encrypted contact
+    // console.log("Contact:", contact);
 
-    // AES Decipher
-    const aesCBC = new aes.ModeOfOperation.cbc(
-      new Uint8Array(encryptionKey),
-      aesIv
-    );
-    const decrypted = aesCBC.decrypt(aes.utils.hex.toBytes(contact.cipherText));
+    // Decrypt contact with Web Crypto API
+    const t = new TextEncoder().encode(contact.cipherText);
+    try {
+      const woot = await window.crypto.subtle.decrypt(
+        {
+          name: "AES-CBC",
+          iv: hexStringToBytes(contact.iv),
+        },
+        exported,
+        t
+      );
 
-    const decryptedContact = JSON.parse(
-      aes.utils.utf8.fromBytes(aes.padding.pkcs7.strip(decrypted))
+      const decryptedContact = JSON.parse(
+      aes.utils.utf8.fromBytes(aes.padding.pkcs7.strip(hexStringToBytes(woot)))
     ) as Contact;
 
-    // Push decrypted contact to array
-    decryptedContacts.push(decryptedContact);
-  }
+      console.log("Decrypted:", decryptedContact);
+
+    } catch (e) {
+      console.log("Decrypt error:", e);
+    }
+  });
 
   return decryptedContacts;
 }
 
-export { Contact, EncryptedContact, CryptoAddress, CreateEncryptedContact, DecryptContacts };
+export {
+  Contact,
+  EncryptedContact,
+  CryptoAddress,
+  CreateEncryptedContact,
+  DecryptContacts,
+};
