@@ -2,7 +2,7 @@ import { entropyToMnemonic, mnemonicToSeed, validateMnemonic } from "bip39";
 import { fromSeed } from "bip32";
 import { v4 as uuidv4 } from "uuid";
 import bufferToHex from "./bufferToHex";
-import { payments, bip32, Psbt, ECPair } from "bitcoinjs-lib";
+import { payments, bip32, Psbt, Network } from "bitcoinjs-lib";
 import azureService from "@/apiService/azureService";
 import { store } from "@/store";
 import axios from "axios";
@@ -11,19 +11,7 @@ import axios from "axios";
 interface Wallet {
   id: string;
   mnemonic: string;
-  coins: [
-    {
-      name: string;
-      ticker: string;
-      icon: string;
-      rootKey: string;
-      extendedPrivateKey: string;
-      extendedPublicKey: string;
-      balance: number;
-      index: number;
-      blockbook: string;
-    }
-  ];
+  coins: Coin[];
 }
 
 // Coin interface
@@ -36,6 +24,7 @@ interface Coin {
   extendedPublicKey: string;
   balance: number;
   index: number;
+  changeIndex: number;
   blockbook: string;
 }
 
@@ -85,6 +74,7 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
     extendedPrivateKey: addressNode.toBase58(),
     extendedPublicKey: addressNode.neutered().toBase58(),
     blockbook: coin.data.coinInformation.blockbook,
+    index: coin.data.coinInformation.blockbook
   } as Coin;
 
   // If there is a wallet, then append the coin to it
@@ -177,10 +167,12 @@ async function CreateSignedTransaction(
   const cData = await azureService.getCoin(ticker);
 
   // We can now construct the network information for said coin (p2pkh)
-  const network = cData.data.coinInformation.networks.p2pkh;
+  const network = cData.data.coinInformation.networks.p2pkh as Network;
   network.pubKeyHash = network.pubKeyHash[0];
   network.scriptHash = network.scriptHash[0];
   network.wif = network.wif[0];
+
+  console.log(network)
 
   // Create and configure the transaction builder
   const psbt = new Psbt({ network });
@@ -197,6 +189,12 @@ async function CreateSignedTransaction(
     address: recipient,
     value: amount * 100000000,
   });
+
+  // Fetch the number of change addresses which have been used
+
+  // Derive a change address to send excess funds
+  // const changeAddress = bip32.fromBase58(wallet.extendedPublicKey).derive(1).derive(1);
+  // console.log(changeAddress.publicKey);
 
   // Fetch and form our inputs
   try {
@@ -229,27 +227,30 @@ async function CreateSignedTransaction(
 
                 console.log("Added TXID:", tx.data.txid, "to inputs...");
               } catch (e) {
-                console.log("1")
+                console.log("1", e)
                 throw new Error(e);
               }
 
               // Now try signing the input
               try {
-                const wif = masterKeypair.derivePath(res.data[i].path).toWIF();
-                psbt.signInput(i, ECPair.fromWIF(wif, network));
+                psbt.signInputHD(i, masterKeypair);
                 console.log("Signed TXID:", res.data[i].txid);
               } catch (e) {
-                console.log("2")
+                console.log("2", e)
                 throw new Error(e);
+              }
+
+              // Validate signature
+              if (psbt.validateSignaturesOfInput(i)) {
+                console.log("Signature for TX", res.data[i].txid, "was valid!");
               }
             });
         }
       });
   } catch (e) {
-    console.log("Error with TX:", e);
+    console.log("3", e);
+    throw new Error(e);
   }
-
-  // TODO Change address
 
   // Finalise the transaction inputs
   psbt.finalizeAllInputs();
