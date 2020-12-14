@@ -78,7 +78,7 @@ export default defineComponent({
 
         // Attempt to decrypt contacts array
         await DecryptContacts(contacts).then(decryptedContacts => {
-          console.log(decryptedContacts)
+          this.contacts = decryptedContacts;
         }).catch(e => {
           console.log(e);
         })
