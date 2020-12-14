@@ -4,11 +4,17 @@ import bufferToHex from "./bufferToHex";
 
 // Decrypted contact payload
 interface Contact {
-  FirstName: string;
-  LastName: string;
-  FeirmID: string;
-  PhoneNumber: string;
-  Email: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  emailAddress: string;
+  cryptoAddresses: CryptoAddress[];
+}
+
+// Interface for a contact cryptocurrency address
+interface CryptoAddress {
+  coin: string;
+  address: string;
 }
 
 // Encrypted contact payload
@@ -51,7 +57,7 @@ async function CreateEncryptedContact(
 }
 
 // Decrypt encrypted contacts
-async function DecryptContacts(contacts: EncryptedContact[]): Promise<any> {
+async function DecryptContacts(contacts: EncryptedContact[]): Promise<Contact[]> {
   // New list of decrypted contacts
   const decryptedContacts = [] as Contact[];
 
@@ -86,4 +92,4 @@ async function DecryptContacts(contacts: EncryptedContact[]): Promise<any> {
   return decryptedContacts;
 }
 
-export { Contact, EncryptedContact, CreateEncryptedContact, DecryptContacts };
+export { Contact, EncryptedContact, CryptoAddress, CreateEncryptedContact, DecryptContacts };
