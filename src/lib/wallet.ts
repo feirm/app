@@ -40,7 +40,7 @@ interface Coin {
 }
 
 // CORS Anywhere
-const corsAnywhereUrl = "https://cors-anywhere.herokuapp.com/";
+const corsAnywhereUrl = process.env.VUE_APP_CORS_ANYWHERE_URL;
 
 // Derive a new mnemonic
 async function GenerateMnemonic(): Promise<string> {
@@ -205,6 +205,7 @@ async function CreateSignedTransaction(
   try {
     await axios
       .get(
+        corsAnywhereUrl +
         cData.data.coinInformation.blockbook +
           "/api/v2/utxo/" +
           wallet.extendedPublicKey
@@ -215,6 +216,7 @@ async function CreateSignedTransaction(
           // We need to fetch the transaction specific details, so fetch the individual transaction
           await axios
             .get(
+              corsAnywhereUrl +
               cData.data.coinInformation.blockbook +
                 "/api/v1/tx/" +
                 res.data[i].txid
