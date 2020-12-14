@@ -45,7 +45,7 @@ import {
 import { addOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import tatsuyaService from "@/apiService/tatsuyaService";
-import { DecryptContacts } from "@/lib/contacts";
+import { DecryptContacts, Contact } from "@/lib/contacts";
 
 // Components
 import NewContact from "@/components/Contacts/NewContact.vue";
@@ -67,7 +67,7 @@ export default defineComponent({
   },
   data() {
     return {
-      contacts: []
+      contacts: [] as Contact[]
     }
   },
   async ionViewWillEnter() {
