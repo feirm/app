@@ -39,9 +39,6 @@ interface Coin {
   blockbook: string;
 }
 
-// CORS Anywhere
-const corsAnywhereUrl = process.env.VUE_APP_CORS_ANYWHERE_URL;
-
 // Derive a new mnemonic
 async function GenerateMnemonic(): Promise<string> {
   const entropy = window.crypto.getRandomValues(new Uint8Array(32));
@@ -134,7 +131,7 @@ async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
 
   // Fetch xpub data
   const xpubData = await axios.get(
-    corsAnywhereUrl +
+    "https://cors-anywhere.feirm.com/" +
       coinData.data.coinInformation.blockbook +
       "/api/v2/xpub/" +
       xpub
@@ -205,7 +202,7 @@ async function CreateSignedTransaction(
   try {
     await axios
       .get(
-        corsAnywhereUrl +
+        "https://cors-anywhere.feirm.com/" +
         cData.data.coinInformation.blockbook +
           "/api/v2/utxo/" +
           wallet.extendedPublicKey
@@ -216,7 +213,7 @@ async function CreateSignedTransaction(
           // We need to fetch the transaction specific details, so fetch the individual transaction
           await axios
             .get(
-              corsAnywhereUrl +
+              "https://cors-anywhere.feirm.com/" +
               cData.data.coinInformation.blockbook +
                 "/api/v1/tx/" +
                 res.data[i].txid
