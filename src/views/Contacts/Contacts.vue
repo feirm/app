@@ -11,7 +11,7 @@
       </ion-refresher>
 
       <ion-item v-for="contact in contacts" :key="contact.id" :button="true">
-        {{ contact.FirstName}} {{ contact.LastName }}
+        {{ contact.firstName}} {{ contact.lastName }}
       </ion-item>
 
       <!-- Floating button -->
@@ -45,7 +45,7 @@ import {
 import { addOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import tatsuyaService from "@/apiService/tatsuyaService";
-import { DecryptContacts, Contact } from "@/lib/contacts";
+import { DecryptContacts, Contact, EncryptedContact } from "@/lib/contacts";
 
 // Components
 import NewContact from "@/components/Contacts/NewContact.vue";
@@ -72,13 +72,19 @@ export default defineComponent({
   },
   async ionViewWillEnter() {
     try {
-      await tatsuyaService.fetchContacts().then(res => {
-        DecryptContacts(res.data).then(contacts => {
-          this.contacts = contacts;
+      await tatsuyaService.fetchContacts().then(async(res) => {
+        // Set the encrypted contacts array
+        const contacts = res.data as EncryptedContact[];
+
+        // Attempt to decrypt contacts array
+        await DecryptContacts(contacts).then(decryptedContacts => {
+          console.log(decryptedContacts)
+        }).catch(e => {
+          console.log(e);
         })
       })
     } catch(e) {
-      console.log("Fetching contacts error:", e);
+      // ...
     }
   },
   methods: {
