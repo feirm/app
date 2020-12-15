@@ -7,7 +7,7 @@
         </ion-button>
       </ion-buttons>
       <ion-buttons slot="secondary">
-        <ion-button color="success" @click="saveContact">
+        <ion-button color="success" @click="saveContact(contact)">
           <ion-icon slot="icon-only" :icon="checkmarkOutline"></ion-icon>
         </ion-button>
       </ion-buttons>
@@ -128,8 +128,6 @@ export default defineComponent({
       await modalController.dismiss();
     },
     async saveContact(contact: Contact) {
-      // TODO: Check if specific field values are empty
-
       // Wrap everything in a loading controller
       await loadingController
         .create({
@@ -139,16 +137,18 @@ export default defineComponent({
           a.present()
             .then(async () => {
               // Encrypt the the contact payload
-              const encryptedContact = await CreateEncryptedContact(contact);
+              const encryptedContact = await CreateEncryptedContact(
+                contact
+              ).then(async (data) => {
+                // Submit payload to API
+                await tatsuyaService.newContact(data);
 
-              // Submit payload to API
-              await tatsuyaService.newContact(encryptedContact).then();
+                // Close loading spinner
+                a.dismiss();
 
-              // Dismiss loading controller
-              a.dismiss();
-
-              // Close the modal controller
-              await modalController.dismiss();
+                // Close the modal controller
+                modalController.dismiss();
+              });
             })
             .catch(async (err) => {
               // Dismiss loading controller
@@ -161,7 +161,7 @@ export default defineComponent({
                 buttons: ["Close"],
               });
 
-              return alertError.present()
+              return alertError.present();
             });
         });
     },

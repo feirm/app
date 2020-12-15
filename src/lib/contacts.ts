@@ -1,7 +1,6 @@
 import { store } from "@/store";
 import aes from "aes-js";
 import bufferToHex from "./bufferToHex";
-import hexStringToBytes from "./hexStringToBytes";
 
 // Decrypted contact payload
 interface Contact {
@@ -62,7 +61,7 @@ async function DecryptContacts(
   contacts: EncryptedContact[]
 ): Promise<Contact[]> {
   // New list of empty decrypted contacts
-  const decryptedContacts = [] as any[];
+  const decryptedContacts = [] as Contact[];
 
   // Derive account encryption key from rootkey
   const encryptionKey = await window.crypto.subtle.digest(
@@ -70,40 +69,22 @@ async function DecryptContacts(
     new TextEncoder().encode(store.getters.getRootKey + "enc")
   );
 
-  // Export the key so its compatible with Web Crypto API
-  const exported = await window.crypto.subtle.importKey(
-    "raw",
-    encryptionKey,
-    {
-      name: "AES-CBC",
-    },
-    false,
-    ["encrypt", "decrypt"]
-  );
-
   // Iterate over each item in the encrypted contacts array
   await contacts.forEach(async (contact) => {
-    // Output each individual encrypted contact
-    // console.log("Contact:", contact);
-
-    // Decrypt contact with Web Crypto API
-    const t = new TextEncoder().encode(contact.cipherText);
+    // Decrypt contact with AES
     try {
-      const woot = await window.crypto.subtle.decrypt(
-        {
-          name: "AES-CBC",
-          iv: hexStringToBytes(contact.iv),
-        },
-        exported,
-        t
-      );
+      // Convert IV to hex bytes
+      const iv = aes.utils.hex.toBytes(contact.iv);
 
-      const decryptedContact = JSON.parse(
-      aes.utils.utf8.fromBytes(aes.padding.pkcs7.strip(hexStringToBytes(woot)))
-    ) as Contact;
+      // AES-256-CBC Decipher
+      const aesCBC = new aes.ModeOfOperation.cbc(new Uint8Array(encryptionKey), iv);
 
-      console.log("Decrypted:", decryptedContact);
+      // Attempt to decrypt the ciphertext
+      const decrypted = aesCBC.decrypt(aes.utils.hex.toBytes(contact.cipherText));
+      const decryptedContact = JSON.parse(aes.utils.utf8.fromBytes(aes.padding.pkcs7.strip(decrypted)));
 
+      // Push to array
+      decryptedContacts.push(decryptedContact);
     } catch (e) {
       console.log("Decrypt error:", e);
     }
