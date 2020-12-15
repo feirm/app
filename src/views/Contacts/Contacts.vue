@@ -122,11 +122,11 @@ export default defineComponent({
         event.target.complete();
       }, 1000)
     },
-    async viewContacts(id: string) {
+    async viewContacts(contactId: string) {
       const modal = await modalController.create({
         component: ViewContact,
         componentProps: {
-          id
+          id: contactId
         }
       })
 
