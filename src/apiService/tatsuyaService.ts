@@ -44,5 +44,11 @@ export default {
     // Fetch all contacts
     fetchContacts() {
         return tatsuyaApi.get(`v1/contacts/all`);
+    },
+    // Delete a contact
+    deleteContact(id: string) {
+        return tatsuyaApi.post(`/v1/contacts/delete`, {
+            id: id
+        });
     }
 }
