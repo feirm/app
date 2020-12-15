@@ -56,9 +56,9 @@ export default defineComponent({
   methods: {
     async logout() {
       const alert = await alertController.create({
-        header: "Log out",
+        header: "Are you sure?",
         message:
-          "Are you sure you want to logout?",
+          "This action will remove all data from the app, including wallets, so be sure you have a backup!",
         buttons: [
           {
             text: "Cancel",
