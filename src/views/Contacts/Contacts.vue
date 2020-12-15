@@ -40,7 +40,8 @@ import {
   IonItem,
   IonRefresher,
   IonRefresherContent,
-  modalController
+  modalController,
+  alertController
 } from "@ionic/vue";
 import { addOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
@@ -84,7 +85,13 @@ export default defineComponent({
         })
       })
     } catch(e) {
-      // ...
+      const error = await alertController.create({
+        header: "Error fetching contacts!",
+        message: e,
+        buttons: ["Close"]
+      });
+
+      return error.present();
     }
   },
   methods: {
