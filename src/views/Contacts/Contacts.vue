@@ -10,7 +10,7 @@
         <ion-refresher-content></ion-refresher-content>
       </ion-refresher>
 
-      <ion-item v-for="contact in store.getters.getAllContacts" :key="contact.id" :button="true" @click="store.getters.getContact(contact.id)">
+      <ion-item v-for="contact in store.getters.getAllContacts" :key="contact.id" :button="true" @click="viewContacts(contact.id)">
         {{ contact.firstName}} {{ contact.lastName }}
       </ion-item>
 
@@ -50,6 +50,8 @@ import { DecryptContacts, Contact, EncryptedContact } from "@/lib/contacts";
 
 // Components
 import NewContact from "@/components/Contacts/NewContact.vue";
+import ViewContact from "@/components/Contacts/ViewContact.vue";
+
 import { useStore } from "vuex";
 
 export default defineComponent({
@@ -119,6 +121,16 @@ export default defineComponent({
       setTimeout(() => {
         event.target.complete();
       }, 1000)
+    },
+    async viewContacts(id: string) {
+      const modal = await modalController.create({
+        component: ViewContact,
+        componentProps: {
+          id
+        }
+      })
+
+      return modal.present();
     }
   },
   setup() {
