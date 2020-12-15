@@ -7,32 +7,57 @@
         </ion-buttons>
         <ion-title>{{ coin.name }} ({{ ticker.toUpperCase() }})</ion-title>
         <ion-buttons slot="secondary">
-          <ion-button @click="removeCoin">
+          <ion-button @click="removeCoin" color="danger">
             <ion-icon :icon="trashOutline" slot="icon-only"></ion-icon>
           </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding ion-text-center">
-      <ion-grid>
-        <ion-row class="ion-text-center">
-          <ion-col>
-            <ion-fab-button color="primary" @click="sendModal">
-              <ion-icon :icon="arrowUpOutline"></ion-icon>
-            </ion-fab-button>
-          </ion-col>
-          <ion-col>
-            <ion-fab-button color="success" @click="receiveModal">
-              <ion-icon color="light" :icon="arrowDownOutline"></ion-icon>
-            </ion-fab-button>
-          </ion-col>
-          <ion-col>
-            <ion-fab-button color="warning">
-              <ion-icon :icon="refreshCircleOutline"></ion-icon>
-            </ion-fab-button>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
+      <ion-card>
+        <ion-card-content>
+          <h1>Coin Balance</h1>
+          <h4>Fiat Equivalent</h4>
+        </ion-card-content>
+      </ion-card>
+      <ion-row class="ion-text-center">
+        <ion-col>
+          <ion-button color="light" @click="sendModal">
+            <ion-icon
+              color="primary"
+              slot="icon-only"
+              :icon="arrowUpOutline"
+            ></ion-icon>
+          </ion-button>
+        </ion-col>
+        <ion-col>
+          <ion-button color="light" @click="receiveModal">
+            <ion-icon
+              color="primary"
+              slot="icon-only"
+              :icon="arrowDownOutline"
+            ></ion-icon>
+          </ion-button>
+        </ion-col>
+        <ion-col>
+          <ion-button color="light">
+            <ion-icon
+              color="primary"
+              slot="icon-only"
+              :icon="receiptOutline"
+            ></ion-icon>
+          </ion-button>
+        </ion-col>
+        <ion-col>
+          <ion-button color="light">
+            <ion-icon
+              color="primary"
+              slot="icon-only"
+              :icon="swapHorizontalOutline"
+            ></ion-icon>
+          </ion-button>
+        </ion-col>
+      </ion-row>
     </ion-content>
   </ion-page>
 </template>
@@ -42,13 +67,14 @@ import { defineComponent } from "vue";
 import {
   IonPage,
   IonContent,
-  IonFabButton,
   IonIcon,
-  IonGrid,
+  IonCard,
+  IonCardContent,
   IonRow,
   IonCol,
   IonHeader,
   IonToolbar,
+  IonButton,
   IonButtons,
   IonTitle,
   IonBackButton,
@@ -58,8 +84,9 @@ import {
 import {
   arrowUpOutline,
   arrowDownOutline,
-  refreshCircleOutline,
-  trashOutline
+  receiptOutline,
+  trashOutline,
+  swapHorizontalOutline
 } from "ionicons/icons";
 import { useStore } from "vuex";
 import { Coin, FindWallet } from "@/lib/wallet";
@@ -74,13 +101,14 @@ export default defineComponent({
   components: {
     IonPage,
     IonContent,
-    IonFabButton,
     IonIcon,
-    IonGrid,
     IonRow,
     IonCol,
+    IonCard,
+    IonCardContent,
     IonHeader,
     IonToolbar,
+    IonButton,
     IonButtons,
     IonTitle,
     IonBackButton,
@@ -88,7 +116,7 @@ export default defineComponent({
   data() {
     return {
       coin: {} as Coin,
-      ticker: ""
+      ticker: "",
     };
   },
   async ionViewWillEnter() {
@@ -119,32 +147,33 @@ export default defineComponent({
         cssClass: "sendCoinsModal",
         componentProps: {
           coin: this.coin.name,
-          ticker: this.coin.ticker
-        }
-      })
+          ticker: this.coin.ticker,
+        },
+      });
 
       return modal.present();
     },
     async removeCoin() {
       // TODO: Implement remove coin function
       const alert = await alertController.create({
-        header: "Remove coin?",
-        message: "Don't worry, your funds won't be lost. They are just hidden from you. The coin can be added back at any time!",
+        header: `Remove ${this.coin.name} wallet?`,
+        message:
+          `Don't worry, your ${this.coin.ticker.toUpperCase()}  won't be lost. They are just hidden from you. The ${this.coin.name} wallet can be added back at any time!`,
         buttons: [
           {
-            text: "Cancel"
+            text: "Cancel",
           },
           {
             text: "Confirm",
             handler: () => {
-              console.log("TODO: Delete coin...")
-            }
-          }
-        ]
-      })
+              console.log("TODO: Delete coin...");
+            },
+          },
+        ],
+      });
 
       return alert.present();
-    }
+    },
   },
   setup() {
     const store = useStore();
@@ -155,8 +184,9 @@ export default defineComponent({
       router,
       arrowUpOutline,
       arrowDownOutline,
-      refreshCircleOutline,
-      trashOutline
+      receiptOutline,
+      trashOutline,
+      swapHorizontalOutline
     };
   },
 });
@@ -174,16 +204,5 @@ ion-footer {
   font-weight: bold;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-}
-
-ion-grid {
-  height: 100%;
-}
-
-ion-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
 }
 </style>
