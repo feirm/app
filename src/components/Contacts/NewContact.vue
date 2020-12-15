@@ -72,6 +72,7 @@ import { checkmarkOutline, closeOutline } from "ionicons/icons";
 import { Contact, CreateEncryptedContact, CryptoAddress } from "@/lib/contacts";
 import tatsuyaService from "@/apiService/tatsuyaService";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 
 export default defineComponent({
   name: "NewContact",
@@ -137,11 +138,14 @@ export default defineComponent({
           a.present()
             .then(async () => {
               // Encrypt the the contact payload
-              const encryptedContact = await CreateEncryptedContact(
+              await CreateEncryptedContact(
                 contact
               ).then(async (data) => {
                 // Submit payload to API
                 await tatsuyaService.newContact(data);
+
+                // Add contact to Vuex
+                this.store.commit("addContact", contact)            
 
                 // Close loading spinner
                 a.dismiss();
@@ -179,12 +183,14 @@ export default defineComponent({
     };
 
     const router = useRouter();
+    const store = useStore();
 
     return {
       checkmarkOutline,
       closeOutline,
       empty,
       router,
+      store
     };
   },
 });

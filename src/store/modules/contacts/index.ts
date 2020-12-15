@@ -7,6 +7,9 @@ export const contacts = {
   mutations: {
     setContacts(state, contacts) {
       state.contacts = contacts;
+    },
+    addContact(state, contact) {
+        state.contacts.push(contact);
     }
   },
   getters: {

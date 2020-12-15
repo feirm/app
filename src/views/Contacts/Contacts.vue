@@ -10,7 +10,7 @@
         <ion-refresher-content></ion-refresher-content>
       </ion-refresher>
 
-      <ion-item v-for="contact in contacts" :key="contact.id" :button="true">
+      <ion-item v-for="contact in store.getters.getAllContacts" :key="contact.id" :button="true" @click="store.getters.getContact(contact.id)">
         {{ contact.firstName}} {{ contact.lastName }}
       </ion-item>
 
@@ -50,6 +50,7 @@ import { DecryptContacts, Contact, EncryptedContact } from "@/lib/contacts";
 
 // Components
 import NewContact from "@/components/Contacts/NewContact.vue";
+import { useStore } from "vuex";
 
 export default defineComponent({
   name: "Contacts",
@@ -79,7 +80,7 @@ export default defineComponent({
 
         // Attempt to decrypt contacts array
         await DecryptContacts(contacts).then(decryptedContacts => {
-          this.contacts = decryptedContacts;
+          this.store.commit("setContacts", decryptedContacts)
         }).catch(e => {
           console.log(e);
         })
@@ -124,8 +125,11 @@ export default defineComponent({
     // Get router instance
     const router = useRouter();
 
+    const store = useStore();
+
     return {
       router,
+      store,
       addOutline,
     };
   },
