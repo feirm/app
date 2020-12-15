@@ -48,7 +48,7 @@ export default {
     // Delete a contact
     deleteContact(id: string) {
         return tatsuyaApi.post(`/v1/contacts/delete`, {
-            id: id
+            "id": id
         });
     }
 }
