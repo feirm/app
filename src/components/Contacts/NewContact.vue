@@ -23,7 +23,7 @@
         </ion-item>
         <ion-item lines="none">
           <ion-label position="floating">Last name</ion-label>
-          <ion-input v-model="contact.lastName" type="tel"></ion-input>
+          <ion-input v-model="contact.lastName" type="text"></ion-input>
         </ion-item>
         <ion-item lines="none">
           <ion-label position="floating">Phone number</ion-label>
