@@ -11,9 +11,11 @@
           <ion-label>Feirm ID: {{ store.getters.getUsername }}</ion-label>
         </ion-item>
       </ion-item-group>
-      <br />
-      <ion-button color="danger" @click="logout" expand="block">Log out</ion-button>
     </ion-content>
+    <ion-footer class="ion-no-border ion-padding ion-text-center">
+      <ion-button color="danger" @click="logout" expand="block">Log out</ion-button>
+      <ion-note>Feirm - v{{ version }}</ion-note>
+    </ion-footer>
   </ion-page>
 </template>
 
@@ -29,10 +31,13 @@ import {
   IonLabel,
   IonButton,
   IonItemGroup,
+  IonFooter,
+  IonNote,
   alertController,
 } from "@ionic/vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import { version } from "../../../package.json";
 
 export default defineComponent({
   components: {
@@ -45,6 +50,8 @@ export default defineComponent({
     IonLabel,
     IonButton,
     IonItemGroup,
+    IonFooter,
+    IonNote
   },
   methods: {
     async logout() {
@@ -81,6 +88,7 @@ export default defineComponent({
     return {
       router,
       store,
+      version
     };
   },
 });

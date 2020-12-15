@@ -9,7 +9,6 @@
               size="large"
             ></ion-icon>
             <h1>Update Available</h1>
-            <h4>New Version: {{version}}</h4>
             <p>
               There is a new update available for Feirm. Please click the button below to update!
             </p>
@@ -33,7 +32,6 @@ import {
   IonButton
 } from "@ionic/vue";
 import { refreshCircleOutline } from "ionicons/icons";
-import { version } from "../../package.json";
 
 export default defineComponent({
   components: {
@@ -52,8 +50,7 @@ export default defineComponent({
   },
   setup() {
     return {
-      refreshCircleOutline,
-      version
+      refreshCircleOutline
     };
   },
 });
