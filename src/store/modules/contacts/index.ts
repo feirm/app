@@ -10,9 +10,6 @@ export const contacts = {
     }
   },
   getters: {
-      getAllContacts: state => state.contacts,
-      getContact: state => id => {
-          return state.contacts.find(id)
-      }
+      getAllContacts: state => state.contacts
   }
 };
