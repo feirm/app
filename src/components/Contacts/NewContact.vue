@@ -35,10 +35,11 @@
         </ion-item>
       </ion-card-content>
     </ion-card>
+    <!--
     <ion-card>
       <ion-card-content>
         <ion-item lines="none">
-          <ion-label position="floating">Cryptocurrency address</ion-label>
+          <ion-label color="success" position="floating">Cryptocurrency address</ion-label>
           <ion-input
             v-model="contact.cryptocurrencyAddress"
             type="text"
@@ -46,6 +47,7 @@
         </ion-item>
       </ion-card-content>
     </ion-card>
+    -->
   </ion-content>
 </template>
 
