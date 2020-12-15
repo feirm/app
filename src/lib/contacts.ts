@@ -4,6 +4,7 @@ import bufferToHex from "./bufferToHex";
 
 // Decrypted contact payload
 interface Contact {
+  id: string;
   firstName: string;
   lastName: string;
   phoneNumber: string;
@@ -19,6 +20,7 @@ interface CryptoAddress {
 
 // Encrypted contact payload
 interface EncryptedContact {
+  id: string;
   cipherText: string;
   iv: string;
 }
@@ -82,6 +84,9 @@ async function DecryptContacts(
       // Attempt to decrypt the ciphertext
       const decrypted = aesCBC.decrypt(aes.utils.hex.toBytes(contact.cipherText));
       const decryptedContact = JSON.parse(aes.utils.utf8.fromBytes(aes.padding.pkcs7.strip(decrypted)));
+
+      // Set the ID of the decrypted contact
+      decryptedContact.id = contact.id;
 
       // Push to array
       decryptedContacts.push(decryptedContact);
