@@ -71,7 +71,7 @@ import {
   loadingController,
 } from "@ionic/vue";
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
-import { Contact, CreateEncryptedContact, CryptoAddress } from "@/lib/contacts";
+import { Contact, CreateEncryptedContact } from "@/lib/contacts";
 import tatsuyaService from "@/apiService/tatsuyaService";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
@@ -94,13 +94,7 @@ export default defineComponent({
   },
   data() {
     return {
-      contact: {
-        firstName: "",
-        lastName: "",
-        phoneNumber: "",
-        emailAddress: "",
-        cryptoAddresses: [] as CryptoAddress[],
-      } as Contact,
+      contact: {} as Contact,
     };
   },
   methods: {
@@ -140,20 +134,21 @@ export default defineComponent({
           a.present()
             .then(async () => {
               // Encrypt the the contact payload
-              await CreateEncryptedContact(
-                contact
-              ).then(async (data) => {
+              await CreateEncryptedContact(contact).then(async (data) => {
                 // Submit payload to API
-                await tatsuyaService.newContact(data);
+                await tatsuyaService.newContact(data).then((res) => {
+                  // Apply the missing contact ID
+                  contact.id = res.data.id;
 
-                // Add contact to Vuex
-                this.store.commit("addContact", contact)            
+                  // Add contact to Vuex
+                  this.store.commit("addContact", contact);
 
-                // Close loading spinner
-                a.dismiss();
+                  // Close loading spinner
+                  a.dismiss();
 
-                // Close the modal controller
-                modalController.dismiss();
+                  // Close the modal controller
+                  modalController.dismiss();
+                });
               });
             })
             .catch(async (err) => {
@@ -192,7 +187,7 @@ export default defineComponent({
       closeOutline,
       empty,
       router,
-      store
+      store,
     };
   },
 });
