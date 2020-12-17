@@ -89,7 +89,7 @@ import {
   swapHorizontalOutline
 } from "ionicons/icons";
 import { useStore } from "vuex";
-import { Coin, FindWallet } from "@/lib/wallet";
+import { Coin, FindWallet, Wallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
 
 // Components
@@ -166,7 +166,21 @@ export default defineComponent({
           {
             text: "Confirm",
             handler: () => {
-              console.log("TODO: Delete coin...");
+              // Fetch entire wallet from LocalStorage and parse it
+              const localWallet = localStorage.getItem("wallet") as string;
+              const wallet = JSON.parse(localWallet) as Wallet;
+
+              // Fetch the index of the coin based on its ticker
+              const index = wallet.coins.map(coin => coin.ticker).indexOf(this.coin.ticker);
+
+              // Remove the coin from wallet
+              wallet.coins.splice(index, 1);
+
+              // Update the wallet state
+              this.store.commit("setWalletState", wallet);
+
+              // Push to overall view page
+              this.router.push("/tabs/wallet");
             },
           },
         ],
