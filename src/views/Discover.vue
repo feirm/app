@@ -6,12 +6,31 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
+      <!-- Platform statistics -->
+      <ion-row class="ion-text-center">
+        <ion-col>
+          <ion-card>
+            <ion-card-content>
+              <h2>{{ users }}</h2>
+              <p>users</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+
       <!-- Content goes in here -->
       <ion-item-group>
         <ion-list-header>Explore the Feirm Ecosystem</ion-list-header>
-        <ion-item v-for="service in services" :key="service.Name" :router-link="service.Route" lines="none" color="light" button="true">
-           <ion-icon slot="end" :icon="service.Icon" color="primary"></ion-icon>
-           <ion-label>{{ service.Name }}</ion-label>
+        <ion-item
+          v-for="service in services"
+          :key="service.Name"
+          :router-link="service.Route"
+          lines="none"
+          color="light"
+          button="true"
+        >
+          <ion-icon slot="end" :icon="service.Icon" color="primary"></ion-icon>
+          <ion-label>{{ service.Name }}</ion-label>
         </ion-item>
       </ion-item-group>
 
@@ -34,7 +53,11 @@
           color="light"
           button="true"
         >
-          <ion-icon slot="end" :icon="paperPlaneOutline" color="primary"></ion-icon>
+          <ion-icon
+            slot="end"
+            :icon="paperPlaneOutline"
+            color="primary"
+          ></ion-icon>
           <ion-label>Telegram</ion-label>
         </ion-item>
         <ion-item
@@ -62,7 +85,11 @@ import {
   IonLabel,
   IonItemGroup,
   IonListHeader,
-  alertController
+  IonRow,
+  IonCol,
+  IonCard,
+  IonCardContent,
+  alertController,
 } from "@ionic/vue";
 
 import {
@@ -86,14 +113,18 @@ export default {
     IonLabel,
     IonItemGroup,
     IonListHeader,
+    IonRow,
+    IonCol,
+    IonCard,
+    IonCardContent,
   },
   setup() {
     async function notAvailableAlert(service: string) {
       const alert = await alertController.create({
         header: "Not available!",
         message: `${service} is not available at this time!`,
-        buttons: ["Okay!"]
-      })
+        buttons: ["Okay!"],
+      });
 
       return alert.present();
     }
@@ -110,13 +141,13 @@ export default {
       {
         Name: "Scan QR Code",
         Route: "/services/qr",
-        Icon: qrCodeOutline
+        Icon: qrCodeOutline,
       },
       {
         Name: "News Feed",
         Route: "",
-        Icon: newspaperOutline
-      }
+        Icon: newspaperOutline,
+      },
     ] as Service[];
 
     return {

@@ -50,5 +50,9 @@ export default {
         return tatsuyaApi.post(`/v1/contacts/delete`, {
             "id": id
         });
+    },
+    // Total user count
+    userCount() {
+        return tatsuyaApi.get(`/v1/stats/userCount`);
     }
 }
