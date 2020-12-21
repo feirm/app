@@ -2,7 +2,7 @@ import { entropyToMnemonic, mnemonicToSeed, validateMnemonic } from "bip39";
 import { fromSeed } from "bip32";
 import { v4 as uuidv4 } from "uuid";
 import bufferToHex from "./bufferToHex";
-import { payments, bip32, Psbt, Network } from "bitcoinjs-lib";
+import { payments, bip32, Psbt, Network, ECPair } from "bitcoinjs-lib";
 import azureService from "@/apiService/azureService";
 import { store } from "@/store";
 import axios from "axios";
@@ -74,7 +74,7 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
     extendedPrivateKey: addressNode.toBase58(),
     extendedPublicKey: addressNode.neutered().toBase58(),
     blockbook: coin.data.coinInformation.blockbook,
-    index: coin.data.coinInformation.blockbook
+    index: coin.data.coinInformation.blockbook,
   } as Coin;
 
   // If there is a wallet, then append the coin to it
@@ -172,91 +172,81 @@ async function CreateSignedTransaction(
   network.scriptHash = network.scriptHash[0];
   network.wif = network.wif[0];
 
-  console.log(network)
-
-  // Create and configure the transaction builder
-  const psbt = new Psbt({ network });
-  psbt.setVersion(cData.data.coinInformation.txVersion);
-
   // Lets find our wallet
   const wallet = await FindWallet(ticker);
 
   // Derive the master BIP32 keypair
   const masterKeypair = bip32.fromBase58(wallet.rootKey, network);
 
-   // Primary output
+  // Create and configure the transaction builder
+  const psbt = new Psbt({ network: network });
+  psbt.setVersion(cData.data.coinInformation.txVersion);
+
+  // Fetch list of unspent outputs to be used as TX inputs
+  const utxos = await axios.get(
+    "https://cors-anywhere.feirm.com/" +
+      cData.data.coinInformation.blockbook +
+      "/api/v2/utxo/" +
+      wallet.extendedPublicKey
+  );
+  utxos.data.forEach(async (input) => {
+    // Lookup UTXO transaction by ID
+    const txData = await axios.get(
+      "https://cors-anywhere.feirm.com/" +
+        cData.data.coinInformation.blockbook +
+        "/api/v2/tx-specific/" +
+        input.txid
+    );
+
+    const tx = txData.data;
+
+    // Address and BIP44 derivation path
+    const address = input.address;
+    const dPath = input.path;
+
+    // Iterate over the txs
+    let count = 0;
+
+    tx.vout.forEach(async i => {
+      if (i.scriptPubKey.addresses.includes(address)) {
+        // Create keypair for matching address
+        const wif = masterKeypair.derivePath(dPath).toWIF();
+        const keypair = ECPair.fromWIF(wif, network);
+        const kpp2sh = payments.p2pkh({ pubkey: keypair.publicKey, network: network });
+
+        // Generate a redeem script
+        const p2sh = payments.p2sh({ redeem: kpp2sh, network: network })
+        const redeemscript = p2sh.redeem?.output;
+
+        // Create an input
+        psbt.addInput({
+          hash: tx.txid,
+          index: input.vout,
+          nonWitnessUtxo: Buffer.from(tx.hex, 'hex'),
+          redeemScript: redeemscript
+        })
+
+        // Sign said input
+        await psbt.signInputAsync(count, keypair)
+
+        // Increment counter
+        count += 1;
+      }
+    });
+  });
+
+  // Create an output based on the function inputs
   psbt.addOutput({
     address: recipient,
     value: amount * 100000000,
   });
 
-  // Fetch the number of change addresses which have been used
-
-  // Derive a change address to send excess funds
-  // const changeAddress = bip32.fromBase58(wallet.extendedPublicKey).derive(1).derive(1);
-  // console.log(changeAddress.publicKey);
-
-  // Fetch and form our inputs
-  try {
-    await axios
-      .get(
-        "https://cors-anywhere.feirm.com/" +
-        cData.data.coinInformation.blockbook +
-          "/api/v2/utxo/" +
-          wallet.extendedPublicKey
-      )
-      .then(async (res) => {
-        // Iterate through the transactions
-        for (let i = 0; i < res.data.length; i++) {
-          // We need to fetch the transaction specific details, so fetch the individual transaction
-          await axios
-            .get(
-              "https://cors-anywhere.feirm.com/" +
-              cData.data.coinInformation.blockbook +
-                "/api/v1/tx/" +
-                res.data[i].txid
-            )
-            .then(async (tx) => {
-              // We have our TX data, so we can add it to the transaction builder
-              try {
-                psbt.addInput({
-                  hash: tx.data.txid,
-                  index: res.data[i].vout,
-                  nonWitnessUtxo: Buffer.from(tx.data.hex, "hex"),
-                });
-
-                console.log("Added TXID:", tx.data.txid, "to inputs...");
-              } catch (e) {
-                console.log("1", e)
-                throw new Error(e);
-              }
-
-              // Now try signing the input
-              try {
-                psbt.signInputHD(i, masterKeypair);
-                console.log("Signed TXID:", res.data[i].txid);
-              } catch (e) {
-                console.log("2", e)
-                throw new Error(e);
-              }
-
-              // Validate signature
-              if (psbt.validateSignaturesOfInput(i)) {
-                console.log("Signature for TX", res.data[i].txid, "was valid!");
-              }
-            });
-        }
-      });
-  } catch (e) {
-    console.log("3", e);
-    throw new Error(e);
-  }
-
-  // Finalise the transaction inputs
+  // Finalise all inputs
   psbt.finalizeAllInputs();
 
-  // Convert to hex
-  console.log(psbt.extractTransaction(true).toHex());
+  // Create the hex transaction
+  const tx = psbt.toHex();
+  console.log(tx);
 }
 
 export {
