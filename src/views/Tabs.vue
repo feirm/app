@@ -12,11 +12,6 @@
           <ion-label>Wallet</ion-label>
         </ion-tab-button>
 
-        <ion-tab-button tab="chat" href="/tabs/chat">
-          <ion-icon :icon="chatbubbleOutline" />
-          <ion-label>Chat</ion-label>
-        </ion-tab-button>
-
         <ion-tab-button tab="contacts" href="/tabs/contacts">
           <ion-icon :icon="peopleOutline" />
           <ion-label>Contacts</ion-label>
@@ -27,7 +22,7 @@
           <ion-label>Profile</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
-    </ion-tabs>
+      </ion-tabs>
   </ion-page>
 </template>
 
@@ -40,18 +35,29 @@ import {
   IonIcon,
   IonPage,
 } from "@ionic/vue";
-import { personCircleOutline, peopleOutline, walletOutline, compassOutline, chatbubbleOutline } from "ionicons/icons";
+import {
+  personCircleOutline,
+  peopleOutline,
+  walletOutline,
+  compassOutline,
+} from "ionicons/icons";
 
 export default {
   name: "Tabs",
-  components: { IonLabel, IonTabs, IonTabBar, IonTabButton, IonIcon, IonPage },
+  components: {
+    IonLabel,
+    IonTabs,
+    IonTabBar,
+    IonTabButton,
+    IonIcon,
+    IonPage,
+  },
   setup() {
     return {
       personCircleOutline,
       peopleOutline,
       walletOutline,
       compassOutline,
-      chatbubbleOutline
     };
   },
 };
