@@ -100,6 +100,8 @@ import {
   paperPlaneOutline,
   logoTwitter,
 } from "ionicons/icons";
+import tatsuyaService from '@/apiService/tatsuyaService';
+import { onMounted, ref } from 'vue';
 
 export default {
   name: "Discover",
@@ -129,6 +131,14 @@ export default {
       return alert.present();
     }
 
+    const users = ref(0);
+
+    onMounted(async() => {
+      await tatsuyaService.userCount().then(res => {
+        users.value = parseInt(res.data);
+      })
+    })
+
     // Services interface
     interface Service {
       Name: string;
@@ -156,7 +166,8 @@ export default {
       paperPlaneOutline,
       logoTwitter,
       notAvailableAlert,
-      services
+      services,
+      users
     };
   },
 };
