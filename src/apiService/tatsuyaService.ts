@@ -8,10 +8,6 @@ export default {
     checkUsername(username: string) {
         return tatsuyaApi.get(`/v1/checkUsername?username=${username}`)
     },
-    // Check if email is valid and not in use
-    checkEmail(email: string) {
-        return tatsuyaApi.get(`/v1/checkEmail?email=${email}`)
-    },
     // Fetch a temporary registration token
     getRegistrationToken() {
         return tatsuyaApi.get(`/v1/register/token`)

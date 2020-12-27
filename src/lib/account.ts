@@ -9,7 +9,6 @@ import router from '@/router';
 
 interface Account {
   username: string;
-  email: string;
   pin: string;
   rootPasswordSalt: string;
   rootPublicKey: string;
@@ -25,7 +24,6 @@ interface Account {
 
 async function generateAccount(
   username: string,
-  email: string,
   password: string,
   pin: string
 ): Promise<Account> {
@@ -78,7 +76,6 @@ async function generateAccount(
 
   const account = {
     username: username,
-    email: email,
     pin: pin,
     rootPasswordSalt: bufferToHex(saltArray),
     rootPublicKey: bufferToHex(rootKeyPair.publicKey),

@@ -5,7 +5,6 @@ export const auth = {
   state: {
     registration: {
       username: "",
-      email: "",
       password: "",
       pin: "",
       confirmPin: "",
@@ -25,9 +24,6 @@ export const auth = {
     // Mutations for registration process
     registerUsername(state, username) {
       state.registration.username = username;
-    },
-    registerEmail(state, email) {
-      state.registration.email = email;
     },
     registerPassword(state, password) {
       state.registration.password = password;
