@@ -2,7 +2,7 @@ import { entropyToMnemonic, mnemonicToSeed, validateMnemonic } from "bip39";
 import { fromSeed } from "bip32";
 import { v4 as uuidv4 } from "uuid";
 import bufferToHex from "./bufferToHex";
-import { payments, bip32, Psbt, Network, ECPair } from "bitcoinjs-lib";
+import { payments, bip32, Psbt, Network } from "bitcoinjs-lib";
 import azureService from "@/apiService/azureService";
 import { store } from "@/store";
 import axios from "axios";
@@ -182,7 +182,7 @@ async function CreateSignedTransaction(
   const psbt = new Psbt({ network: network });
   psbt.setVersion(cData.data.coinInformation.txVersion);
 
-  // Create an output
+  // Create an output for the initial amount
   psbt.addOutput({
     address: recipient,
     value: amount * 100000000,
@@ -199,6 +199,9 @@ async function CreateSignedTransaction(
     .then(async (utxos) => {
       // Lookup the full transactions
       for (let i = 0; i < utxos.data.length; i++) {
+        // BIP44 Paths used to derive addresses
+        const path = utxos.data[i].path;
+
         await axios
           .get(
             "https://cors-anywhere.feirm.com/" +
@@ -210,9 +213,6 @@ async function CreateSignedTransaction(
             // Primarily interested in the outputs
             const outputs = output.data.vout;
 
-            // Go through the motions of comparing the BIP44 paths and output addresses to see if they match
-            const path = utxos.data[i].path;
-
             for (let j = 0; j < outputs.length; j++) {
               // Check if the derived address matches the one on TX output
               const { address } = payments.p2pkh({
@@ -220,7 +220,10 @@ async function CreateSignedTransaction(
                 network: network,
               });
 
-              if (outputs[j].scriptPubKey.addresses[0] === address) {
+              if (
+                outputs[j].scriptPubKey.addresses[0] === address &&
+                outputs[j].scriptPubKey.reqSigs === 1
+              ) {
                 try {
                   // Add the input
                   psbt.addInput({
@@ -228,44 +231,45 @@ async function CreateSignedTransaction(
                     index: outputs[j].n,
                     nonWitnessUtxo: Buffer.from(output.data.hex, "hex"),
                   });
-
-                  // Update input to include BIP32 derivation data
-                  const updateData = {
-                    bip32Derivation: [
-                      {
-                        masterFingerprint: masterKey.fingerprint,
-                        path: path,
-                        pubkey: masterKey.derivePath(path).publicKey,
-                      },
-                    ],
-                  };
-
-                  psbt.updateInput(i, updateData);
-
-                  // Sign input using BIP32 Master key
-                  psbt.signInputHD(i, masterKey);
-
-                  // Validate signature of input
-                  psbt.validateSignaturesOfInput(i);
-
-                  // Finalise input
-                  psbt.finalizeInput(i);
                 } catch (e) {
                   console.log(e);
                 }
               }
             }
           });
+
+        // Update input to include BIP32 derivation data
+        const updateData = {
+          bip32Derivation: [
+            {
+              masterFingerprint: masterKey.fingerprint,
+              path: path,
+              pubkey: masterKey.derivePath(path).publicKey,
+            },
+          ],
+        };
+
+        psbt.updateInput(i, updateData);
       }
+
+      // Sign input using BIP32 Master key
+      psbt.signAllInputsHD(masterKey);
+
+      // Validate signature of input
+      psbt.validateSignaturesOfAllInputs();
+
+      // Finalise input
+      psbt.finalizeAllInputs();
 
       // Broadcast hex transaction
       const tx = psbt.extractTransaction(true).toHex();
-      
+
       await axios.get(
         "https://cors-anywhere.feirm.com/" +
-        cData.data.coinInformation.blockbook + 
-        "/api/v2/sendtx/" + tx
-      )
+          cData.data.coinInformation.blockbook +
+          "/api/v2/sendtx/" +
+          tx
+      );
     });
 }
 
