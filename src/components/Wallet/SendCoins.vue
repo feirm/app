@@ -10,11 +10,14 @@
     <ion-item>
       <ion-label position="floating">Amount</ion-label>
       <ion-input v-model="amount" type="number"></ion-input>
-      <ion-button slot="end" expand="block">Max</ion-button>
+      <ion-button slot="end" expand="block" @click="useMaxBalance">Max</ion-button>
     </ion-item>
     <ion-item>
       <ion-note>
-        <p>Spendable: 0 {{ this.$props.ticker.toUpperCase() }}</p>
+        <p>
+          Spendable: {{ max }}
+          {{ this.$props.ticker.toUpperCase() }}
+        </p>
       </ion-note>
     </ion-item>
 
@@ -39,7 +42,7 @@ import {
   loadingController,
   alertController,
 } from "@ionic/vue";
-import { CreateSignedTransaction } from "@/lib/wallet";
+import { Coin, CreateSignedTransaction, FindWallet } from "@/lib/wallet";
 
 export default defineComponent({
   name: "SendCoins",
@@ -49,13 +52,18 @@ export default defineComponent({
   },
   data() {
     return {
+      coinObj: {} as Coin,
       toAddress: "",
       amount: 0,
+      max: ""
     };
   },
   methods: {
     validateAddress(address: string) {
       console.log(address);
+    },
+    useMaxBalance() {
+      this.amount = this.coinObj.balance / 100000000;
     },
     async closeModal() {
       await modalController.dismiss();
@@ -81,28 +89,30 @@ export default defineComponent({
                   message: "Sending coins...",
                 })
                 .then((a) => {
-                  a.present().then(async () => {
-                    // Create signed transactions
-                    await CreateSignedTransaction(
-                      this.$props.ticker as string,
-                      this.toAddress,
-                      this.amount
-                    );
+                  a.present()
+                    .then(async () => {
+                      // Create signed transactions
+                      await CreateSignedTransaction(
+                        this.$props.ticker as string,
+                        this.toAddress,
+                        this.amount
+                      );
 
-                    // Once complete, dismiss the loading controller
-                    a.dismiss();
-                  }).catch(async(e) => {
-                    a.dismiss();
-
-                    // Show error alert
-                    const alert = await alertController.create({
-                      header: "Transaction Error",
-                      message: e,
-                      buttons: ["Close"]
+                      // Once complete, dismiss the loading controller
+                      a.dismiss();
                     })
+                    .catch(async (e) => {
+                      a.dismiss();
 
-                    return alert.present()
-                  });
+                      // Show error alert
+                      const alert = await alertController.create({
+                        header: "Transaction Error",
+                        message: e,
+                        buttons: ["Close"],
+                      });
+
+                      return alert.present();
+                    });
                 });
             },
           },
@@ -111,6 +121,14 @@ export default defineComponent({
 
       return confirm.present();
     },
+  },
+  async mounted() {
+    await FindWallet(this.$props.ticker!).then((coin) => {
+      this.coinObj = coin as Coin;
+      
+      // Set max spendable balance
+      this.max = (this.coinObj.balance / 100000000).toFixed(2)
+    });
   },
   setup() {
     return {
