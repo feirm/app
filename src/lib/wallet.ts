@@ -182,11 +182,9 @@ async function CreateSignedTransaction(
   const psbt = new Psbt({ network: network });
   psbt.setVersion(cData.data.coinInformation.txVersion);
 
-  // Create an output for the initial amount
-  psbt.addOutput({
-    address: recipient,
-    value: amount * 100000000,
-  });
+  // Keep track of the amount we want to send, and the value of inputs
+  const AMOUNT_IN_SATOSHIS = amount * 100000000;
+  let VALUE_OF_INPUTS = 0;
 
   // First of all, fetch the utxos for xpub
   await axios
@@ -201,6 +199,10 @@ async function CreateSignedTransaction(
       for (let i = 0; i < utxos.data.length; i++) {
         // BIP44 Paths used to derive addresses
         const path = utxos.data[i].path;
+
+        // Add to value of total inputs
+        VALUE_OF_INPUTS += parseInt(utxos.data[i].value);
+        console.log("Value of all inputs after TX number:", i, "value:", VALUE_OF_INPUTS / 100000000, "XFE");
 
         await axios
           .get(
@@ -256,6 +258,32 @@ async function CreateSignedTransaction(
         }
       }
 
+      // Create an output for the initial amount
+      psbt.addOutput({
+        address: recipient,
+        value: AMOUNT_IN_SATOSHIS,
+      });
+
+      // If value of inputs is more than the value of satoshis
+      // we can deduct the remainder, send the rest to a change address
+      // and apply a flat fee of 0.01 XFE to a transaction
+      // TODO
+
+      // Derive change address
+      const changeAddress = payments.p2pkh({
+        pubkey: bip32
+          .fromBase58(wallet.extendedPublicKey)
+          .derive(1)
+          .derive(0).publicKey,
+        network: network,
+      }).address;
+
+      // Create an output for the change amount
+      psbt.addOutput({
+        address: changeAddress!,
+        value: VALUE_OF_INPUTS - AMOUNT_IN_SATOSHIS - 1000000,
+      });
+
       // Sign input using BIP32 Master key
       try {
         psbt.signAllInputsHD(masterKey);
@@ -267,7 +295,7 @@ async function CreateSignedTransaction(
       try {
         psbt.validateSignaturesOfAllInputs();
       } catch (e) {
-        console.log("Error validating all signatures:", e)
+        console.log("Error validating all signatures:", e);
       }
 
       // Finalise input
@@ -278,13 +306,13 @@ async function CreateSignedTransaction(
       }
 
       // Broadcast hex transaction
-      const tx = psbt.extractTransaction(true).toHex();
+      const tx = psbt.extractTransaction(true);
 
       await axios.get(
         "https://cors-anywhere.feirm.com/" +
           cData.data.coinInformation.blockbook +
           "/api/v2/sendtx/" +
-          tx
+          tx.toHex()
       );
     });
 }
