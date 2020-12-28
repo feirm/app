@@ -239,27 +239,43 @@ async function CreateSignedTransaction(
           });
 
         // Update input to include BIP32 derivation data
-        const updateData = {
-          bip32Derivation: [
-            {
-              masterFingerprint: masterKey.fingerprint,
-              path: path,
-              pubkey: masterKey.derivePath(path).publicKey,
-            },
-          ],
-        };
+        try {
+          const updateData = {
+            bip32Derivation: [
+              {
+                masterFingerprint: masterKey.fingerprint,
+                path: path,
+                pubkey: masterKey.derivePath(path).publicKey,
+              },
+            ],
+          };
 
-        psbt.updateInput(i, updateData);
+          psbt.updateInput(i, updateData);
+        } catch (e) {
+          console.log("Error updating transaction", e);
+        }
       }
 
       // Sign input using BIP32 Master key
-      psbt.signAllInputsHD(masterKey);
+      try {
+        psbt.signAllInputsHD(masterKey);
+      } catch (e) {
+        console.log("Error signing all inputs:", e);
+      }
 
       // Validate signature of input
-      psbt.validateSignaturesOfAllInputs();
+      try {
+        psbt.validateSignaturesOfAllInputs();
+      } catch (e) {
+        console.log("Error validating all signatures:", e)
+      }
 
       // Finalise input
-      psbt.finalizeAllInputs();
+      try {
+        psbt.finalizeAllInputs();
+      } catch (e) {
+        console.log("Error finalising all inputs:", e);
+      }
 
       // Broadcast hex transaction
       const tx = psbt.extractTransaction(true).toHex();
