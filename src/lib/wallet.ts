@@ -202,7 +202,6 @@ async function CreateSignedTransaction(
 
         // Add to value of total inputs
         VALUE_OF_INPUTS += parseInt(utxos.data[i].value);
-        console.log("Value of all inputs after TX number:", i, "value:", VALUE_OF_INPUTS / 100000000, "XFE");
 
         await axios
           .get(
@@ -269,12 +268,28 @@ async function CreateSignedTransaction(
       // and apply a flat fee of 0.01 XFE to a transaction
       // TODO
 
+      // Detect and derive a new change address
+      // According to blockbook, we always know that the latest change address is going to be last.
+      // Implement a couple of checks using the xpub data to make sure it follows the change derivation path, and derive a new change address accordingly
+      const xpubData = await axios.get(
+        "https://cors-anywhere.feirm.com/" +
+          cData.data.coinInformation.blockbook +
+          "/api/v2/xpub/" +
+          wallet.extendedPublicKey + "?tokens=used"
+      );
+
+      // The last used "token" as Blockbook refers to it
+      const lastToken = xpubData.data.tokens[xpubData.data.tokens.length - 1];
+
+      // Get the latest index for the change address
+      const index = bip32.fromBase58(wallet.rootKey).derivePath(lastToken.path).index
+
       // Derive change address
       const changeAddress = payments.p2pkh({
         pubkey: bip32
           .fromBase58(wallet.extendedPublicKey)
           .derive(1)
-          .derive(0).publicKey,
+          .derive(index).publicKey,
         network: network,
       }).address;
 
