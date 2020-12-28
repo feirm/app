@@ -97,7 +97,7 @@ export default defineComponent({
                     // Show error alert
                     const alert = await alertController.create({
                       header: "Transaction Error",
-                      message: e,
+                      message: e.response.data.error,
                       buttons: ["Close"]
                     })
 
