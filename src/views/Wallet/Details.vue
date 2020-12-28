@@ -16,7 +16,7 @@
     <ion-content :fullscreen="true" class="ion-padding ion-text-center">
       <ion-card>
         <ion-card-content>
-          <h1>Coin Balance</h1>
+          <h1>{{ (coin.balance / 100000000).toFixed(2) }}</h1>
           <h4>Fiat Equivalent</h4>
         </ion-card-content>
       </ion-card>
@@ -154,7 +154,7 @@ export default defineComponent({
       return modal.present();
     },
     async removeCoin() {
-      // TODO: Implement remove coin function
+      // Remove individual coin function
       const alert = await alertController.create({
         header: `Remove ${this.coin.name} wallet?`,
         message:
