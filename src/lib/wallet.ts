@@ -175,78 +175,98 @@ async function CreateSignedTransaction(
   // Lets find our wallet
   const wallet = await FindWallet(ticker);
 
-  // Derive the master BIP32 keypair
-  const masterKeypair = bip32.fromBase58(wallet.rootKey, network);
+  // Derive the master BIP32 keypair from rootkey
+  const masterKey = bip32.fromBase58(wallet.rootKey, network);
 
   // Create and configure the transaction builder
   const psbt = new Psbt({ network: network });
   psbt.setVersion(cData.data.coinInformation.txVersion);
 
-  // Fetch list of unspent outputs to be used as TX inputs
-  const utxos = await axios.get(
-    "https://cors-anywhere.feirm.com/" +
-      cData.data.coinInformation.blockbook +
-      "/api/v2/utxo/" +
-      wallet.extendedPublicKey
-  );
-  utxos.data.forEach(async (input) => {
-    // Lookup UTXO transaction by ID
-    const txData = await axios.get(
-      "https://cors-anywhere.feirm.com/" +
-        cData.data.coinInformation.blockbook +
-        "/api/v2/tx-specific/" +
-        input.txid
-    );
-
-    const tx = txData.data;
-
-    // Address and BIP44 derivation path
-    const address = input.address;
-    const dPath = input.path;
-
-    // Iterate over the txs
-    let count = 0;
-
-    tx.vout.forEach(async i => {
-      if (i.scriptPubKey.addresses.includes(address)) {
-        // Create keypair for matching address
-        const wif = masterKeypair.derivePath(dPath).toWIF();
-        const keypair = ECPair.fromWIF(wif, network);
-        const kpp2sh = payments.p2pkh({ pubkey: keypair.publicKey, network: network });
-
-        // Generate a redeem script
-        const p2sh = payments.p2sh({ redeem: kpp2sh, network: network })
-        const redeemscript = p2sh.redeem?.output;
-
-        // Create an input
-        psbt.addInput({
-          hash: tx.txid,
-          index: input.vout,
-          nonWitnessUtxo: Buffer.from(tx.hex, 'hex'),
-          redeemScript: redeemscript
-        })
-
-        // Sign said input
-        await psbt.signInputAsync(count, keypair)
-
-        // Increment counter
-        count += 1;
-      }
-    });
-  });
-
-  // Create an output based on the function inputs
+  // Create an output
   psbt.addOutput({
     address: recipient,
     value: amount * 100000000,
   });
 
-  // Finalise all inputs
-  psbt.finalizeAllInputs();
+  // First of all, fetch the utxos for xpub
+  await axios
+    .get(
+      "https://cors-anywhere.feirm.com/" +
+        cData.data.coinInformation.blockbook +
+        "/api/v2/utxo/" +
+        wallet.extendedPublicKey
+    )
+    .then(async (utxos) => {
+      // Lookup the full transactions
+      for (let i = 0; i < utxos.data.length; i++) {
+        await axios
+          .get(
+            "https://cors-anywhere.feirm.com/" +
+              cData.data.coinInformation.blockbook +
+              "/api/v2/tx-specific/" +
+              utxos.data[i].txid
+          )
+          .then((output) => {
+            // Primarily interested in the outputs
+            const outputs = output.data.vout;
 
-  // Create the hex transaction
-  const tx = psbt.toHex();
-  console.log(tx);
+            // Go through the motions of comparing the BIP44 paths and output addresses to see if they match
+            const path = utxos.data[i].path;
+
+            for (let j = 0; j < outputs.length; j++) {
+              // Check if the derived address matches the one on TX output
+              const { address } = payments.p2pkh({
+                pubkey: masterKey.derivePath(path).publicKey,
+                network: network,
+              });
+
+              if (outputs[j].scriptPubKey.addresses[0] === address) {
+                try {
+                  // Add the input
+                  psbt.addInput({
+                    hash: utxos.data[i].txid,
+                    index: outputs[j].n,
+                    nonWitnessUtxo: Buffer.from(output.data.hex, "hex"),
+                  });
+
+                  // Update input to include BIP32 derivation data
+                  const updateData = {
+                    bip32Derivation: [
+                      {
+                        masterFingerprint: masterKey.fingerprint,
+                        path: path,
+                        pubkey: masterKey.derivePath(path).publicKey,
+                      },
+                    ],
+                  };
+
+                  psbt.updateInput(i, updateData);
+
+                  // Sign input using BIP32 Master key
+                  psbt.signInputHD(i, masterKey);
+
+                  // Validate signature of input
+                  psbt.validateSignaturesOfInput(i);
+
+                  // Finalise input
+                  psbt.finalizeInput(i);
+                } catch (e) {
+                  console.log(e);
+                }
+              }
+            }
+          });
+      }
+
+      // Broadcast hex transaction
+      const tx = psbt.extractTransaction(true).toHex();
+      
+      await axios.get(
+        "https://cors-anywhere.feirm.com/" +
+        cData.data.coinInformation.blockbook + 
+        "/api/v2/sendtx/" + tx
+      )
+    });
 }
 
 export {
