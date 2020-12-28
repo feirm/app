@@ -289,7 +289,7 @@ async function CreateSignedTransaction(
         pubkey: bip32
           .fromBase58(wallet.extendedPublicKey)
           .derive(1)
-          .derive(index).publicKey,
+          .derive(index + 1).publicKey,
         network: network,
       }).address;
 
