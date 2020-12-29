@@ -6,6 +6,7 @@ import { payments, bip32, Psbt, Network } from "bitcoinjs-lib";
 import azureService from "@/apiService/azureService";
 import { store } from "@/store";
 import axios from "axios";
+import { BigNumber } from "bignumber.js";
 
 // Wallet interface
 interface Wallet {
@@ -183,8 +184,11 @@ async function CreateSignedTransaction(
   psbt.setVersion(cData.data.coinInformation.txVersion);
 
   // Keep track of the amount we want to send, and the value of inputs
-  const AMOUNT_IN_SATOSHIS = amount * 100000000;
-  let VALUE_OF_INPUTS = 0;
+  const AMOUNT_IN_SATOSHIS = new BigNumber(amount).multipliedBy(100000000);
+
+  console.log(AMOUNT_IN_SATOSHIS.toNumber());
+
+  let VALUE_OF_INPUTS = new BigNumber(0);
 
   // Fetch all the unspent outputs using the extended public key
   await axios
@@ -205,7 +209,9 @@ async function CreateSignedTransaction(
           const path = utxos.data[i].path;
 
           // Add to the total value of our inputs
-          VALUE_OF_INPUTS += parseInt(utxos.data[i].value);
+          VALUE_OF_INPUTS = VALUE_OF_INPUTS.plus(utxos.data[i].value);
+
+          console.log("Value of inpuits:", VALUE_OF_INPUTS.toNumber())
 
           // Now we can lookup the specific UTXO transaction ID and then add it as an input
           await axios
@@ -253,12 +259,16 @@ async function CreateSignedTransaction(
         }
       }
 
+      console.log("1")
+
       // We can now be sure that the loop has ended and that we are using inputs of the correct value
       // Create an output for the initial amount being spent to the recipient
       psbt.addOutput({
         address: recipient,
-        value: AMOUNT_IN_SATOSHIS,
+        value: AMOUNT_IN_SATOSHIS.toNumber(),
       });
+
+      console.log("2")
 
       // Fetch the extended public key data from Blockbook so we can use the correct change address to send excess funds to.
       const xpubData = await axios.get(
@@ -291,22 +301,20 @@ async function CreateSignedTransaction(
           "/api/v2/estimatefee/10"
       );
 
+      console.log("3")
+
       // Convert the fee into a satoshi value
-      const feeInSatoshis = parseFloat(feeData.data.result) * 100000000;
+      const feeInSatoshis = new BigNumber(feeData.data.result).multipliedBy(100000000);
 
       // Lastly create an output taking into consideration
       // the value of inputs, amount we want to send, and then the estimated tx fee
       // this will be sent to our change address
-      console.log("Value of inputs:", VALUE_OF_INPUTS / 100000000);
-      console.log("Amount to send:", AMOUNT_IN_SATOSHIS / 100000000);
-      console.log(
-        "Estimated change:",
-        (VALUE_OF_INPUTS - AMOUNT_IN_SATOSHIS - feeInSatoshis) / 100000000
-      );
       psbt.addOutput({
         address: changeAddress as string,
-        value: VALUE_OF_INPUTS - AMOUNT_IN_SATOSHIS - feeInSatoshis,
+        value: VALUE_OF_INPUTS.minus(AMOUNT_IN_SATOSHIS).minus(feeInSatoshis).toNumber(),
       });
+
+      console.log("4")
     });
 
   // Onto the last stretch.
