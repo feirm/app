@@ -16,7 +16,10 @@
     <ion-content :fullscreen="true" class="ion-padding ion-text-center">
       <ion-card color="light">
         <ion-card-content>
-          <h1>{{ (coin.balance / 100000000).toFixed(2) }} {{ ticker.toUpperCase() }}</h1>
+          <h1>
+            {{ (coin.balance / 100000000).toFixed(2) }}
+            {{ ticker.toUpperCase() }}
+          </h1>
         </ion-card-content>
       </ion-card>
       <ion-row class="ion-text-center">
@@ -39,7 +42,7 @@
           </ion-button>
         </ion-col>
         <ion-col>
-          <ion-button color="light">
+          <ion-button color="light" @click="transactionHistory">
             <ion-icon
               color="primary"
               slot="icon-only"
@@ -85,7 +88,7 @@ import {
   arrowDownOutline,
   receiptOutline,
   trashOutline,
-  swapHorizontalOutline
+  swapHorizontalOutline,
 } from "ionicons/icons";
 import { useStore } from "vuex";
 import { Coin, FindWallet, Wallet } from "@/lib/wallet";
@@ -156,8 +159,9 @@ export default defineComponent({
       // Remove individual coin function
       const alert = await alertController.create({
         header: `Remove ${this.coin.name} wallet?`,
-        message:
-          `Don't worry, your ${this.coin.ticker.toUpperCase()}  won't be lost. They are just hidden from you. The ${this.coin.name} wallet can be added back at any time!`,
+        message: `Don't worry, your ${this.coin.ticker.toUpperCase()}  won't be lost. They are just hidden from you. The ${
+          this.coin.name
+        } wallet can be added back at any time!`,
         buttons: [
           {
             text: "Cancel",
@@ -170,7 +174,9 @@ export default defineComponent({
               const wallet = JSON.parse(localWallet) as Wallet;
 
               // Fetch the index of the coin based on its ticker
-              const index = wallet.coins.map(coin => coin.ticker).indexOf(this.coin.ticker);
+              const index = wallet.coins
+                .map((coin) => coin.ticker)
+                .indexOf(this.coin.ticker);
 
               // Remove the coin from wallet
               wallet.coins.splice(index, 1);
@@ -187,6 +193,11 @@ export default defineComponent({
 
       return alert.present();
     },
+    transactionHistory() {
+      this.router.push({
+        path: `/tabs/wallet/${this.store.getters.getWalletId}/${this.ticker}/transactions`,
+      });
+    },
   },
   setup() {
     const store = useStore();
@@ -199,7 +210,7 @@ export default defineComponent({
       arrowDownOutline,
       receiptOutline,
       trashOutline,
-      swapHorizontalOutline
+      swapHorizontalOutline,
     };
   },
 });
