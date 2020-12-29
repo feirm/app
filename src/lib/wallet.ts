@@ -1,6 +1,6 @@
 import { entropyToMnemonic, mnemonicToSeed, validateMnemonic } from "bip39";
 import { fromSeed } from "bip32";
-import { v4 as uuidv4 } from "uuid";
+import { parse, v4 as uuidv4 } from "uuid";
 import bufferToHex from "./bufferToHex";
 import { payments, bip32, Psbt, Network } from "bitcoinjs-lib";
 import azureService from "@/apiService/azureService";
@@ -186,10 +186,7 @@ async function CreateSignedTransaction(
   const AMOUNT_IN_SATOSHIS = amount * 100000000;
   let VALUE_OF_INPUTS = 0;
 
-  // Keep a track of txid
-  let txHash = "";
-
-  // First of all, fetch the utxos for xpub
+  // Fetch all the unspent outputs using the extended public key
   await axios
     .get(
       "https://cors-anywhere.feirm.com/" +
@@ -198,148 +195,131 @@ async function CreateSignedTransaction(
         wallet.extendedPublicKey
     )
     .then(async (utxos) => {
-      // Lookup the full transactions
+      // Iterate over all the unspent outputs and then look them up fully using the TXID
       for (let i = 0; i < utxos.data.length; i++) {
-        // BIP44 Paths used to derive addresses
-        const path = utxos.data[i].path;
+        // Only continue if the current value of UTXOs is not equal to the amount we want to send in satoshis
+        if (VALUE_OF_INPUTS <= AMOUNT_IN_SATOSHIS) {
+          console.log("Using input:", utxos.data[i].txid);
 
-        // Add to value of total inputs
-        VALUE_OF_INPUTS += parseInt(utxos.data[i].value);
+          // We need to set the BIP44 derivation path the transaction used.
+          const path = utxos.data[i].path;
 
-        await axios
-          .get(
-            "https://cors-anywhere.feirm.com/" +
-              cData.data.coinInformation.blockbook +
-              "/api/v2/tx-specific/" +
-              utxos.data[i].txid
-          )
-          .then((output) => {
-            // Primarily interested in the outputs
-            const outputs = output.data.vout;
+          // Add to the total value of our inputs
+          VALUE_OF_INPUTS += parseInt(utxos.data[i].value);
 
-            for (let j = 0; j < outputs.length; j++) {
-              // Check if the derived address matches the one on TX output
-              const { address } = payments.p2pkh({
-                pubkey: masterKey.derivePath(path).publicKey,
-                network: network,
-              });
+          // Now we can lookup the specific UTXO transaction ID and then add it as an input
+          await axios
+            .get(
+              "https://cors-anywhere.feirm.com/" +
+                cData.data.coinInformation.blockbook +
+                "/api/v2/tx-specific/" +
+                utxos.data[i].txid
+            )
+            .then((output) => {
+              // We are only primarily interested in making use of the Vouts
+              const vouts = output.data.vout;
 
-              if (
-                outputs[j].scriptPubKey.addresses[0] === address &&
-                outputs[j].scriptPubKey.reqSigs === 1
-              ) {
-                try {
-                  // Add the input
+              // Iterate over each output and make sure it belongs to us before going any further
+              for (let j = 0; j < vouts.length; j++) {
+                // Derive the address used in the output - making use of the BIP44 derivation path stored earlier.
+                const { address } = payments.p2pkh({
+                  pubkey: masterKey.derivePath(path).publicKey,
+                  network: network,
+                });
+
+                if (vouts[j].scriptPubKey.addresses[0] === address) {
+                  // Attempt to use the input in our transaction
                   psbt.addInput({
                     hash: utxos.data[i].txid,
-                    index: outputs[j].n,
+                    index: vouts[j].n,
                     nonWitnessUtxo: Buffer.from(output.data.hex, "hex"),
                   });
-                } catch (e) {
-                  console.log(e);
+
+                  // Attempt to update the transaction to include BIP32/44 derivation data
+                  const updateData = {
+                    bip32Derivation: [
+                      {
+                        masterFingerprint: masterKey.fingerprint,
+                        path: path,
+                        pubkey: masterKey.derivePath(path).publicKey,
+                      },
+                    ],
+                  };
+
+                  psbt.updateInput(i, updateData);
                 }
               }
-            }
-          });
-
-        // Update input to include BIP32 derivation data
-        try {
-          const updateData = {
-            bip32Derivation: [
-              {
-                masterFingerprint: masterKey.fingerprint,
-                path: path,
-                pubkey: masterKey.derivePath(path).publicKey,
-              },
-            ],
-          };
-
-          psbt.updateInput(i, updateData);
-        } catch (e) {
-          console.log("Error updating transaction", e);
+            });
         }
       }
 
-      // Create an output for the initial amount
+      // We can now be sure that the loop has ended and that we are using inputs of the correct value
+      // Create an output for the initial amount being spent to the recipient
       psbt.addOutput({
         address: recipient,
         value: AMOUNT_IN_SATOSHIS,
       });
 
-      // Detect and derive a new change address
-      // According to blockbook, we always know that the latest change address is going to be last.
-      // Implement a couple of checks using the xpub data to make sure it follows the change derivation path, and derive a new change address accordingly
+      // Fetch the extended public key data from Blockbook so we can use the correct change address to send excess funds to.
       const xpubData = await axios.get(
         "https://cors-anywhere.feirm.com/" +
           cData.data.coinInformation.blockbook +
           "/api/v2/xpub/" +
-          wallet.extendedPublicKey + "?tokens=used"
+          wallet.extendedPublicKey +
+          "?tokens=used"
       );
 
-      // The last used "token" as Blockbook refers to it
-      const lastToken = xpubData.data.tokens[xpubData.data.tokens.length - 1];
+      // Fetch the last used (change) index
+      const lastChange = xpubData.data.tokens[xpubData.data.tokens.length - 1];
+      const lastChangeIndex = bip32
+        .fromBase58(wallet.rootKey)
+        .derivePath(lastChange.path).index;
 
-      // Get the latest index for the change address
-      const index = bip32.fromBase58(wallet.rootKey).derivePath(lastToken.path).index
-
-      // Derive change address
+      // Derive the change address
       const changeAddress = payments.p2pkh({
         pubkey: bip32
           .fromBase58(wallet.extendedPublicKey)
           .derive(1)
-          .derive(index + 1).publicKey,
+          .derive(lastChangeIndex + 1).publicKey,
         network: network,
       }).address;
 
-      // Fetch estimated fee to be confirmed within 10 blocks
+      // Now we can proceed to get an estimated for for our transaction to be confirmed within 10 blocks
       const feeData = await axios.get(
         "https://cors-anywhere.feirm.com/" +
           cData.data.coinInformation.blockbook +
           "/api/v2/estimatefee/10"
-      )
+      );
 
+      // Convert the fee into a satoshi value
       const feeInSatoshis = parseInt(feeData.data.result) * 100000000;
 
-      // Create an output for the change amount
+      // Lastly create an output taking into consideration
+      // the value of inputs, amount we want to send, and then the estimated tx fee
       psbt.addOutput({
         address: changeAddress as string,
         value: VALUE_OF_INPUTS - AMOUNT_IN_SATOSHIS - feeInSatoshis,
       });
-
-      // Sign input using BIP32 Master key
-      try {
-        psbt.signAllInputsHD(masterKey);
-      } catch (e) {
-        console.log("Error signing all inputs:", e);
-      }
-
-      // Validate signature of input
-      try {
-        psbt.validateSignaturesOfAllInputs();
-      } catch (e) {
-        console.log("Error validating all signatures:", e);
-      }
-
-      // Finalise input
-      try {
-        psbt.finalizeAllInputs();
-      } catch (e) {
-        console.log("Error finalising all inputs:", e);
-      }
-
-      // Broadcast hex transaction
-      const tx = psbt.extractTransaction(true);
-      txHash = tx.getId();
-
-      await axios.get(
-        "https://cors-anywhere.feirm.com/" +
-          cData.data.coinInformation.blockbook +
-          "/api/v2/sendtx/" +
-          tx.toHex()
-      );
     });
 
-    return txHash;
+  // Onto the last stretch.
+  // Sign all the inputs using the BIP32 master key
+  await psbt.signAllInputsHDAsync(masterKey);
+
+  // Validate signatures of all inputs
+  psbt.validateSignaturesOfAllInputs();
+
+  // Finalise all the inputs
+  psbt.finalizeAllInputs();
+
+  // Extract the hexadecimal and TXID from constructred tx
+  const tx = psbt.extractTransaction(true);
+  const txHex = tx.toHex();
+  const txHash = tx.getId();
+
+  console.log("Transaction Hex:", txHex);
+
+  return txHash;
 }
 
 export {
