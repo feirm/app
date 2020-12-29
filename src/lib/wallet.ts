@@ -263,11 +263,6 @@ async function CreateSignedTransaction(
         value: AMOUNT_IN_SATOSHIS,
       });
 
-      // If value of inputs is more than the value of satoshis
-      // we can deduct the remainder, send the rest to a change address
-      // and apply a flat fee of 0.01 XFE to a transaction
-      // TODO
-
       // Detect and derive a new change address
       // According to blockbook, we always know that the latest change address is going to be last.
       // Implement a couple of checks using the xpub data to make sure it follows the change derivation path, and derive a new change address accordingly
@@ -293,10 +288,19 @@ async function CreateSignedTransaction(
         network: network,
       }).address;
 
+      // Fetch estimated fee to be confirmed within 10 blocks
+      const feeData = await axios.get(
+        "https://cors-anywhere.feirm.com/" +
+          cData.data.coinInformation.blockbook +
+          "/api/v2/estimatefee/10"
+      )
+
+      const feeInSatoshis = parseInt(feeData.data.result) * 100000000;
+
       // Create an output for the change amount
       psbt.addOutput({
         address: changeAddress!,
-        value: VALUE_OF_INPUTS - AMOUNT_IN_SATOSHIS - 1000000,
+        value: VALUE_OF_INPUTS - AMOUNT_IN_SATOSHIS - feeInSatoshis,
       });
 
       // Sign input using BIP32 Master key
