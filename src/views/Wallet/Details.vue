@@ -14,10 +14,9 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding ion-text-center">
-      <ion-card>
+      <ion-card color="light">
         <ion-card-content>
-          <h1>{{ (coin.balance / 100000000).toFixed(2) }}</h1>
-          <h4>Fiat Equivalent</h4>
+          <h1>{{ (coin.balance / 100000000).toFixed(2) }} {{ ticker.toUpperCase() }}</h1>
         </ion-card-content>
       </ion-card>
       <ion-row class="ion-text-center">
