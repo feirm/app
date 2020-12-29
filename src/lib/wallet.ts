@@ -1,6 +1,6 @@
 import { entropyToMnemonic, mnemonicToSeed, validateMnemonic } from "bip39";
 import { fromSeed } from "bip32";
-import { parse, v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 import bufferToHex from "./bufferToHex";
 import { payments, bip32, Psbt, Network } from "bitcoinjs-lib";
 import azureService from "@/apiService/azureService";
@@ -292,10 +292,17 @@ async function CreateSignedTransaction(
       );
 
       // Convert the fee into a satoshi value
-      const feeInSatoshis = parseInt(feeData.data.result) * 100000000;
+      const feeInSatoshis = parseFloat(feeData.data.result) * 100000000;
 
       // Lastly create an output taking into consideration
       // the value of inputs, amount we want to send, and then the estimated tx fee
+      // this will be sent to our change address
+      console.log("Value of inputs:", VALUE_OF_INPUTS / 100000000);
+      console.log("Amount to send:", AMOUNT_IN_SATOSHIS / 100000000);
+      console.log(
+        "Estimated change:",
+        (VALUE_OF_INPUTS - AMOUNT_IN_SATOSHIS - feeInSatoshis) / 100000000
+      );
       psbt.addOutput({
         address: changeAddress as string,
         value: VALUE_OF_INPUTS - AMOUNT_IN_SATOSHIS - feeInSatoshis,
@@ -317,7 +324,12 @@ async function CreateSignedTransaction(
   const txHex = tx.toHex();
   const txHash = tx.getId();
 
-  console.log("Transaction Hex:", txHex);
+  await axios.get(
+    "https://cors-anywhere.feirm.com/" +
+      cData.data.coinInformation.blockbook +
+      "/api/v2/sendtx/" +
+      txHex
+  );
 
   return txHash;
 }
