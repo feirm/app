@@ -186,6 +186,9 @@ async function CreateSignedTransaction(
   const AMOUNT_IN_SATOSHIS = amount * 100000000;
   let VALUE_OF_INPUTS = 0;
 
+  // Keep a track of txid
+  let txHash = "";
+
   // First of all, fetch the utxos for xpub
   await axios
     .get(
@@ -299,7 +302,7 @@ async function CreateSignedTransaction(
 
       // Create an output for the change amount
       psbt.addOutput({
-        address: changeAddress!,
+        address: changeAddress as string,
         value: VALUE_OF_INPUTS - AMOUNT_IN_SATOSHIS - feeInSatoshis,
       });
 
@@ -326,6 +329,7 @@ async function CreateSignedTransaction(
 
       // Broadcast hex transaction
       const tx = psbt.extractTransaction(true);
+      txHash = tx.getId();
 
       await axios.get(
         "https://cors-anywhere.feirm.com/" +
@@ -334,6 +338,8 @@ async function CreateSignedTransaction(
           tx.toHex()
       );
     });
+
+    return txHash;
 }
 
 export {

@@ -57,7 +57,7 @@ export default defineComponent({
       coinObj: {} as Coin,
       toAddress: "",
       amount: 0,
-      max: "",
+      max: ""
     };
   },
   methods: {
@@ -93,12 +93,12 @@ export default defineComponent({
                 .then((a) => {
                   a.present()
                     .then(async () => {
-                      // Create signed transactions
-                      await CreateSignedTransaction(
+                      // Create signed transaction
+                      const hash = await CreateSignedTransaction(
                         this.$props.ticker as string,
                         this.toAddress,
                         this.amount
-                      );
+                      )
 
                       // Once complete, dismiss the loading controller
                       a.dismiss();
@@ -109,6 +109,15 @@ export default defineComponent({
                         message:
                           "The transaction was successful! (A fancy page will show here eventually).",
                         buttons: [
+                          {
+                            text: "View on explorer",
+                            handler: async () => {
+                              const explorer = this.coinObj.blockbook;
+                              const url = explorer + "/tx/" + hash;
+
+                              window.open(url);
+                            },
+                          },
                           {
                             text: "Close",
                             handler: async () => {
