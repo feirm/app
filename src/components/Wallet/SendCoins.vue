@@ -9,7 +9,7 @@
     </ion-item>
     <ion-item>
       <ion-label position="floating">Amount</ion-label>
-      <ion-input v-model="amount" type="number"></ion-input>
+      <ion-input v-model="amount" type="number" step="any"></ion-input>
       <ion-button slot="end" expand="block" @click="useMaxBalance"
         >Max</ion-button
       >
