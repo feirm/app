@@ -135,7 +135,7 @@ export default {
 
     onMounted(async() => {
       await tatsuyaService.userCount().then(res => {
-        users.value = parseInt(res.data);
+        users.value = parseFloat(res.data);
       })
     })
 

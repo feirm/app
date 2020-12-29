@@ -126,13 +126,10 @@ export default defineComponent({
         newTx.value = tx.value
 
         // TODO Determine whether its outgoing or not
-        tx.vout.forEach(out => {
-            if (out.spent == true) {
-                newTx.isOutgoing = false;
-            } else {
-                newTx.isOutgoing = true;
-            }
-        })
+        if (tx.valueIn > tx.value) {
+            // Assume that inputs are used to form a larger transaction, so it is outgoing
+            newTx.isOutgoing = true;
+        }
 
         // Append to array of transactions
         this.txs.push(newTx);
