@@ -19,17 +19,13 @@
           button="true"
           @click="openTx(tx.txid)"
         >
-          <ion-icon
-            slot="start"
-            size="large"
-            color="success"
-            :icon="arrowDownCircleOutline"
-          ></ion-icon>
+          <ion-icon v-if="tx.isOutgoing" slot="start" size="large" color="danger" :icon="arrowUpCircleOutline"></ion-icon>
+          <ion-icon v-if="!tx.isOutgoing" slot="start" size="large" color="success" :icon="arrowDownCircleOutline"></ion-icon>
           <ion-text>
             <p>{{ tx.blockTime }}</p>
             <p>
               <b>
-                {{ tx.valueIn / 100000000 }} {{ this.ticker.toUpperCase() }}
+                {{ (tx.value / 100000000) }} {{ this.ticker.toUpperCase() }}
               </b>
             </p>
           </ion-text>
@@ -58,7 +54,7 @@ import { Coin, FindWallet } from "@/lib/wallet";
 import axios from "axios";
 import { DateTime } from "luxon";
 
-import { arrowDownCircleOutline } from "ionicons/icons";
+import { arrowDownCircleOutline, arrowUpCircleOutline } from "ionicons/icons";
 
 export default defineComponent({
   name: "Transactions",
@@ -101,16 +97,45 @@ export default defineComponent({
           "?details=txs"
       );
 
+      // Representation of a TX
+      interface Transaction {
+          txid: string;
+          blockTime: string;
+          value: string;
+          valueIn: string;
+          isOutgoing: boolean;
+      } 
+
       // Iterate over each transaction and format them
       for (let i = 0; i < txHistory.data.transactions.length; i++) {
         const tx = txHistory.data.transactions[i];
 
-        tx.blockTime = DateTime.fromSeconds(parseInt(tx.blockTime)).toFormat(
+        // New transaction instance
+        const newTx = {} as Transaction;
+
+        // Set id
+        newTx.txid = tx.txid;
+
+        // Formatted time
+        newTx.blockTime = DateTime.fromSeconds(parseInt(tx.blockTime)).toFormat(
           "dd/MM/yyyy, hh:mm a"
         );
 
+        // Input value
+        newTx.valueIn = tx.valueIn
+        newTx.value = tx.value
+
+        // TODO Determine whether its outgoing or not
+        tx.vout.forEach(out => {
+            if (out.spent == true) {
+                newTx.isOutgoing = false;
+            } else {
+                newTx.isOutgoing = true;
+            }
+        })
+
         // Append to array of transactions
-        this.txs.push(tx);
+        this.txs.push(newTx);
       }
     },
     openTx(hash: string) {
@@ -120,6 +145,7 @@ export default defineComponent({
   setup() {
     return {
       arrowDownCircleOutline,
+      arrowUpCircleOutline
     };
   },
 });
