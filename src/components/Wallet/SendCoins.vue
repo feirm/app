@@ -10,7 +10,9 @@
     <ion-item>
       <ion-label position="floating">Amount</ion-label>
       <ion-input v-model="amount" type="number"></ion-input>
-      <ion-button slot="end" expand="block" @click="useMaxBalance">Max</ion-button>
+      <ion-button slot="end" expand="block" @click="useMaxBalance"
+        >Max</ion-button
+      >
     </ion-item>
     <ion-item>
       <ion-note>
@@ -55,7 +57,7 @@ export default defineComponent({
       coinObj: {} as Coin,
       toAddress: "",
       amount: 0,
-      max: ""
+      max: "",
     };
   },
   methods: {
@@ -104,25 +106,46 @@ export default defineComponent({
                       // Show success alert
                       const alert = await alertController.create({
                         header: "Transaction Complete!",
-                        message: "The transaction was successful! (A fancy page will show here eventually).",
-                        buttons: [{
-                          text: "Close",
-                          handler: async () => {
-                            // Dismiss the send coins modal
-                            await modalController.dismiss();
-                          }
-                        }],
+                        message:
+                          "The transaction was successful! (A fancy page will show here eventually).",
+                        buttons: [
+                          {
+                            text: "Close",
+                            handler: async () => {
+                              // Dismiss the send coins modal
+                              await modalController.dismiss();
+                            },
+                          },
+                        ],
                       });
-
                       return alert.present();
                     })
                     .catch(async (e) => {
                       a.dismiss();
 
+                      // Determine error message to be shown
+                      let errorMessage = "" as any;
+
+                      switch (e.response.data.error) {
+                        // TX Fee is not high enough
+                        case "-26: 66: insufficient priority":
+                          errorMessage = "Transaction fee is not high enough!";
+                          break;
+                        // Dust (TX is too small)
+                        case "-26: 64: dust":
+                          errorMessage =
+                            "Transaction amount is too small (dust)!";
+                          break;
+                        default:
+                          // Condition isn't met, just use error from HTTP request
+                          errorMessage = "Something unexpected occurred";
+                          break;
+                      }
+
                       // Show error alert
                       const alert = await alertController.create({
                         header: "Transaction Error",
-                        message: e,
+                        message: errorMessage,
                         buttons: ["Close"],
                       });
 
@@ -140,9 +163,9 @@ export default defineComponent({
   async mounted() {
     await FindWallet(this.$props.ticker!).then((coin) => {
       this.coinObj = coin as Coin;
-      
+
       // Set max spendable balance
-      this.max = (this.coinObj.balance / 100000000).toFixed(2)
+      this.max = (this.coinObj.balance / 100000000).toFixed(2);
     });
   },
   setup() {
