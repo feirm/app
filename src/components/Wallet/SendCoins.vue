@@ -134,7 +134,9 @@ export default defineComponent({
 
                       // Determine error message to be shown
                       let errorMessage = "" as any;
+                      errorMessage = e;
 
+                      /*
                       switch (e.response.data.error) {
                         // TX Fee is not high enough
                         case "-26: 66: insufficient priority":
@@ -150,6 +152,7 @@ export default defineComponent({
                           errorMessage = "Something unexpected occurred";
                           break;
                       }
+                      */
 
                       // Show error alert
                       const alert = await alertController.create({
