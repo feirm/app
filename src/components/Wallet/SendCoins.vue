@@ -100,6 +100,21 @@ export default defineComponent({
 
                       // Once complete, dismiss the loading controller
                       a.dismiss();
+
+                      // Show success alert
+                      const alert = await alertController.create({
+                        header: "Transaction Complete!",
+                        message: "The transaction was successful! (A fancy page will show here eventually).",
+                        buttons: [{
+                          text: "Close",
+                          handler: async () => {
+                            // Dismiss the send coins modal
+                            await modalController.dismiss();
+                          }
+                        }],
+                      });
+
+                      return alert.present();
                     })
                     .catch(async (e) => {
                       a.dismiss();
