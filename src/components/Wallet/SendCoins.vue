@@ -1,19 +1,33 @@
 <template>
+  <ion-header>
+    <ion-toolbar class="ion-text-center">
+      <ion-buttons slot="start">
+        <ion-button @click="closeModal">
+          <ion-icon slot="icon-only" :icon="closeOutline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-buttons slot="secondary">
+        <ion-button @click="presentAlert">
+          <ion-icon
+            slot="icon-only"
+            :icon="informationCircleOutline"
+          ></ion-icon>
+        </ion-button>
+      </ion-buttons>
+      <ion-title>Send {{ this.$props.ticker.toUpperCase() }}</ion-title>
+    </ion-toolbar>
+  </ion-header>
   <ion-content class="ion-padding ion-text-center">
     <ion-item>
-      <ion-label position="floating">To</ion-label>
+      <ion-label position="stacked">To</ion-label>
       <ion-input
         v-model="toAddress"
         v-on:ionChange="validateAddress($event.target.value)"
       ></ion-input>
-      <ion-button @click="scanQr">QR</ion-button>
     </ion-item>
     <ion-item>
-      <ion-label position="floating">Amount</ion-label>
-      <ion-input v-model="amount" type="number" step="any"></ion-input>
-      <ion-button slot="end" expand="block" @click="useMaxBalance"
-        >Max</ion-button
-      >
+      <ion-label position="stacked">Amount</ion-label>
+      <ion-input v-model="amount" type="number" step="0.001"></ion-input>
     </ion-item>
     <ion-item>
       <ion-note>
@@ -24,13 +38,18 @@
       </ion-note>
     </ion-item>
 
-    <!-- Send and Cancel buttons -->
-    <ion-button expand="block" @click="sendCoins" :disabled="sendDisabled"
-      >Send Coins</ion-button
-    >
-    <ion-button expand="block" color="danger" @click="closeModal"
-      >Cancel</ion-button
-    >
+    <!-- Send buttons -->
+    <ion-button expand="block" @click="sendCoins" :disabled="sendDisabled">
+      Send
+      <ion-icon slot="end" :icon="sendSharp"></ion-icon>
+    </ion-button>
+
+    <!-- QR Scan button -->
+    <ion-fab slot="fixed" vertical="bottom" horizontal="center">
+      <ion-fab-button @click="scanQr">
+        <ion-icon :icon="qrCodeOutline"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
   </ion-content>
 </template>
 
@@ -43,12 +62,16 @@ import {
   IonInput,
   IonButton,
   IonNote,
+  IonIcon,
+  IonFab,
+  IonFabButton,
   modalController,
   loadingController,
   alertController,
 } from "@ionic/vue";
 import { Coin, CreateSignedTransaction, FindWallet } from "@/lib/wallet";
 import ScanQR from "@/components/Wallet/ScanQR.vue";
+import { sendSharp, qrCodeOutline, closeOutline } from "ionicons/icons";
 
 export default defineComponent({
   name: "SendCoins",
@@ -62,7 +85,7 @@ export default defineComponent({
       toAddress: "",
       amount: 0,
       max: "",
-      sendDisabled: true,
+      sendDisabled: false,
     };
   },
   methods: {
@@ -202,6 +225,9 @@ export default defineComponent({
   setup() {
     return {
       CreateSignedTransaction,
+      sendSharp,
+      qrCodeOutline,
+      closeOutline,
     };
   },
   components: {
@@ -211,6 +237,9 @@ export default defineComponent({
     IonInput,
     IonButton,
     IonNote,
+    IonIcon,
+    IonFab,
+    IonFabButton,
   },
 });
 </script>

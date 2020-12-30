@@ -242,9 +242,11 @@ http://ionicframework.com/docs/theming/ */
 }
 
 /* Sending coins modal */
+/*
 .sendCoinsModal .modal-wrapper {
   max-height: 37%;
   bottom: 0%;
   position: absolute;
   display: block;
 }
+*/
