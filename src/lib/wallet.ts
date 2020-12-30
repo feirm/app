@@ -204,12 +204,12 @@ async function CreateSignedTransaction(
         // We need to set the BIP44 derivation path the transaction used.
         const path = utxos.data[i].path;
 
-        // Add to the total value of our inputs
-        VALUE_OF_INPUTS = VALUE_OF_INPUTS.plus(utxos.data[i].value);
-
         // Keep iterating if the value of inputs are less than the amount we want to send
         if (VALUE_OF_INPUTS < AMOUNT_IN_SATOSHIS) {
           console.log("Value of inputs so far:", VALUE_OF_INPUTS.toNumber());
+
+          // Add to the total value of our inputs
+          VALUE_OF_INPUTS = VALUE_OF_INPUTS.plus(utxos.data[i].value);
 
           // Now we can lookup the specific UTXO transaction ID and then add it as an input
           await axios
@@ -351,12 +351,8 @@ async function CreateSignedTransaction(
     });
 
   // Onto the last stretch.
-  // Sign all the inputs using the BIP32 master key
-  try {
-    await psbt.signAllInputsHDAsync(masterKey);
-  } catch (e) {
-    throw new Error("Unable to sign transaction inputs. Please try again or contact us via the support mechanisms.")
-  }
+  // Sign all inputs
+  psbt.signAllInputsHD(masterKey);
 
   // Validate signatures of all inputs
   psbt.validateSignaturesOfAllInputs();
