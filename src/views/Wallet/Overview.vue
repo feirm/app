@@ -145,7 +145,7 @@ export default defineComponent({
           // Iterate over each coin
           coins.forEach(async (coin) => {
             await axios
-              .get(`${coin.blockbook}/api/v2/xpub/${coin.extendedPublicKey}`)
+              .get(`https://cors-anywhere.feirm.com/${coin.blockbook}/api/v2/xpub/${coin.extendedPublicKey}`)
               .then((res) => {
                 coin.balance = res.data.balance ? res.data.balance : 0;
               });
