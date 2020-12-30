@@ -185,9 +185,6 @@ async function CreateSignedTransaction(
 
   // Keep track of the amount we want to send, and the value of inputs
   const AMOUNT_IN_SATOSHIS = new BigNumber(amount).multipliedBy(100000000);
-
-  console.log(AMOUNT_IN_SATOSHIS.toNumber());
-
   let VALUE_OF_INPUTS = new BigNumber(0);
 
   // Fetch all the unspent outputs using the extended public key
@@ -202,7 +199,6 @@ async function CreateSignedTransaction(
       // Iterate over all the unspent outputs and then look them up fully using the TXID
       for (let i = 0; i < utxos.data.length; i++) {
         // Only continue if the current value of UTXOs is not equal to the amount we want to send in satoshis
-
         console.log("Using input:", utxos.data[i].txid);
 
         // We need to set the BIP44 derivation path the transaction used.
@@ -211,9 +207,9 @@ async function CreateSignedTransaction(
         // Add to the total value of our inputs
         VALUE_OF_INPUTS = VALUE_OF_INPUTS.plus(utxos.data[i].value);
 
-        // Continue only if the value of inputs are more than the amount
-        if (VALUE_OF_INPUTS > AMOUNT_IN_SATOSHIS) {
-          console.log("Value of inpuits:", VALUE_OF_INPUTS.toNumber());
+        // Keep iterating if the value of inputs are less than the amount we want to send
+        if (VALUE_OF_INPUTS < AMOUNT_IN_SATOSHIS) {
+          console.log("Value of inputs so far:", VALUE_OF_INPUTS.toNumber());
 
           // Now we can lookup the specific UTXO transaction ID and then add it as an input
           await axios
@@ -259,7 +255,12 @@ async function CreateSignedTransaction(
                     ],
                   };
 
-                  psbt.updateInput(i, updateData);
+                  try {
+                    psbt.updateInput(i, updateData);
+                  } catch (e) {
+                    console.log("Could not update transaction input for:", utxos.data[i].txid);
+                    throw new Error("Could not update the input for TXID " + utxos.data[i].txid);
+                  }
                 }
               }
             });
@@ -327,7 +328,7 @@ async function CreateSignedTransaction(
         "Value of inputs after inital amount:",
         VALUE_OF_INPUTS.minus(AMOUNT_IN_SATOSHIS).toNumber()
       );
-      console.log("Value after TX fee:", changeValue.toNumber());
+      console.log("Amount of change after TX fee:", changeValue.toNumber());
 
       // Throw error if change amount is incorrect
       if (VALUE_OF_INPUTS.minus(AMOUNT_IN_SATOSHIS) < new BigNumber(0)) {
@@ -351,7 +352,11 @@ async function CreateSignedTransaction(
 
   // Onto the last stretch.
   // Sign all the inputs using the BIP32 master key
-  await psbt.signAllInputsHDAsync(masterKey);
+  try {
+    await psbt.signAllInputsHDAsync(masterKey);
+  } catch (e) {
+    throw new Error("Unable to sign transaction inputs. Please try again or contact us via the support mechanisms.")
+  }
 
   // Validate signatures of all inputs
   psbt.validateSignaturesOfAllInputs();
