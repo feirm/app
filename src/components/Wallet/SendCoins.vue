@@ -74,6 +74,7 @@ import ScanQR from "@/components/Wallet/ScanQR.vue";
 import { sendSharp, qrCodeOutline, closeOutline } from "ionicons/icons";
 import axios from "axios";
 import BigNumber from "bignumber.js";
+import bip21 from "bip21";
 
 export default defineComponent({
   name: "SendCoins",
@@ -218,9 +219,14 @@ export default defineComponent({
       // Get a response
       const modalResponse = await modal.onDidDismiss();
 
-      // Update the address field
-      // TODO Payment request decoding
-      this.toAddress = modalResponse.data.split(":").pop();
+      // Decode the payment request
+      // Example payment URI for Feirm:
+      // feirm:5v3rs832d3ep8H8W3QY3y1BcAuFLBJ9ngo?amount=10.00000000&label=Test%20Payment&message=Test%20Message
+      const decodedPayment = bip21.decode(modalResponse.data, this.coinObj.name.toLowerCase());
+
+      // Update the address and amount fields to match one on payment
+      this.toAddress = decodedPayment.address;
+      this.amount = decodedPayment.options.amount;
     },
   },
   async mounted() {
