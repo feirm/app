@@ -125,7 +125,8 @@ export default defineComponent({
                       const hash = await CreateSignedTransaction(
                         this.$props.ticker as string,
                         this.toAddress,
-                        this.amount
+                        this.amount,
+                        0.0001
                       );
 
                       // Once complete, dismiss the loading controller

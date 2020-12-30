@@ -162,7 +162,8 @@ async function FindWallet(ticker: string): Promise<Coin> {
 async function CreateSignedTransaction(
   ticker: string,
   recipient: string,
-  amount: number
+  amount: number,
+  fee: number
 ): Promise<any> {
   // Before starting anything, fetch the coin data from Azure API
   const cData = await azureService.getCoin(ticker);
@@ -204,12 +205,12 @@ async function CreateSignedTransaction(
         // We need to set the BIP44 derivation path the transaction used.
         const path = utxos.data[i].path;
 
-        // Keep iterating if the value of inputs are less than the amount we want to send
-        if (VALUE_OF_INPUTS < AMOUNT_IN_SATOSHIS) {
-          console.log("Value of inputs so far:", VALUE_OF_INPUTS.toNumber());
+        // Add to the total value of our inputs
+        VALUE_OF_INPUTS = VALUE_OF_INPUTS.plus(utxos.data[i].value);
 
-          // Add to the total value of our inputs
-          VALUE_OF_INPUTS = VALUE_OF_INPUTS.plus(utxos.data[i].value);
+        // We want to use this input if its more than the amount of what we want to send
+        if (VALUE_OF_INPUTS > AMOUNT_IN_SATOSHIS) {
+          console.log("Value of inputs so far:", VALUE_OF_INPUTS.toNumber());
 
           // Now we can lookup the specific UTXO transaction ID and then add it as an input
           await axios
@@ -258,8 +259,14 @@ async function CreateSignedTransaction(
                   try {
                     psbt.updateInput(i, updateData);
                   } catch (e) {
-                    console.log("Could not update transaction input for:", utxos.data[i].txid);
-                    throw new Error("Could not update the input for TXID " + utxos.data[i].txid);
+                    console.log(
+                      "Could not update transaction input for:",
+                      utxos.data[i].txid
+                    );
+                    throw new Error(
+                      "Could not update the input for TXID " +
+                        utxos.data[i].txid
+                    );
                   }
                 }
               }
@@ -267,16 +274,12 @@ async function CreateSignedTransaction(
         }
       }
 
-      console.log("1");
-
       // We can now be sure that the loop has ended and that we are using inputs of the correct value
       // Create an output for the initial amount being spent to the recipient
       psbt.addOutput({
         address: recipient,
         value: AMOUNT_IN_SATOSHIS.toNumber(),
       });
-
-      console.log("2");
 
       // Fetch the extended public key data from Blockbook so we can use the correct change address to send excess funds to.
       const xpubData = await axios.get(
@@ -302,19 +305,8 @@ async function CreateSignedTransaction(
         network: network,
       }).address;
 
-      // Now we can proceed to get an estimated for for our transaction to be confirmed within 10 blocks
-      const feeData = await axios.get(
-        "https://cors-anywhere.feirm.com/" +
-          cData.data.coinInformation.blockbook +
-          "/api/v2/estimatefee/10"
-      );
-
-      console.log("3");
-
       // Convert the fee into a satoshi value
-      const FEE_IN_SATOSHIS = new BigNumber(feeData.data.result).multipliedBy(
-        100000000
-      );
+      const FEE_IN_SATOSHIS = new BigNumber(fee).multipliedBy(100000000);
 
       // Lastly create an output taking into consideration
       // the value of inputs, amount we want to send, and then the estimated tx fee
@@ -330,13 +322,6 @@ async function CreateSignedTransaction(
       );
       console.log("Amount of change after TX fee:", changeValue.toNumber());
 
-      // Throw error if change amount is incorrect
-      if (VALUE_OF_INPUTS.minus(AMOUNT_IN_SATOSHIS) < new BigNumber(0)) {
-        throw new Error(
-          "The transaction amount exceeds the transaction input values."
-        );
-      }
-
       try {
         psbt.addOutput({
           address: changeAddress as string,
@@ -346,8 +331,6 @@ async function CreateSignedTransaction(
         console.log("There was an error adding the change output:", e);
         return;
       }
-
-      console.log("4");
     });
 
   // Onto the last stretch.
