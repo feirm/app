@@ -1,4 +1,10 @@
 # Transactions
-* Show spendable amount on send component
-* Fee calculation
-* Keep a tally of total inputs, outputs and fees
+* Scan address QR code
+* Select address from contacts
+* Fix transaction history amounts and icons
+
+# Contacts
+* Show full contact details when clicked
+
+# Wallet
+* Show fiat (USD) rates of balance
