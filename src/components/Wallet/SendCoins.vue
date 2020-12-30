@@ -72,6 +72,8 @@ import {
 import { Coin, CreateSignedTransaction, FindWallet } from "@/lib/wallet";
 import ScanQR from "@/components/Wallet/ScanQR.vue";
 import { sendSharp, qrCodeOutline, closeOutline } from "ionicons/icons";
+import axios from "axios";
+import BigNumber from "bignumber.js";
 
 export default defineComponent({
   name: "SendCoins",
@@ -84,6 +86,7 @@ export default defineComponent({
       coinObj: {} as Coin,
       toAddress: "",
       amount: 0,
+      fee: 0,
       max: "",
       sendDisabled: false,
     };
@@ -101,11 +104,16 @@ export default defineComponent({
     async sendCoins() {
       const confirm = await alertController.create({
         header: "Confirm",
-        message: `Are you sure you want to send <b>${
-          this.amount
-        } ${this.$props.ticker?.toUpperCase()}</b> to <b>${
-          this.toAddress
-        }</b>?`,
+        message: `Are you sure you want to continue?
+        <br />
+        <br />
+        Address: <b>${this.toAddress}</b>
+        <br />
+        Amount: <b>${this.amount} ${this.$props.ticker?.toUpperCase()}</b>
+        <br />
+        TX Fee: <b>${this.fee} ${this.$props.ticker?.toUpperCase()}</b>
+        <br />
+        Total: <b>${new BigNumber(this.amount).plus(this.fee).toNumber()} ${this.$props.ticker?.toUpperCase()}</b>`,
         buttons: [
           {
             text: "Cancel",
@@ -126,7 +134,7 @@ export default defineComponent({
                         this.$props.ticker as string,
                         this.toAddress,
                         this.amount,
-                        0.0001
+                        this.fee
                       );
 
                       // Once complete, dismiss the loading controller
@@ -216,12 +224,44 @@ export default defineComponent({
     },
   },
   async mounted() {
-    await FindWallet(this.$props.ticker!).then((coin) => {
-      this.coinObj = coin as Coin;
+    // Loading popup saying "fetching data"
+    await loadingController.create({
+      message: "Fetching data..."
+    })
+    .then(a => {
+      a.present().then(async () => {
+        // Find coin based on ticker and set coin data
+        await FindWallet(this.$props.ticker!).then((coin) => {
+          this.coinObj = coin as Coin;
+          this.max = (this.coinObj.balance / 100000000).toFixed(2);
+        });
 
-      // Set max spendable balance
-      this.max = (this.coinObj.balance / 100000000).toFixed(2);
-    });
+        // Fetch ideal transaction fee for transaction to be confirmed
+        // within 25 blocks.
+        const txFee = await axios.get(
+          "https://cors-anywhere.feirm.com/" +
+          this.coinObj.blockbook +
+          "/api/v2/estimatefee/25"
+        )
+
+        this.fee = Number(txFee.data.result);
+
+        // Dismiss
+        a.dismiss()
+      }).catch(async e => {
+        // Dismiss
+        a.dismiss();
+
+        // Show alert
+        const errorAlert = await alertController.create({
+          header: "Error fetching data!",
+          message: e,
+          buttons: ["Close"]
+        })
+
+        return errorAlert.present();
+      })
+    })
   },
   setup() {
     return {

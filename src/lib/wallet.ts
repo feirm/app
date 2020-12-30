@@ -188,6 +188,9 @@ async function CreateSignedTransaction(
   const AMOUNT_IN_SATOSHIS = new BigNumber(amount).multipliedBy(100000000);
   let VALUE_OF_INPUTS = new BigNumber(0);
 
+  // Convert the fee into satoshi values
+  const FEE_IN_SATOSHIS = new BigNumber(fee).multipliedBy(100000000)
+
   // Fetch all the unspent outputs using the extended public key
   await axios
     .get(
@@ -305,15 +308,10 @@ async function CreateSignedTransaction(
         network: network,
       }).address;
 
-      // Convert the fee into a satoshi value
-      const FEE_IN_SATOSHIS = new BigNumber(fee).multipliedBy(100000000);
-
       // Lastly create an output taking into consideration
       // the value of inputs, amount we want to send, and then the estimated tx fee
       // this will be sent to our change address
-      const changeValue = VALUE_OF_INPUTS.minus(AMOUNT_IN_SATOSHIS).minus(
-        FEE_IN_SATOSHIS
-      );
+      const changeValue = VALUE_OF_INPUTS.minus(AMOUNT_IN_SATOSHIS).minus(FEE_IN_SATOSHIS);
 
       console.log("Value of inputs:", VALUE_OF_INPUTS.toNumber());
       console.log(
