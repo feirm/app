@@ -183,7 +183,7 @@ export default defineComponent({
 
       // Update the address field
       // TODO Payment request decoding
-      this.toAddress = modalResponse.data;
+      this.toAddress = modalResponse.data.split(":").pop();
     }
   },
   async mounted() {
