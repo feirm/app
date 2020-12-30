@@ -6,6 +6,7 @@
         v-model="toAddress"
         v-on:ionChange="validateAddress($event.target.value)"
       ></ion-input>
+      <ion-button @click="scanQr">QR</ion-button>
     </ion-item>
     <ion-item>
       <ion-label position="floating">Amount</ion-label>
@@ -45,6 +46,7 @@ import {
   alertController,
 } from "@ionic/vue";
 import { Coin, CreateSignedTransaction, FindWallet } from "@/lib/wallet";
+import ScanQR from "@/components/Wallet/ScanQR.vue";
 
 export default defineComponent({
   name: "SendCoins",
@@ -171,6 +173,13 @@ export default defineComponent({
 
       return confirm.present();
     },
+    async scanQr() {
+      const modal = await modalController.create({
+        component: ScanQR
+      })
+
+      return modal.present();
+    }
   },
   async mounted() {
     await FindWallet(this.$props.ticker!).then((coin) => {
