@@ -149,11 +149,6 @@ export default {
     // List of all services
     const services = [
       {
-        Name: "Scan QR Code",
-        Route: "/services/qr",
-        Icon: qrCodeOutline,
-      },
-      {
         Name: "News Feed",
         Route: "",
         Icon: newspaperOutline,

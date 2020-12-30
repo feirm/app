@@ -1,5 +1,4 @@
 <template>
-  <ion-page>
     <ion-header>
       <ion-toolbar class="ion-text-center">
         <ion-buttons slot="start">
@@ -39,13 +38,11 @@
         </ion-button>
       </ion-fab>
     </ion-content>
-  </ion-page>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import {
-  IonPage,
   IonHeader,
   IonToolbar,
   IonButtons,
@@ -62,7 +59,6 @@ import { QrStream } from "vue3-qr-reader";
 export default defineComponent({
   name: "Scan",
   components: {
-    IonPage,
     IonHeader,
     IonToolbar,
     IonButtons,

@@ -114,14 +114,8 @@ const routes: Array<RouteRecordRaw> = [
     path: "/wallet/addCoin",
     component: () => import("@/views/Wallet/AddCoin.vue")
   },
-  // QR Service
-  {
-    path: "/services/qr",
-    component: () => import("@/views/Services/QRCode/Scan.vue"),
-    meta: {
-      requiresAuth: true,
-    },
-  },
+
+  // New PWA Version
   {
     path: "/update",
     component: () => import("@/views/Update.vue"),
