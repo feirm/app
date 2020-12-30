@@ -138,7 +138,6 @@ export default defineComponent({
                       let errorMessage = "" as any;
                       errorMessage = e;
 
-                      /*
                       switch (e.response.data.error) {
                         // TX Fee is not high enough
                         case "-26: 66: insufficient priority":
@@ -154,7 +153,6 @@ export default defineComponent({
                           errorMessage = "Something unexpected occurred";
                           break;
                       }
-                      */
 
                       // Show error alert
                       const alert = await alertController.create({
@@ -178,7 +176,14 @@ export default defineComponent({
         component: ScanQR
       })
 
-      return modal.present();
+      await modal.present();
+
+      // Get a response
+      const modalResponse = await modal.onDidDismiss();
+
+      // Update the address field
+      // TODO Payment request decoding
+      this.toAddress = modalResponse.data;
     }
   },
   async mounted() {
