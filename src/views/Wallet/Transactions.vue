@@ -19,14 +19,24 @@
           button="true"
           @click="openTx(tx.txid)"
         >
-          <ion-icon v-if="tx.isOutgoing" slot="start" size="large" color="danger" :icon="arrowUpCircleOutline"></ion-icon>
-          <ion-icon v-if="!tx.isOutgoing" slot="start" size="large" color="success" :icon="arrowDownCircleOutline"></ion-icon>
+          <ion-icon
+            v-if="tx.isOutgoing"
+            slot="start"
+            size="large"
+            color="danger"
+            :icon="arrowUpCircleOutline"
+          ></ion-icon>
+          <ion-icon
+            v-if="!tx.isOutgoing"
+            slot="start"
+            size="large"
+            color="success"
+            :icon="arrowDownCircleOutline"
+          ></ion-icon>
           <ion-text>
             <p>{{ tx.blockTime }}</p>
             <p>
-              <b>
-                {{ (tx.value / 100000000) }} {{ this.ticker.toUpperCase() }}
-              </b>
+              <b> {{ tx.value }} {{ this.ticker.toUpperCase() }} </b>
             </p>
           </ion-text>
         </ion-item>
@@ -55,6 +65,7 @@ import axios from "axios";
 import { DateTime } from "luxon";
 
 import { arrowDownCircleOutline, arrowUpCircleOutline } from "ionicons/icons";
+import BigNumber from "bignumber.js";
 
 export default defineComponent({
   name: "Transactions",
@@ -94,17 +105,16 @@ export default defineComponent({
           this.coin.blockbook +
           "/api/v2/xpub/" +
           this.coin.extendedPublicKey +
-          "?details=txs"
+          "?details=txs&tokens=used"
       );
 
       // Representation of a TX
       interface Transaction {
-          txid: string;
-          blockTime: string;
-          value: string;
-          valueIn: string;
-          isOutgoing: boolean;
-      } 
+        txid: string;
+        blockTime: string;
+        value: string;
+        isOutgoing: boolean;
+      }
 
       // Iterate over each transaction and format them
       for (let i = 0; i < txHistory.data.transactions.length; i++) {
@@ -121,14 +131,27 @@ export default defineComponent({
           "dd/MM/yyyy, hh:mm a"
         );
 
-        // Input value
-        newTx.valueIn = tx.valueIn
-        newTx.value = tx.value
+        // Determine if a transaction is incoming or outgoing
+        // by checking if a change address the user owns is present.
+        // If a change address the user owns is present, the the TX is outgoing
 
-        // TODO Determine whether its outgoing or not
-        if (tx.valueIn > tx.value) {
-            // Assume that inputs are used to form a larger transaction, so it is outgoing
-            newTx.isOutgoing = true;
+        // Iterate over the known tokens used for these transactions
+        for (let i = 0; i < txHistory.data.tokens.length; i++) {
+          const token = txHistory.data.tokens[i];
+          
+          // Iterate over each output and determine whether or not a change address we own is present
+          for (let j = 0; j < tx.vout.length; j++) {
+            // Find matching addresses and check if they are part of change we own
+            if (tx.vout[j].addresses[0] === token.name && token.path.includes("/0'/1/") === true) {
+              // Transaction must be outgoing
+              newTx.isOutgoing = true;
+            }
+
+            // TODO Find the value of the transaction for the address we don't own
+            if (tx.vout[j].addresses[0] !== token.name) {
+              newTx.value = new BigNumber(tx.vout[j].value).dividedBy(100000000).toString()
+            }
+          }
         }
 
         // Append to array of transactions
@@ -142,7 +165,7 @@ export default defineComponent({
   setup() {
     return {
       arrowDownCircleOutline,
-      arrowUpCircleOutline
+      arrowUpCircleOutline,
     };
   },
 });
