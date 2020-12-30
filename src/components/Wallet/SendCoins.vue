@@ -25,7 +25,9 @@
     </ion-item>
 
     <!-- Send and Cancel buttons -->
-    <ion-button expand="block" @click="sendCoins">Send Coins</ion-button>
+    <ion-button expand="block" @click="sendCoins" :disabled="sendDisabled"
+      >Send Coins</ion-button
+    >
     <ion-button expand="block" color="danger" @click="closeModal"
       >Cancel</ion-button
     >
@@ -59,12 +61,13 @@ export default defineComponent({
       coinObj: {} as Coin,
       toAddress: "",
       amount: 0,
-      max: ""
+      max: "",
+      sendDisabled: true,
     };
   },
   methods: {
-    validateAddress(address: string) {
-      console.log(address);
+    async validateAddress(address: string) {
+      console.log("Address:", address);
     },
     useMaxBalance() {
       this.amount = this.coinObj.balance / 100000000;
@@ -100,7 +103,7 @@ export default defineComponent({
                         this.$props.ticker as string,
                         this.toAddress,
                         this.amount
-                      )
+                      );
 
                       // Once complete, dismiss the loading controller
                       a.dismiss();
@@ -175,8 +178,8 @@ export default defineComponent({
     },
     async scanQr() {
       const modal = await modalController.create({
-        component: ScanQR
-      })
+        component: ScanQR,
+      });
 
       await modal.present();
 
@@ -186,7 +189,7 @@ export default defineComponent({
       // Update the address field
       // TODO Payment request decoding
       this.toAddress = modalResponse.data.split(":").pop();
-    }
+    },
   },
   async mounted() {
     await FindWallet(this.$props.ticker!).then((coin) => {

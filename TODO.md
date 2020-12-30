@@ -1,5 +1,5 @@
 # Transactions
-* Scan address QR code
+* Scan address QR code [Done]
 * Select address from contacts
 * Fix transaction history amounts and icons
 

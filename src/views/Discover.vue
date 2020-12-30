@@ -93,7 +93,6 @@ import {
 } from "@ionic/vue";
 
 import {
-  qrCodeOutline,
   logoDiscord,
   newspaperOutline,
   gameControllerOutline,
