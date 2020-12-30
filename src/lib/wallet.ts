@@ -202,16 +202,18 @@ async function CreateSignedTransaction(
       // Iterate over all the unspent outputs and then look them up fully using the TXID
       for (let i = 0; i < utxos.data.length; i++) {
         // Only continue if the current value of UTXOs is not equal to the amount we want to send in satoshis
-        if (VALUE_OF_INPUTS <= AMOUNT_IN_SATOSHIS) {
-          console.log("Using input:", utxos.data[i].txid);
 
-          // We need to set the BIP44 derivation path the transaction used.
-          const path = utxos.data[i].path;
+        console.log("Using input:", utxos.data[i].txid);
 
-          // Add to the total value of our inputs
-          VALUE_OF_INPUTS = VALUE_OF_INPUTS.plus(utxos.data[i].value);
+        // We need to set the BIP44 derivation path the transaction used.
+        const path = utxos.data[i].path;
 
-          console.log("Value of inpuits:", VALUE_OF_INPUTS.toNumber())
+        // Add to the total value of our inputs
+        VALUE_OF_INPUTS = VALUE_OF_INPUTS.plus(utxos.data[i].value);
+
+        // Continue only if the value of inputs are more than the amount
+        if (VALUE_OF_INPUTS > AMOUNT_IN_SATOSHIS) {
+          console.log("Value of inpuits:", VALUE_OF_INPUTS.toNumber());
 
           // Now we can lookup the specific UTXO transaction ID and then add it as an input
           await axios
@@ -235,11 +237,16 @@ async function CreateSignedTransaction(
 
                 if (vouts[j].scriptPubKey.addresses[0] === address) {
                   // Attempt to use the input in our transaction
-                  psbt.addInput({
-                    hash: utxos.data[i].txid,
-                    index: vouts[j].n,
-                    nonWitnessUtxo: Buffer.from(output.data.hex, "hex"),
-                  });
+                  try {
+                    psbt.addInput({
+                      hash: utxos.data[i].txid,
+                      index: vouts[j].n,
+                      nonWitnessUtxo: Buffer.from(output.data.hex, "hex"),
+                    });
+                  } catch (e) {
+                    console.log("There was an error using this input:", e);
+                    return;
+                  }
 
                   // Attempt to update the transaction to include BIP32/44 derivation data
                   const updateData = {
@@ -259,7 +266,7 @@ async function CreateSignedTransaction(
         }
       }
 
-      console.log("1")
+      console.log("1");
 
       // We can now be sure that the loop has ended and that we are using inputs of the correct value
       // Create an output for the initial amount being spent to the recipient
@@ -268,7 +275,7 @@ async function CreateSignedTransaction(
         value: AMOUNT_IN_SATOSHIS.toNumber(),
       });
 
-      console.log("2")
+      console.log("2");
 
       // Fetch the extended public key data from Blockbook so we can use the correct change address to send excess funds to.
       const xpubData = await axios.get(
@@ -301,20 +308,45 @@ async function CreateSignedTransaction(
           "/api/v2/estimatefee/10"
       );
 
-      console.log("3")
+      console.log("3");
 
       // Convert the fee into a satoshi value
-      const feeInSatoshis = new BigNumber(feeData.data.result).multipliedBy(100000000);
+      const FEE_IN_SATOSHIS = new BigNumber(feeData.data.result).multipliedBy(
+        100000000
+      );
 
       // Lastly create an output taking into consideration
       // the value of inputs, amount we want to send, and then the estimated tx fee
       // this will be sent to our change address
-      psbt.addOutput({
-        address: changeAddress as string,
-        value: VALUE_OF_INPUTS.minus(AMOUNT_IN_SATOSHIS).minus(feeInSatoshis).toNumber(),
-      });
+      const changeValue = VALUE_OF_INPUTS.minus(AMOUNT_IN_SATOSHIS).minus(
+        FEE_IN_SATOSHIS
+      );
 
-      console.log("4")
+      console.log("Value of inputs:", VALUE_OF_INPUTS.toNumber());
+      console.log(
+        "Value of inputs after inital amount:",
+        VALUE_OF_INPUTS.minus(AMOUNT_IN_SATOSHIS).toNumber()
+      );
+      console.log("Value after TX fee:", changeValue.toNumber());
+
+      // Throw error if change amount is incorrect
+      if (VALUE_OF_INPUTS.minus(AMOUNT_IN_SATOSHIS) < new BigNumber(0)) {
+        throw new Error(
+          "The transaction amount exceeds the transaction input values."
+        );
+      }
+
+      try {
+        psbt.addOutput({
+          address: changeAddress as string,
+          value: changeValue.toNumber(),
+        });
+      } catch (e) {
+        console.log("There was an error adding the change output:", e);
+        return;
+      }
+
+      console.log("4");
     });
 
   // Onto the last stretch.
