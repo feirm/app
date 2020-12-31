@@ -222,11 +222,20 @@ export default defineComponent({
       // Decode the payment request
       // Example payment URI for Feirm:
       // feirm:5v3rs832d3ep8H8W3QY3y1BcAuFLBJ9ngo?amount=10.00000000&label=Test%20Payment&message=Test%20Message
-      const decodedPayment = bip21.decode(modalResponse.data, this.coinObj.name.toLowerCase());
+      try {
+        const decodedPayment = bip21.decode(modalResponse.data, this.coinObj.name.toLowerCase());
+        // Update the address and amount fields to match one on payment
+        this.toAddress = decodedPayment.address;
+        this.amount = decodedPayment.options.amount;
+      } catch (e) {
+        const alert = await alertController.create({
+          header: "Error decoding payment request!",
+          message: e,
+          buttons: ["Close"]
+        })
 
-      // Update the address and amount fields to match one on payment
-      this.toAddress = decodedPayment.address;
-      this.amount = decodedPayment.options.amount;
+        return alert.present()
+      }
     },
   },
   async mounted() {
