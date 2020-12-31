@@ -55,6 +55,7 @@ import {
 } from "ionicons/icons";
 import { FindWallet, DeriveAddress } from "@/lib/wallet";
 import QRCode from "qrcode";
+import bip21 from "bip21";
 
 export default defineComponent({
   name: "ReceivingAddress",
@@ -86,8 +87,11 @@ export default defineComponent({
                 coin.ticker
               );
 
+              // BIP21 compliant payment request
+              const payment = bip21.encode(address, {}, this.$props.coin)
+
               // Generate a QR code of the address
-              await QRCode.toDataURL(address, { width: 200 }).then((qr) => {
+              await QRCode.toDataURL(payment, { width: 200 }).then((qr) => {
                 this.qrCode = qr;
               });
 
