@@ -23,14 +23,14 @@
             v-if="!tx.isUnconfirmed"
             slot="start"
             size="large"
-            :color="tx.isOutgoing ? 'success' : 'danger'"
-            :icon="tx.isOutgoing ? arrowDownCircleOutline : arrowUpCircleOutline"
+            :color="tx.isOutgoing ? 'danger' : 'success'"
+            :icon="tx.isOutgoing ? arrowUpCircleOutline : arrowDownCircleOutline"
           ></ion-icon>
           <ion-icon v-if="tx.isUnconfirmed" slot="start" size="large" color="warning" :icon="timeOutline"></ion-icon>
           <ion-text>
             <p>{{ tx.blockTime }}</p>
             <p>
-              <b>{{ tx.isOutgoing ? '+' : '-' }}{{ tx.value }} {{ this.ticker.toUpperCase() }} </b>
+              <b>{{ tx.isOutgoing ? '-' : '+' }}{{ tx.value }} {{ this.ticker.toUpperCase() }} </b>
             </p>
           </ion-text>
         </ion-item>
