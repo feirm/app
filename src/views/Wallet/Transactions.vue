@@ -20,11 +20,13 @@
           @click="openTx(tx.txid)"
         >
           <ion-icon
+            v-if="!tx.isUnconfirmed"
             slot="start"
             size="large"
             :color="tx.isOutgoing ? 'success' : 'danger'"
             :icon="tx.isOutgoing ? arrowDownCircleOutline : arrowUpCircleOutline"
           ></ion-icon>
+          <ion-icon v-if="tx.isUnconfirmed" slot="start" size="large" color="warning" :icon="timeOutline"></ion-icon>
           <ion-text>
             <p>{{ tx.blockTime }}</p>
             <p>
@@ -58,7 +60,7 @@ import { Coin, FindWallet } from "@/lib/wallet";
 import axios from "axios";
 import { DateTime } from "luxon";
 
-import { arrowDownCircleOutline, arrowUpCircleOutline } from "ionicons/icons";
+import { arrowDownCircleOutline, arrowUpCircleOutline, timeOutline } from "ionicons/icons";
 import BigNumber from "bignumber.js";
 
 export default defineComponent({
@@ -116,6 +118,7 @@ export default defineComponent({
                 blockTime: string;
                 value: string;
                 isOutgoing: boolean;
+                isUnconfirmed: boolean;
               }
 
               // Iterate over each transaction and format them
@@ -132,6 +135,11 @@ export default defineComponent({
                 newTx.blockTime = DateTime.fromSeconds(
                   parseInt(tx.blockTime)
                 ).toFormat("dd/MM/yyyy, hh:mm a");
+
+                // Check if transaction is pending
+                if (tx.confirmations === 0) {
+                  newTx.isUnconfirmed = true;
+                }
 
                 // Determine if a transaction is incoming or outgoing
                 // by checking if a change address the user owns is present.
@@ -186,6 +194,7 @@ export default defineComponent({
     return {
       arrowDownCircleOutline,
       arrowUpCircleOutline,
+      timeOutline
     };
   },
 });
