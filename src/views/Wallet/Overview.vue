@@ -90,6 +90,7 @@ import { Wallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import axios from "axios";
+import BigNumber from "bignumber.js";
 
 export default defineComponent({
   name: "WalletOverview",
@@ -146,7 +147,8 @@ export default defineComponent({
             await axios
               .get(`https://cors-anywhere.feirm.com/${coin.blockbook}/api/v2/xpub/${coin.extendedPublicKey}`)
               .then((res) => {
-                coin.balance = res.data.balance ? res.data.balance : 0;
+                const balance = new BigNumber(res.data.balance).plus(res.data.unconfirmedBalance).toString(); 
+                coin.balance = res.data.balance ? balance : 0;
               });
 
             // Fetch cumulative fiat balance for USD

@@ -93,10 +93,12 @@ import {
 import { useStore } from "vuex";
 import { Coin, FindWallet, Wallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
+import axios from "axios";
 
 // Components
 import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
 import SendCoins from "@/components/Wallet/SendCoins.vue";
+import BigNumber from "bignumber.js";
 
 export default defineComponent({
   name: "Details",
@@ -129,6 +131,15 @@ export default defineComponent({
       this.coin = coin;
       this.ticker = coin.ticker;
     });
+
+    // Temporary, update balance (hardcoded for Feirm)
+    await axios
+    .get(`https://cors-anywhere.feirm.com/${this.coin.blockbook}/api/v2/xpub/${this.coin.extendedPublicKey}`)
+    .then((res) => {
+      const balance = new BigNumber(res.data.balance).plus(res.data.unconfirmedBalance).toNumber(); 
+      this.coin.balance = res.data.balance ? balance : 0;
+    });
+
   },
   methods: {
     async receiveModal() {
