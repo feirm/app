@@ -6,6 +6,9 @@
           <ion-back-button></ion-back-button>
         </ion-buttons>
         <ion-title>Wallet</ion-title>
+        <ion-buttons slot="end">
+          <ion-button></ion-button>
+        </ion-buttons>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
@@ -16,7 +19,7 @@
             <h1>Feirm Wallet</h1>
             <p>
               It appears that you don't have a wallet created. Would you like to
-              get started, or restore from a backup?
+              create a new one, or restore from a backup?
             </p>
           </ion-col>
         </ion-row>
@@ -26,11 +29,13 @@
       <ion-button
         expand="block"
         @click="router.push({ path: '/wallet/newSeed' })"
-        >Get Started</ion-button
+        >Create Wallet</ion-button
       >
-      <br />
-      <ion-note color="dark" @click="restorePrompt"
-        >Restore from backup</ion-note
+      <ion-button
+        expand="block"
+        color="light"
+        @click="restorePrompt"
+        >Restore from Backup</ion-button
       >
     </ion-footer>
   </ion-page>
@@ -51,7 +56,6 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonNote,
   alertController,
 } from "@ionic/vue";
 import { walletOutline } from "ionicons/icons";
@@ -72,7 +76,6 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    IonNote,
     IonButtons,
     IonBackButton
   },
