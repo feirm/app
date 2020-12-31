@@ -93,6 +93,14 @@ export default defineComponent({
         this.torchNotSupported = !capabilities.torch;
       } catch (error) {
         console.error(error);
+
+        const alert = await alertController.create({
+          header: "Error launching QR Scanner",
+          message: error,
+          buttons: ["Close"]
+        })
+
+        return alert.present()
       }
     },
     onDecode(decodedString: string) {
