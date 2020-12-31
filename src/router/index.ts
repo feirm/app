@@ -139,7 +139,9 @@ router.beforeEach(async (to, from, next) => {
   const rootKey = store.getters.getRootKey;
   const username = store.getters.getUsername;
 
-  if (!loggedIn && rootKey) {
+  const temp = false;
+
+  if (temp) {
     // Reconstruct the identity key from the root key
     const identityKeyString = rootKey + "identity";
     const identityKey = await window.crypto.subtle.digest(
