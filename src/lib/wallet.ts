@@ -189,7 +189,7 @@ async function CreateSignedTransaction(
   let VALUE_OF_INPUTS = new BigNumber(0);
 
   // Convert the fee into satoshi values
-  const FEE_IN_SATOSHIS = new BigNumber(fee).multipliedBy(100000000)
+  const FEE_IN_SATOSHIS = new BigNumber(fee).multipliedBy(100000000);
 
   // Fetch all the unspent outputs using the extended public key
   await axios
@@ -212,7 +212,7 @@ async function CreateSignedTransaction(
         VALUE_OF_INPUTS = VALUE_OF_INPUTS.plus(utxos.data[i].value);
 
         // We want to use this input if its more than the amount of what we want to send
-        if (VALUE_OF_INPUTS > AMOUNT_IN_SATOSHIS) {
+        if (VALUE_OF_INPUTS !== AMOUNT_IN_SATOSHIS) {
           console.log("Value of inputs so far:", VALUE_OF_INPUTS.toNumber());
 
           // Now we can lookup the specific UTXO transaction ID and then add it as an input
@@ -235,54 +235,41 @@ async function CreateSignedTransaction(
                   network: network,
                 });
 
+                // Attempt to use the input in our transaction
                 if (vouts[j].scriptPubKey.addresses[0] === address) {
-                  // Attempt to use the input in our transaction
                   try {
                     psbt.addInput({
                       hash: utxos.data[i].txid,
                       index: vouts[j].n,
                       nonWitnessUtxo: Buffer.from(output.data.hex, "hex"),
+                      bip32Derivation: [
+                        {
+                          masterFingerprint: masterKey.fingerprint,
+                          path: path,
+                          pubkey: masterKey.derivePath(path).publicKey,
+                        },
+                      ],
                     });
                   } catch (e) {
                     console.log("There was an error using this input:", e);
                     return;
                   }
-
-                  // Attempt to update the transaction to include BIP32/44 derivation data
-                  const updateData = {
-                    bip32Derivation: [
-                      {
-                        masterFingerprint: masterKey.fingerprint,
-                        path: path,
-                        pubkey: masterKey.derivePath(path).publicKey,
-                      },
-                    ],
-                  };
-
-                  try {
-                    psbt.updateInput(i, updateData);
-                  } catch (e) {
-                    console.log(
-                      "Could not update transaction input for:",
-                      utxos.data[i].txid
-                    );
-                    throw new Error(
-                      "Could not update the input for TXID " +
-                        utxos.data[i].txid
-                    );
-                  }
                 }
               }
             });
         }
-      }
 
-      // We can now be sure that the loop has ended and that we are using inputs of the correct value
-      // Create an output for the initial amount being spent to the recipient
-      psbt.addOutput({
-        address: recipient,
-        value: AMOUNT_IN_SATOSHIS.toNumber(),
-      });
+        if (VALUE_OF_INPUTS >= AMOUNT_IN_SATOSHIS) {
+          // We can now be sure that the loop has ended and that we are using inputs of the correct value
+          // Create an output for the initial amount being spent to the recipient
+          console.log("XFE to spend:", AMOUNT_IN_SATOSHIS.toNumber())
+
+          psbt.addOutput({
+            address: recipient,
+            value: AMOUNT_IN_SATOSHIS.toNumber(),
+          });
+        }
+      }
 
       // Fetch the extended public key data from Blockbook so we can use the correct change address to send excess funds to.
       const xpubData = await axios.get(
@@ -308,23 +295,20 @@ async function CreateSignedTransaction(
         network: network,
       }).address;
 
-      // Lastly create an output taking into consideration
-      // the value of inputs, amount we want to send, and then the estimated tx fee
-      // this will be sent to our change address
-      const changeValue = VALUE_OF_INPUTS.minus(AMOUNT_IN_SATOSHIS).minus(FEE_IN_SATOSHIS);
-
-      console.log("Value of inputs:", VALUE_OF_INPUTS.toNumber());
-      console.log(
-        "Value of inputs after inital amount:",
-        VALUE_OF_INPUTS.minus(AMOUNT_IN_SATOSHIS).toNumber()
-      );
-      console.log("Amount of change after TX fee:", changeValue.toNumber());
-
       try {
+        // Lastly create an output taking into consideration
+        // the value of inputs, amount we want to send, and then the estimated tx fee
+        // this will be sent to our change address
+        const changeValue = VALUE_OF_INPUTS.minus(AMOUNT_IN_SATOSHIS).minus(
+          FEE_IN_SATOSHIS
+        );
+
         psbt.addOutput({
           address: changeAddress as string,
           value: changeValue.toNumber(),
         });
+
+        console.log("Created change output!");
       } catch (e) {
         console.log("There was an error adding the change output:", e);
         return;
