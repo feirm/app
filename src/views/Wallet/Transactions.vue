@@ -23,14 +23,14 @@
             v-if="!tx.isUnconfirmed"
             slot="start"
             size="large"
-            :color="tx.isOutgoing ? 'danger' : 'success'"
-            :icon="tx.isOutgoing ? arrowUpCircleOutline : arrowDownCircleOutline"
+            :color="!tx.isOutgoing ? 'danger' : 'success'"
+            :icon="!tx.isOutgoing ? arrowUpCircleOutline : arrowDownCircleOutline"
           ></ion-icon>
           <ion-icon v-if="tx.isUnconfirmed" slot="start" size="large" color="warning" :icon="timeOutline"></ion-icon>
           <ion-text>
             <p>{{ tx.blockTime }}</p>
             <p>
-              <b>{{ tx.isOutgoing ? '-' : '+' }}{{ tx.value }} {{ this.ticker.toUpperCase() }} </b>
+              <b>{{ !tx.isOutgoing ? '-' : '+' }}{{ tx.value }} {{ this.ticker.toUpperCase() }} </b>
             </p>
           </ion-text>
         </ion-item>
@@ -155,7 +155,7 @@ export default defineComponent({
                     newTx.value = new BigNumber(tx.vout[j].value).dividedBy(100000000).toString()
 
                     // Determine whether the transaction is incoming or outgoing based on if it matches an address we own
-                    if (tx.vout[j].addresses.includes(token.name) === false) {
+                    if (tx.vout[j].addresses[0] !== token.name) {
                       // Set correct transaction value
                       newTx.value = new BigNumber(tx.vout[j].value).dividedBy(100000000).toString()
                       break;
