@@ -140,7 +140,6 @@ export default defineComponent({
 
           // Reset cumulative fiat balance
           let fiatBal = 0;
-          this.fiatBalance = 0
 
           // Iterate over each coin
           coins.forEach(async (coin) => {
@@ -158,13 +157,11 @@ export default defineComponent({
               )
               .then((res) => {
                 // Need to make this dynamic
-                fiatBal +=
-                  res.data.feirm.usd * (coin.balance / 100000000);
+                fiatBal += res.data.feirm.usd * (coin.balance / 100000000);
+                
+                this.fiatBalance = fiatBal;
               });
           });
-
-          // Update balance
-          this.fiatBalance = fiatBal;
 
           a.dismiss();
         })
