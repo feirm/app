@@ -31,8 +31,8 @@
     </ion-item>
     <ion-item>
       <ion-note>
-        <p>
-          Spendable: {{ max }}
+        <p @click="useMaxBalance">
+          Spend maximum balance: {{ max }}
           {{ this.$props.ticker.toUpperCase() }}
         </p>
       </ion-note>
@@ -88,7 +88,7 @@ export default defineComponent({
       toAddress: "",
       amount: 0,
       fee: 0,
-      max: "",
+      max: 0,
       sendDisabled: true,
     };
   },
@@ -102,7 +102,7 @@ export default defineComponent({
       }
     },
     useMaxBalance() {
-      this.amount = this.coinObj.balance / 100000000;
+      this.amount = this.max;
     },
     async closeModal() {
       await modalController.dismiss();
@@ -253,7 +253,6 @@ export default defineComponent({
         // Find coin based on ticker and set coin data
         await FindWallet(this.$props.ticker!).then((coin) => {
           this.coinObj = coin as Coin;
-          this.max = (this.coinObj.balance / 100000000).toFixed(2);
         });
 
         // Fetch ideal transaction fee for transaction to be confirmed
@@ -264,7 +263,11 @@ export default defineComponent({
           "/api/v2/estimatefee/25"
         )
 
-        this.fee = Number(txFee.data.result);
+        const fee = new BigNumber(txFee.data.result);
+        this.fee = fee.toNumber();
+
+        const max = new BigNumber(this.coinObj.balance).dividedBy(100000000).minus(fee);
+        this.max = max.toNumber();
 
         // Dismiss
         a.dismiss()
