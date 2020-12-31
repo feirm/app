@@ -20,18 +20,10 @@
           @click="openTx(tx.txid)"
         >
           <ion-icon
-            v-if="tx.isOutgoing"
             slot="start"
             size="large"
-            color="danger"
-            :icon="arrowUpCircleOutline"
-          ></ion-icon>
-          <ion-icon
-            v-if="!tx.isOutgoing"
-            slot="start"
-            size="large"
-            color="success"
-            :icon="arrowDownCircleOutline"
+            :color="tx.isOutgoing ? 'success' : 'danger'"
+            :icon="tx.isOutgoing ? arrowDownCircleOutline : arrowUpCircleOutline"
           ></ion-icon>
           <ion-text>
             <p>{{ tx.blockTime }}</p>
@@ -151,21 +143,17 @@ export default defineComponent({
 
                   // Iterate over each output and determine whether or not a change address we own is present
                   for (let j = 0; j < tx.vout.length; j++) {
-                    // Find matching addresses and check if they are part of change we own
-                    if (
-                      tx.vout[j].addresses[0] === token.name &&
-                      token.path.includes("/0'/1/") === true
-                    ) {
-                      // Transaction must be outgoing
-                      newTx.isOutgoing = true;
+                    // Set the transaction value based on output
+                    newTx.value = new BigNumber(tx.vout[j].value).dividedBy(100000000).toString()
+
+                    // Determine whether the transaction is incoming or outgoing based on if it matches an address we own
+                    if (tx.vout[j].addresses.includes(token.name) === false) {
+                      // Set correct transaction value
+                      newTx.value = new BigNumber(tx.vout[j].value).dividedBy(100000000).toString()
+                      break;
                     }
 
-                    // TODO Find the value of the transaction for the address we don't own
-                    if (tx.vout[j].addresses[0] !== token.name) {
-                      newTx.value = new BigNumber(tx.vout[j].value)
-                        .dividedBy(100000000)
-                        .toString();
-                    }
+                    newTx.isOutgoing = true;
                   }
                 }
 
