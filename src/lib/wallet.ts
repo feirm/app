@@ -212,64 +212,60 @@ async function CreateSignedTransaction(
         VALUE_OF_INPUTS = VALUE_OF_INPUTS.plus(utxos.data[i].value);
 
         // We want to use this input if its more than the amount of what we want to send
-        if (VALUE_OF_INPUTS !== AMOUNT_IN_SATOSHIS) {
-          console.log("Value of inputs so far:", VALUE_OF_INPUTS.toNumber());
+        console.log("Value of inputs so far:", VALUE_OF_INPUTS.toNumber());
 
-          // Now we can lookup the specific UTXO transaction ID and then add it as an input
-          await axios
-            .get(
-              "https://cors-anywhere.feirm.com/" +
-                cData.data.coinInformation.blockbook +
-                "/api/v2/tx-specific/" +
-                utxos.data[i].txid
-            )
-            .then((output) => {
-              // We are only primarily interested in making use of the Vouts
-              const vouts = output.data.vout;
+        // Now we can lookup the specific UTXO transaction ID and then add it as an input
+        await axios
+          .get(
+            "https://cors-anywhere.feirm.com/" +
+              cData.data.coinInformation.blockbook +
+              "/api/v2/tx-specific/" +
+              utxos.data[i].txid
+          )
+          .then((output) => {
+            // We are only primarily interested in making use of the Vouts
+            const vouts = output.data.vout;
 
-              // Iterate over each output and make sure it belongs to us before going any further
-              for (let j = 0; j < vouts.length; j++) {
-                // Derive the address used in the output - making use of the BIP44 derivation path stored earlier.
-                const { address } = payments.p2pkh({
-                  pubkey: masterKey.derivePath(path).publicKey,
-                  network: network,
-                });
+            // Iterate over each output and make sure it belongs to us before going any further
+            for (let j = 0; j < vouts.length; j++) {
+              // Derive the address used in the output - making use of the BIP44 derivation path stored earlier.
+              const { address } = payments.p2pkh({
+                pubkey: masterKey.derivePath(path).publicKey,
+                network: network,
+              });
 
-                // Attempt to use the input in our transaction
-                if (vouts[j].scriptPubKey.addresses[0] === address) {
-                  try {
-                    psbt.addInput({
-                      hash: utxos.data[i].txid,
-                      index: vouts[j].n,
-                      nonWitnessUtxo: Buffer.from(output.data.hex, "hex"),
-                      bip32Derivation: [
-                        {
-                          masterFingerprint: masterKey.fingerprint,
-                          path: path,
-                          pubkey: masterKey.derivePath(path).publicKey,
-                        },
-                      ],
-                    });
-                  } catch (e) {
-                    console.log("There was an error using this input:", e);
-                    return;
-                  }
+              // Attempt to use the input in our transaction
+              if (vouts[j].scriptPubKey.addresses[0] === address) {
+                try {
+                  psbt.addInput({
+                    hash: utxos.data[i].txid,
+                    index: vouts[j].n,
+                    nonWitnessUtxo: Buffer.from(output.data.hex, "hex"),
+                    bip32Derivation: [
+                      {
+                        masterFingerprint: masterKey.fingerprint,
+                        path: path,
+                        pubkey: masterKey.derivePath(path).publicKey,
+                      },
+                    ],
+                  });
+                } catch (e) {
+                  console.log("There was an error using this input:", e);
+                  return;
                 }
               }
-            });
-        }
-
-        if (VALUE_OF_INPUTS >= AMOUNT_IN_SATOSHIS) {
-          // We can now be sure that the loop has ended and that we are using inputs of the correct value
-          // Create an output for the initial amount being spent to the recipient
-          console.log("XFE to spend:", AMOUNT_IN_SATOSHIS.toNumber())
-
-          psbt.addOutput({
-            address: recipient,
-            value: AMOUNT_IN_SATOSHIS.toNumber(),
+            }
           });
-        }
       }
+      
+      // We can now be sure that the loop has ended and that we are using inputs of the correct value
+      // Create an output for the initial amount being spent to the recipient
+      console.log("XFE to spend:", AMOUNT_IN_SATOSHIS.toNumber());
+
+      psbt.addOutput({
+        address: recipient,
+        value: AMOUNT_IN_SATOSHIS.toNumber(),
+      });
 
       // Fetch the extended public key data from Blockbook so we can use the correct change address to send excess funds to.
       const xpubData = await axios.get(
