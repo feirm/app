@@ -30,7 +30,7 @@
           <ion-text>
             <p>{{ tx.blockTime }}</p>
             <p>
-              <b> {{ tx.value }} {{ this.ticker.toUpperCase() }} </b>
+              <b>{{ tx.isOutgoing ? '+' : '-' }}{{ tx.value }} {{ this.ticker.toUpperCase() }} </b>
             </p>
           </ion-text>
         </ion-item>
