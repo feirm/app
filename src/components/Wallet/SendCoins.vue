@@ -89,12 +89,17 @@ export default defineComponent({
       amount: 0,
       fee: 0,
       max: "",
-      sendDisabled: false,
+      sendDisabled: true,
     };
   },
   methods: {
     async validateAddress(address: string) {
-      console.log("Address:", address);
+      // Check that something is present
+      if (address) {
+        this.sendDisabled = false;
+      } else {
+        this.sendDisabled = true;
+      }
     },
     useMaxBalance() {
       this.amount = this.coinObj.balance / 100000000;
