@@ -135,13 +135,11 @@ router.beforeEach(async (to, from, next) => {
   const loggedIn = store.getters.isUserLoggedIn;
   const authRequired = to.matched.some((route) => route.meta.requiresAuth);
 
-  // If the user isn't logged in, check for a root key and get a new session token
+  // If the user isn't logged in, but has a root key, get a new session token
   const rootKey = store.getters.getRootKey;
   const username = store.getters.getUsername;
 
-  const temp = false;
-
-  if (temp) {
+  if (!loggedIn && rootKey) {
     // Reconstruct the identity key from the root key
     const identityKeyString = rootKey + "identity";
     const identityKey = await window.crypto.subtle.digest(
@@ -153,11 +151,7 @@ router.beforeEach(async (to, from, next) => {
     const rootKeyPair = nacl.sign.keyPair.fromSeed(new Uint8Array(identityKey));
 
     const res = await tatsuyaService.getLoginToken(username);
-
-    // If the response status code is 400, then clear the state and redirect to login
-    // (Something has gone wrong server side)
     if (res.status === 400) {
-      store.dispatch("logout");
       return next("/auth/login");
     }
 
