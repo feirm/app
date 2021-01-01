@@ -3,7 +3,7 @@
     <ion-header>
       <ion-toolbar class="ion-text-center">
         <ion-buttons slot="start">
-          <ion-back-button @click="router.push({ path: '/tabs/discover' })"></ion-back-button>
+          <ion-back-button @click="router.push({ path: '/' })"></ion-back-button>
         </ion-buttons>
         <ion-title>Wallet</ion-title>
         <ion-buttons slot="end">
