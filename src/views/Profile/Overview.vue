@@ -13,6 +13,7 @@
       </ion-item-group>
     </ion-content>
     <ion-footer class="ion-no-border ion-padding ion-text-center">
+      <ion-button color="light" @click="deleteWallet" expand="block" :disabled="!walletPresent">Delete wallet</ion-button>
       <ion-button color="danger" @click="logout" expand="block">Log out</ion-button>
       <ion-note>Feirm - v{{ version }}</ion-note>
     </ion-footer>
@@ -53,6 +54,11 @@ export default defineComponent({
     IonFooter,
     IonNote
   },
+  data() {
+    return {
+      walletPresent: true
+    }
+  },
   methods: {
     async logout() {
       const alert = await alertController.create({
@@ -80,6 +86,38 @@ export default defineComponent({
 
       return alert.present();
     },
+    async deleteWallet() {
+      const alert = await alertController.create({
+        header: "Delete wallet",
+        message: "Are you sure you want to delete your wallet? If you do not have your 24-word mnemonic phrase backed up, your funds are lost forever.",
+        buttons: [
+          {
+            text: "No"
+          },
+          {
+            text: "Yes",
+            handler: async () => {
+              this.walletPresent = false;
+              this.store.commit("deleteWalletState")
+
+              const alert = await alertController.create({
+                header: "Operation successful!",
+                message: "Your wallet was removed.",
+                buttons: ["Okay"]
+              });
+
+              return alert.present();
+            }
+          }
+        ]
+      })
+
+      return alert.present();
+    }
+  },
+  ionViewWillEnter() {
+    // Check if wallet is present
+    this.walletPresent = this.store.getters.isWalletPresent;
   },
   setup() {
     const router = useRouter();
