@@ -14,8 +14,22 @@
     </ion-toolbar>
   </ion-header>
   <ion-content :fullscreen="true" class="ion-padding">
-    {{ contact.firstName }}
-    {{ contact.lastName }}
+    <ion-item @click="copyToClipboard(contact.firstName)" button="true">
+      <ion-label position="stacked">First Name</ion-label>
+      {{ contact.firstName }}
+    </ion-item>
+    <ion-item @click="copyToClipboard(contact.lastName)" button="true">
+      <ion-label position="stacked">Last Name</ion-label>
+      {{ contact.lastName }}
+    </ion-item>
+    <ion-item @click="copyToClipboard(contact.phoneNumber)" button="true">
+      <ion-label position="stacked">Phone Number</ion-label>
+      {{ contact.phoneNumber }}
+    </ion-item>
+    <ion-item @click="copyToClipboard(contact.emailAddress)" button="true">
+      <ion-label position="stacked">Email Address</ion-label>
+      {{ contact.emailAddress }}
+    </ion-item>
   </ion-content>
 </template>
 
@@ -28,8 +42,11 @@ import {
   IonButton,
   IonIcon,
   IonContent,
+  IonItem,
+  IonLabel,
   modalController,
   alertController,
+  toastController,
 } from "@ionic/vue";
 import { trashOutline, closeOutline } from "ionicons/icons";
 import { Contact } from "@/lib/contacts";
@@ -99,6 +116,27 @@ export default defineComponent({
 
       return alert.present();
     },
+    async copyToClipboard(field: any) {
+       await navigator.clipboard
+        .writeText(field)
+        .then(async () => {
+          const toast = await toastController.create({
+            message: "Copied to your clipboard! ✅",
+            duration: 2000,
+          });
+
+          toast.present();
+        })
+        .catch(async (err) => {
+          // Error alert
+          const errorAlert = await alertController.create({
+            header: "Clipboard Error!",
+            message: err,
+            buttons: ["Okay!"],
+          });
+          errorAlert.present();
+        });
+    }
   },
   components: {
     IonHeader,
@@ -107,6 +145,8 @@ export default defineComponent({
     IonButton,
     IonIcon,
     IonContent,
+    IonItem,
+    IonLabel
   },
 });
 </script>
