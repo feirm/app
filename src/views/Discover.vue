@@ -20,7 +20,7 @@
 
       <!-- Content goes in here -->
       <ion-item-group>
-        <ion-list-header>Explore the Feirm Ecosystem</ion-list-header>
+        <!-- <ion-list-header>Explore the Feirm Ecosystem</ion-list-header> -->
         <ion-item
           v-for="service in services"
           :key="service.Name"
@@ -94,7 +94,6 @@ import {
 
 import {
   logoDiscord,
-  newspaperOutline,
   gameControllerOutline,
   paperPlaneOutline,
   logoTwitter,
@@ -146,13 +145,7 @@ export default {
     }
 
     // List of all services
-    const services = [
-      {
-        Name: "News Feed",
-        Route: "",
-        Icon: newspaperOutline,
-      },
-    ] as Service[];
+    const services = [] as Service[];
 
     return {
       logoDiscord,
