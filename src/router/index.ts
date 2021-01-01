@@ -83,7 +83,7 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: "wallet/:id/:coin/transactions",
-        component: () => import("@/views/Wallet/Transactions.vue")
+        component: () => import("@/views/Wallet/Transactions.vue"),
       },
 
       // Account
@@ -112,7 +112,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/wallet/addCoin",
-    component: () => import("@/views/Wallet/AddCoin.vue")
+    component: () => import("@/views/Wallet/AddCoin.vue"),
   },
 
   // New PWA Version
@@ -150,39 +150,46 @@ router.beforeEach(async (to, from, next) => {
     // Derive the signing ed25519 keypair from identityKey
     const rootKeyPair = nacl.sign.keyPair.fromSeed(new Uint8Array(identityKey));
 
-    const res = await tatsuyaService.getLoginToken(username);
-    if (res.status === 400) {
-      return next("/auth/login");
-    }
+    await tatsuyaService
+      .getLoginToken(username)
+      .then(async (res) => {
+        // Create signature
+        const signature = nacl.sign.detached(
+          new TextEncoder().encode(res.data.nonce),
+          rootKeyPair.secretKey
+        );
 
-    // Create signature
-    const signature = nacl.sign.detached(
-      new TextEncoder().encode(res.data.nonce),
-      rootKeyPair.secretKey
-    );
+        // Construct the login/new session payload
+        const payload = {
+          id: res.data.id,
+          username: username,
+          signature: bufferToHex(signature),
+        };
 
-    // Construct the login/new session payload
-    const payload = {
-      id: res.data.id,
-      username: username,
-      signature: bufferToHex(signature),
-    };
+        // Submit the signed payload and expect to receive a new session token
+        await tatsuyaService.loginAccount(payload).then((res) => {
+          // Construct the session object
+          const session = {
+            rootKey: rootKey,
+            sessionToken: res.data.sessionToken,
+            username: res.data.username,
+          };
 
-    const response = await tatsuyaService.loginAccount(payload);
+          // Save the session token
+          store.dispatch("login", session);
 
-    // Construct the session object
-    const session = {
-      rootKey: rootKey,
-      sessionToken: response.data.sessionToken,
-      username: response.data.username,
-    };
-
-    store.dispatch("login", session);
-
-    // Continue if authed
-    if (store.getters.isUserLoggedIn) {
-      next();
-    }
+          // Check to see if authed, and if so, continue
+          if (store.getters.isUserLoggedIn) {
+            next();
+          }
+        });
+      })
+      .catch((e) => {
+        if (e.status === 400) {
+          // User might not exist (maybe database reset), so return them to login page
+          return next("/");
+        }
+      });
   }
 
   if (authRequired && !loggedIn) {
