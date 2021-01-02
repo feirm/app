@@ -7,14 +7,24 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding ion-text-center">
       <ion-item v-for="contact in store.getters.getAllContacts" :key="contact.id" :button="true" @click="viewContacts(contact.id)">
-        {{ contact.firstName}} {{ contact.lastName }}
+        {{ contact.firstName }} {{ contact.lastName }}
       </ion-item>
+
+      <ion-grid v-if="store.getters.getAllContacts.length === 0">
+        <ion-row>
+          <ion-col>
+            <ion-icon :icon="sadOutline" size="large"></ion-icon>
+            <p>
+              Oh no, it appears you don't have any contacts! Tap the add button
+              at the bottom right to create one!
+            </p>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
 
       <!-- Floating button -->
       <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-        <ion-fab-button
-          @click="newContactModal"
-        >
+        <ion-fab-button @click="newContactModal">
           <ion-icon :icon="addOutline"></ion-icon>
         </ion-fab-button>
       </ion-fab>
@@ -34,13 +44,16 @@ import {
   IonFabButton,
   IonIcon,
   IonItem,
+  IonGrid,
+  IonRow,
+  IonCol,
   modalController,
-  alertController
+  alertController,
 } from "@ionic/vue";
-import { addOutline } from "ionicons/icons";
+import { addOutline, sadOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import tatsuyaService from "@/apiService/tatsuyaService";
-import { DecryptContacts, Contact, EncryptedContact } from "@/lib/contacts";
+import { DecryptContacts, EncryptedContact } from "@/lib/contacts";
 
 // Components
 import NewContact from "@/components/Contacts/NewContact.vue";
@@ -60,30 +73,30 @@ export default defineComponent({
     IonFabButton,
     IonIcon,
     IonItem,
-  },
-  data() {
-    return {
-      contacts: [] as Contact[]
-    }
+    IonGrid,
+    IonRow,
+    IonCol,
   },
   async ionViewWillEnter() {
     try {
-      await tatsuyaService.fetchContacts().then(async(res) => {
+      await tatsuyaService.fetchContacts().then(async (res) => {
         // Set the encrypted contacts array
         const contacts = res.data as EncryptedContact[];
 
         // Attempt to decrypt contacts array
-        await DecryptContacts(contacts).then(decryptedContacts => {
-          this.store.commit("setContacts", decryptedContacts)
-        }).catch(e => {
-          console.log(e);
-        })
-      })
-    } catch(e) {
+        await DecryptContacts(contacts)
+          .then((decryptedContacts) => {
+            this.store.commit("setContacts", decryptedContacts);
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+      });
+    } catch (e) {
       const error = await alertController.create({
         header: "Error fetching contacts!",
         message: e,
-        buttons: ["Close"]
+        buttons: ["Close"],
       });
 
       return error.present();
@@ -92,7 +105,7 @@ export default defineComponent({
   methods: {
     async newContactModal() {
       const modal = await modalController.create({
-        component: NewContact
+        component: NewContact,
       });
 
       return modal.present();
@@ -101,12 +114,12 @@ export default defineComponent({
       const modal = await modalController.create({
         component: ViewContact,
         componentProps: {
-          id: contactId
-        }
-      })
+          id: contactId,
+        },
+      });
 
       return modal.present();
-    }
+    },
   },
   setup() {
     // Get router instance
@@ -118,7 +131,22 @@ export default defineComponent({
       router,
       store,
       addOutline,
+      sadOutline,
     };
   },
 });
 </script>
+
+<style scoped>
+/* Vertically centered */
+ion-grid {
+  height: 100%;
+}
+
+ion-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+</style>
