@@ -30,7 +30,9 @@
       </ion-grid>
     </ion-content>
     <ion-footer class="ion-no-border ion-padding ion-text-center">
-      <ion-button expand="block" color="dark" @click="register">Create an Account</ion-button>
+      <ion-button expand="block" color="dark" @click="register"
+        >Create an Account</ion-button
+      >
     </ion-footer>
   </ion-page>
 </template>
@@ -51,10 +53,16 @@ import {
   IonCol,
   IonRow,
   IonGrid,
-  IonFooter
+  IonFooter,
+  modalController,
+  loadingController,
+  alertController,
 } from "@ionic/vue";
-import router from "@/router";
 import { useStore } from "vuex";
+
+import PIN from "@/components/Auth/PIN.vue";
+import { loginAccount } from "@/lib/account";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "Login",
@@ -72,7 +80,7 @@ export default defineComponent({
     IonCol,
     IonRow,
     IonGrid,
-    IonFooter
+    IonFooter,
   },
   data() {
     return {
@@ -82,7 +90,7 @@ export default defineComponent({
     };
   },
   methods: {
-    login() {
+    async login() {
       if (this.username.length < 3) {
         return;
       }
@@ -94,19 +102,74 @@ export default defineComponent({
       this.store.commit("loginUsername", this.username);
       this.store.commit("loginPassword", this.password);
 
-      router.push({ path: "/auth/login/pin" });
+      // Open the PIN entry component to fetch the user PIN
+      const pinEntry = await modalController.create({
+        component: PIN,
+        componentProps: {
+          header: "Enter your PIN",
+          description: "Enter the six-digit PIN for your Feirm account.",
+        },
+      });
+
+      pinEntry.present();
+
+      // Wait for a response to get our PIN
+      const pinResponse = await pinEntry.onDidDismiss();
+      const pin = pinResponse.data;
+
+      // If the response is less than 6 characters, assume its empty, or they wanted to cancel, so go no further
+      if (pin.length < 6) {
+        return;
+      }
+
+      // Store the PIN in Vuex along with our other login details
+      this.store.commit("loginPin", pin);
+
+      // Attempt to sign in
+      await loadingController
+        .create({
+          message: "Signing in...",
+        })
+        .then(async (a) => {
+          a.present().then(async () => {
+            await loginAccount(
+              this.store.getters.getLoginState.username,
+              this.store.getters.getLoginState.password,
+              this.store.getters.getLoginState.pin
+            )
+              .then(() => {
+                // Dimiss the loading controller
+                a.dismiss();
+              })
+              .catch(async (err) => {
+                // Dismiss loading controller
+                a.dismiss();
+
+                // Return an error
+                const alert = await alertController.create({
+                  header: "Sign in error!",
+                  message: err.response.data.error,
+                  buttons: ["Okay"],
+                });
+
+                return alert.present();
+              });
+          });
+        });
     },
     register() {
-      router.push({ path: "/auth/register" });
+      this.router.push({ path: "/auth/register" });
     },
   },
   setup() {
     const store = useStore();
+    const router = useRouter();
 
     return {
-      store
-    }
-  }
+      store,
+      router
+    };
+  },
 });
 </script>
 

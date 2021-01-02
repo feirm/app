@@ -70,11 +70,17 @@ import {
   IonText,
   IonFooter,
   alertController,
+  modalController,
+  loadingController,
 } from "@ionic/vue";
 import { keyOutline, informationCircleOutline } from "ionicons/icons";
 import zxcvbn from "zxcvbn";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+
+import PIN from "@/components/Auth/PIN.vue";
+import tatsuyaService from "@/apiService/tatsuyaService";
+import { generateAccount } from "@/lib/account";
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -126,9 +132,107 @@ export default defineComponent({
       // If the password has a high score, save the password in our state and move on
       if (score > 2) {
         this.store.commit("registerPassword", this.password);
-        this.router.push({ path: "/auth/register/pin" });
 
-        return;
+        // Modal to show first PIN entry screen
+        const firstPin = await modalController.create({
+          component: PIN,
+          componentProps: {
+            header: "Create a PIN",
+            description: "Enter a six-digit PIN to secure your Feirm account.",
+          },
+        });
+
+        firstPin.present();
+
+        // Wait for a response to get our first PIN
+        const firstPinResponse = await firstPin.onDidDismiss();
+        const pin = firstPinResponse.data;
+
+        // If the response is less than 6 characters, assume its empty, or they wanted to cancel, so go no further
+        if (pin.length < 6) {
+          return;
+        }
+
+        // Modal to show confirmation PIN entry screen
+        const secondPin = await modalController.create({
+          component: PIN,
+          componentProps: {
+            header: "Confirm your PIN",
+            description: "Please re-enter your PIN from the previous screen.",
+          },
+        });
+
+        secondPin.present();
+
+        // Wait for a respond to get the second PIN
+        const secondPinResponse = await secondPin.onDidDismiss();
+        const confirmPin = secondPinResponse.data;
+
+        // Compare the PINs and check if they match
+        if (pin !== confirmPin) {
+          const errorAlert = await alertController.create({
+            header: "PIN Error!",
+            message: "The PINs you provided do not match, please try again!",
+            buttons: ["Close"],
+          });
+
+          return errorAlert.present();
+        }
+
+        // Assume the PINs match, so then update the PIN state
+        this.store.commit("registerPin", pin);
+
+        // Submit the account object from our state
+        // Begin the submitting process and show a loading popup
+        await loadingController
+          .create({
+            message: "Creating account...",
+          })
+          .then((a) => {
+            a.present().then(async () => {
+              const signUpInfo = this.store.getters.getRegistration;
+
+              const account = await generateAccount(
+                signUpInfo.username,
+                signUpInfo.password,
+                signUpInfo.pin
+              );
+
+              await tatsuyaService
+                .registerAccount(account)
+                .then((res) => {
+                  // Account data
+                  const username = res.data.username;
+                  const sessionToken = res.data.sessionToken;
+                  const rootKey = this.store.getters.getRootKey;
+
+                  // Save authentication tokens
+                  this.store.dispatch("login", {
+                    username,
+                    sessionToken,
+                    rootKey,
+                  });
+
+                  // Dismiss the loading controller
+                  a.dismiss();
+
+                  // Push to Discover page
+                  this.router.push({ path: "/" });
+                })
+                // Stop the loading popup and show an alert
+                .catch(async (err) => {
+                  a.dismiss();
+
+                  // Error alert
+                  const errorAlert = await alertController.create({
+                    header: "Registration Error",
+                    message: err.response.data.error,
+                    buttons: ["Okay!"],
+                  });
+                  errorAlert.present();
+                });
+            });
+          });
       } else {
         const alert = await alertController.create({
           header: "Password Strength Error",
