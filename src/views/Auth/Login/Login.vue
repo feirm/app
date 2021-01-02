@@ -29,9 +29,9 @@
         </ion-row>
       </ion-grid>
     </ion-content>
-    <ion-button expand="full" color="dark" @click="register"
-      >Need an account?</ion-button
-    >
+    <ion-footer class="ion-no-border ion-padding ion-text-center">
+      <ion-button expand="block" color="dark" @click="register">Create an Account</ion-button>
+    </ion-footer>
   </ion-page>
 </template>
 
@@ -51,6 +51,7 @@ import {
   IonCol,
   IonRow,
   IonGrid,
+  IonFooter
 } from "@ionic/vue";
 import router from "@/router";
 import { useStore } from "vuex";
@@ -71,6 +72,7 @@ export default defineComponent({
     IonCol,
     IonRow,
     IonGrid,
+    IonFooter
   },
   data() {
     return {
