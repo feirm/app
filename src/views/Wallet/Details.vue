@@ -55,7 +55,7 @@
             <ion-icon
               color="primary"
               slot="icon-only"
-              :icon="swapHorizontalOutline"
+              :icon="settingsOutline"
             ></ion-icon>
           </ion-button>
         </ion-col>
@@ -88,7 +88,7 @@ import {
   arrowDownOutline,
   receiptOutline,
   trashOutline,
-  swapHorizontalOutline,
+  settingsOutline,
 } from "ionicons/icons";
 import { useStore } from "vuex";
 import { Coin, FindWallet, Wallet } from "@/lib/wallet";
@@ -221,7 +221,7 @@ export default defineComponent({
       arrowDownOutline,
       receiptOutline,
       trashOutline,
-      swapHorizontalOutline,
+      settingsOutline,
     };
   },
 });
