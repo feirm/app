@@ -16,6 +16,14 @@
             </ion-card-content>
           </ion-card>
         </ion-col>
+        <ion-col>
+          <ion-card>
+            <ion-card-content>
+              <h2>${{ xfePrice }}</h2>
+              <p>XFE</p>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
       </ion-row>
 
       <!-- Content goes in here -->
@@ -100,6 +108,7 @@ import {
 } from "ionicons/icons";
 import tatsuyaService from '@/apiService/tatsuyaService';
 import { onMounted, ref } from 'vue';
+import axios from "axios";
 
 export default {
   name: "Discover",
@@ -130,10 +139,15 @@ export default {
     }
 
     const users = ref(0);
+    const xfePrice = ref(0)
 
     onMounted(async() => {
       await tatsuyaService.userCount().then(res => {
         users.value = parseFloat(res.data);
+      })
+
+      await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=feirm&vs_currencies=usd').then(res => {
+        xfePrice.value = res.data.feirm.usd.toFixed(3)
       })
     })
 
@@ -154,7 +168,8 @@ export default {
       logoTwitter,
       notAvailableAlert,
       services,
-      users
+      users,
+      xfePrice
     };
   },
 };
