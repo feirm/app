@@ -111,6 +111,19 @@ export default defineComponent({
   methods: {
     async next() {
       // Validate the passwords before moving on
+      
+      // Check that a password is actually present
+      if (this.password.length === 0) {
+        const alert = await alertController.create({
+          header: "Password Error",
+          message:
+            "The password field cannot be empty. Please try again!",
+          buttons: ["Okay!"],
+        });
+
+        return alert.present();
+      }
+
       // Verify if the passwords match
       if (this.password !== this.confirmPassword) {
         const alert = await alertController.create({
