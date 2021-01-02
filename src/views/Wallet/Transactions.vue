@@ -12,7 +12,8 @@
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding" :fullscreen="true">
-      <ion-item-group>
+      <p v-if="txs.length === 0" class="ion-text-center">It appears you do not have any transaction history for {{ this.coin.name }}.</p>
+      <ion-item-group v-else>
         <ion-item
           v-for="tx in txs"
           v-bind:key="tx.txid"
@@ -111,6 +112,12 @@ export default defineComponent({
                   this.coin.extendedPublicKey +
                   "?details=txs&tokens=used"
               );
+
+              // Don't go any further if no transactions are present
+              if (txHistory.data.txs === 0) {
+                a.dismiss()
+                return;
+              }
 
               // Representation of a TX
               interface Transaction {
