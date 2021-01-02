@@ -88,6 +88,7 @@ export default defineComponent({
       toAddress: "",
       amount: 0,
       fee: 0,
+      feeString: "",
       max: 0,
       sendDisabled: true,
     };
@@ -117,9 +118,9 @@ export default defineComponent({
         <br />
         Amount: <b>${this.amount} ${this.$props.ticker?.toUpperCase()}</b>
         <br />
-        TX Fee: <b>${this.fee} ${this.$props.ticker?.toUpperCase()}</b>
+        TX Fee: <b>${this.feeString} ${this.$props.ticker?.toUpperCase()}</b>
         <br />
-        Total: <b>${new BigNumber(this.amount).plus(this.fee).toNumber()} ${this.$props.ticker?.toUpperCase()}</b>`,
+        Total: <b>${new BigNumber(this.amount).plus(this.feeString).toNumber()} ${this.$props.ticker?.toUpperCase()}</b>`,
         buttons: [
           {
             text: "Cancel",
@@ -263,11 +264,19 @@ export default defineComponent({
           "/api/v2/estimatefee/25"
         )
 
-        const fee = new BigNumber(txFee.data.result);
+        // Convert the TX fee into satoshi values
+        const fee = new BigNumber(txFee.data.result).multipliedBy(100000000);
         this.fee = fee.toNumber();
 
-        const max = new BigNumber(this.coinObj.balance).dividedBy(100000000).minus(fee);
-        this.max = max.toNumber();
+        this.feeString = fee.dividedBy(100000000).toString();
+
+        // Work out the maximum the user can send taking into consideration the TX fee.
+        const max = new BigNumber(this.coinObj.balance).minus(fee).dividedBy(100000000);
+        if (max < new BigNumber(0)) {
+          this.max = 0;
+        } else {
+          this.max = max.toNumber();
+        }
 
         // Dismiss
         a.dismiss()
