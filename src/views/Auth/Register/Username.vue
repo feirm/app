@@ -18,6 +18,7 @@
                 This is how other Feirm users can find you and send you
                 payments.
               </p>
+              <p>You should know that usernames cannot be changed, so pick wisely! 🧙‍♂️</p>
             </ion-text>
             <ion-item>
               <ion-label position="floating">Username</ion-label>
@@ -32,13 +33,9 @@
         </ion-row>
       </ion-grid>
     </ion-content>
-    <ion-button
-      expand="full"
-      color="primary"
-      @click="next"
-      :disabled="buttonDisabled"
-      >Next</ion-button
-    >
+    <ion-footer class="ion-no-border ion-padding ion-text-center">
+      <ion-button expand="block" color="primary" @click="next" :disabled="buttonDisabled">Next</ion-button>
+    </ion-footer>
   </ion-page>
 </template>
 
@@ -60,6 +57,7 @@ import {
   IonRow,
   IonCol,
   IonText,
+  IonFooter
 } from "@ionic/vue";
 import { personCircleOutline } from "ionicons/icons";
 import router from "@/router";
@@ -84,6 +82,7 @@ export default defineComponent({
     IonRow,
     IonCol,
     IonText,
+    IonFooter
   },
   data() {
     return {

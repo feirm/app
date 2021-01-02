@@ -24,40 +24,29 @@
               <h1>Create a password</h1>
               <p>
                 It is important to secure your Feirm account with a strong
-                password, as this is used to encrypt your account data. We are
-                unable to reset it if you forget your password.
+                password, as this is used to encrypt your account data (your
+                Feirm identity).
+              </p>
+              <p>
+                Be sure to keep your password safe as it cannot be reset or
+                recovered by us! 🔒
               </p>
             </ion-text>
-            <form @submit.prevent>
-              <ion-item>
-                <ion-label position="floating">Password</ion-label>
-                <ion-input
-                  type="password"
-                  debounce="250"
-                  v-model="password"
-                  v-on:ionChange="validatePassword($event.target.value)"
-                ></ion-input>
-              </ion-item>
-              <ion-item>
-                <ion-label position="floating">Confirm Password</ion-label>
-                <ion-input
-                  type="password"
-                  v-model="confirmPassword"
-                ></ion-input>
-              </ion-item>
-            </form>
-            <p>{{ passwordMessage }}</p>
+            <ion-item>
+              <ion-label position="floating">Password</ion-label>
+              <ion-input type="password" v-model="password"></ion-input>
+            </ion-item>
+            <ion-item>
+              <ion-label position="floating">Confirm Password</ion-label>
+              <ion-input type="password" v-model="confirmPassword"></ion-input>
+            </ion-item>
           </ion-col>
         </ion-row>
       </ion-grid>
     </ion-content>
-    <ion-button
-      expand="full"
-      color="primary"
-      @click="next"
-      :disabled="buttonDisabled"
-      >Next</ion-button
-    >
+    <ion-footer class="ion-no-border ion-padding ion-text-center">
+      <ion-button expand="block" color="primary" @click="next">Next</ion-button>
+    </ion-footer>
   </ion-page>
 </template>
 
@@ -79,6 +68,7 @@ import {
   IonRow,
   IonCol,
   IonText,
+  IonFooter,
   alertController,
 } from "@ionic/vue";
 import { keyOutline, informationCircleOutline } from "ionicons/icons";
@@ -104,20 +94,19 @@ export default defineComponent({
     IonRow,
     IonCol,
     IonText,
+    IonFooter,
   },
   data() {
     return {
       password: "",
       confirmPassword: "",
-      passwordMessage: "",
-      buttonDisabled: true,
     };
   },
   methods: {
     async next() {
-      this.store.commit("registerPassword", this.password);
-
-      if (this.password != this.confirmPassword) {
+      // Validate the passwords before moving on
+      // Verify if the passwords match
+      if (this.password !== this.confirmPassword) {
         const alert = await alertController.create({
           header: "Password Error",
           message:
@@ -128,43 +117,26 @@ export default defineComponent({
         return alert.present();
       }
 
-      this.router.push({ path: "/auth/register/pin" })
-    },
-    async validatePassword(password: string) {
-      if (password.length > 1) {
-        const score = zxcvbn(password).score;
+      // Generate a zxcvbn score for the password
+      const score = zxcvbn(this.password).score;
 
-        // Set password
-        this.password = password;
+      // Set the password strength message based on our score
+      const passwordMessage = this.passwordStrengthMessages[score];
 
-        // Re-enable the button once the password score is > 3
-        switch (score) {
-          case 0:
-            this.passwordMessage = this.passwordStrengthMessages.veryWeak;
-            this.buttonDisabled = true;
-            break;
-          case 1:
-            this.passwordMessage = this.passwordStrengthMessages.weak;
-            this.buttonDisabled = true;
-            break;
-          case 2:
-            this.passwordMessage = this.passwordStrengthMessages.medium;
-            this.buttonDisabled = true;
-            break;
-          case 3:
-            this.passwordMessage = this.passwordStrengthMessages.strong;
-            this.buttonDisabled = false;
-            break;
-          case 4:
-            this.passwordMessage = this.passwordStrengthMessages.veryStrong;
-            this.buttonDisabled = false;
-            break;
-          default:
-            break;
-        }
+      // If the password has a high score, save the password in our state and move on
+      if (score > 2) {
+        this.store.commit("registerPassword", this.password);
+        this.router.push({ path: "/auth/register/pin" });
+
+        return;
       } else {
-        // Reset the password message
-        this.passwordMessage = "";
+        const alert = await alertController.create({
+          header: "Password Strength Error",
+          message: passwordMessage,
+          buttons: ["Okay!"],
+        });
+
+        return alert.present();
       }
     },
     async presentAlert() {
@@ -181,13 +153,13 @@ export default defineComponent({
     const store = useStore();
     const router = useRouter();
 
-    const passwordStrengthMessages = {
-      veryWeak: "Very weak password! 😩",
-      weak: "Weak password! 🙁",
-      medium: "Medium password! 😐",
-      strong: "Strong password! 🙂",
-      veryStrong: "Very strong password! 😁",
-    };
+    const passwordStrengthMessages = [
+      "Very weak password! 😩",
+      "Weak password! 🙁",
+      "Medium password! 😐",
+      "Strong password! 🙂",
+      "Very strong password! 😁",
+    ];
 
     return {
       store,
