@@ -21,13 +21,6 @@ const routes: Array<RouteRecordRaw> = [
     },
   },
   {
-    path: "/auth/login/pin",
-    component: () => import("@/views/Auth/Login/PIN.vue"),
-    meta: {
-      requiresAuth: false,
-    },
-  },
-  {
     path: "/auth/register",
     component: () => import("@/views/Auth/Register/Username.vue"),
     meta: {
