@@ -18,7 +18,7 @@ You can go ahead and clone this repository, and then execute the commands below 
 $ git clone https://github.com/feirm/app.git
 $ cd app/
 $ yarn install
-$ yarn serve
+$ yarn serve --mode [dev/production]
 ```
 
 ### Development Modes
