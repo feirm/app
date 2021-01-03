@@ -181,6 +181,7 @@ export default defineComponent({
                       let errorMessage = "" as any;
                       errorMessage = e;
 
+                      /*
                       if (e.response.data.length) {
                         switch (e.response.data.error) {
                           // TX Fee is not high enough
@@ -199,6 +200,7 @@ export default defineComponent({
                             break;
                         }
                       }
+                      */
 
                       // Show error alert
                       const alert = await alertController.create({
