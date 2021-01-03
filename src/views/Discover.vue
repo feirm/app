@@ -98,6 +98,7 @@ import {
   IonCard,
   IonCardContent,
   alertController,
+  modalController,
 } from "@ionic/vue";
 
 import {
@@ -106,9 +107,12 @@ import {
   paperPlaneOutline,
   logoTwitter,
 } from "ionicons/icons";
-import tatsuyaService from '@/apiService/tatsuyaService';
-import { onMounted, ref } from 'vue';
+import tatsuyaService from "@/apiService/tatsuyaService";
+import { onMounted, ref } from "vue";
 import axios from "axios";
+import { useStore } from "vuex";
+import { decryptWallet } from "@/lib/encryptWallet";
+import PIN from "@/components/Auth/PIN.vue";
 
 export default {
   name: "Discover",
@@ -138,18 +142,64 @@ export default {
       return alert.present();
     }
 
+    const store = useStore();
+
     const users = ref(0);
-    const xfePrice = ref(0)
+    const xfePrice = ref(0);
 
-    onMounted(async() => {
-      await tatsuyaService.userCount().then(res => {
+    onMounted(async () => {
+      // If the wallet isn't decrypted or not encrypted, but user is logged in
+      const wallet = store.getters.getWallet;
+      const walletHaveEncryption = store.getters.isWalletEncrypted;
+      const walletDecrypted = store.getters.isWalletDecrypted;
+
+      // Check for mnemonic
+      if (wallet.mnemonic && walletHaveEncryption) {
+        if (!walletDecrypted) {
+          // Prompt user for PIN entry by creating a popup
+          const pinEntry = await modalController.create({
+            component: PIN,
+            componentProps: {
+              header: "Unlock your Wallet",
+              description:
+                "Please enter your six-digit PIN to unlock your wallet.",
+            },
+          });
+
+          pinEntry.present();
+
+          // Fetch the entered PIN
+          const pinResponse = await pinEntry.onDidDismiss();
+          const pin = pinResponse.data;
+
+          // Attempt to decrypt the wallet
+          try {
+            decryptWallet(pin);
+          } catch (e) {
+            const errorAlert = await alertController.create({
+              header: "Unable to decrypt wallet!",
+              message: e,
+              buttons: ["Close"],
+            });
+
+            return errorAlert.present();
+          }
+        }
+      }
+
+      // Fetch platform statistics
+      await tatsuyaService.userCount().then((res) => {
         users.value = parseFloat(res.data);
-      })
+      });
 
-      await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=feirm&vs_currencies=usd').then(res => {
-        xfePrice.value = res.data.feirm.usd.toFixed(3)
-      })
-    })
+      await axios
+        .get(
+          "https://api.coingecko.com/api/v3/simple/price?ids=feirm&vs_currencies=usd"
+        )
+        .then((res) => {
+          xfePrice.value = res.data.feirm.usd.toFixed(3);
+        });
+    });
 
     // Services interface
     interface Service {
@@ -169,7 +219,8 @@ export default {
       notAvailableAlert,
       services,
       users,
-      xfePrice
+      xfePrice,
+      store,
     };
   },
 };

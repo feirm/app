@@ -118,9 +118,6 @@ router.beforeEach(async (to, from, next) => {
   const loggedIn = store.getters.isUserLoggedIn;
   const authRequired = to.matched.some((route) => route.meta.requiresAuth);
 
-  // Wallet encryption
-  const walletDecrypted = store.getters.isWalletDecrypted;
-
   // If the user isn't logged in, but has a root key, get a new session token
   const rootKey = store.getters.getRootKey;
   const username = store.getters.getUsername;
@@ -176,43 +173,6 @@ router.beforeEach(async (to, from, next) => {
           return next("/");
         }
       });
-  }
-
-  // If the wallet isn't decrypted or not encrypted, but user is logged in
-  const wallet = store.getters.getWallet;
-  const walletHaveEncryption = store.getters.isWalletEncrypted
-
-  // Check for mnemonic
-  if (wallet.mnemonic && walletHaveEncryption) {
-    if (!walletDecrypted && loggedIn) {
-      // Prompt user for PIN entry by creating a popup
-      const pinEntry = await modalController.create({
-        component: PIN,
-        componentProps: {
-          header: "Unlock your Wallet",
-          description: "Please enter your six-digit PIN to unlock your wallet."
-        }
-      })
-
-      pinEntry.present()
-
-      // Fetch the entered PIN
-      const pinResponse = await pinEntry.onDidDismiss();
-      const pin = pinResponse.data;
-
-      // Attempt to decrypt the wallet
-      try {
-        decryptWallet(pin);
-      } catch (e) {
-        const errorAlert = await alertController.create({
-          header: "Unable to decrypt wallet!",
-          message: e,
-          buttons: ["Close"]
-        })
-
-        return errorAlert.present();
-      }
-    }
   }
 
   if (authRequired && !loggedIn) {
