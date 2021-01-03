@@ -64,12 +64,12 @@ async function decryptWallet(pin: string) {
               "Unable to decrypt wallet! Please make sure your PIN is correct!"
             );
           }
-
-          // Update state
-          store.commit("setWalletUnlockedState", wallet);
         }
       }
     }
+
+    // Update state
+    store.commit("setWalletUnlockedState", wallet);
   }
 }
 

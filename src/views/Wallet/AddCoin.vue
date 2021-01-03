@@ -25,7 +25,7 @@
           v-for="coin in coins"
           v-bind:key="coin.name"
           button="true"
-          @click="createCoinWallet(store.getters.getWallet.mnemonic, coin.name, coin.ticker)"
+          @click="createCoinWallet(store.getters.getWalletMnemonic, coin.name, coin.ticker)"
         >
           <ion-avatar slot="start">
             <img :src="coin.icon" />
@@ -130,6 +130,7 @@ export default defineComponent({
       return alert.present();
     },
     async createCoinWallet(mnemonic: string, coin: string, ticker: string) {
+      console.log("mnemonic:", mnemonic)
       // Create a confirmation alert asking the user if they want to add a new coin
       const confirmAlert = await alertController.create({
         header: "Add new coin?",
