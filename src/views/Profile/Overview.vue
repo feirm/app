@@ -36,7 +36,7 @@
       <br />
 
       <ion-list lines="none">
-        <ion-item button="true" @click="encryptWallet" :disabled="!walletPresent">
+        <ion-item button="true" @click="encryptWalletPopup" :disabled="!walletPresent">
           <ion-icon slot="start" color="primary" :icon="lockClosedOutline"></ion-icon>
           <ion-label>Encrypt Wallet</ion-label>
         </ion-item>
@@ -89,6 +89,8 @@ import {
   IonList,
   IonIcon,
   alertController,
+  modalController,
+  loadingController,
 } from "@ionic/vue";
 import {
   personOutline,
@@ -101,6 +103,8 @@ import {
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { version } from "../../../package.json";
+import PIN from "@/components/Auth/PIN.vue";
+import { encryptWallet } from "@/lib/encryptWallet";
 
 export default defineComponent({
   components: {
@@ -123,6 +127,80 @@ export default defineComponent({
     };
   },
   methods: {
+    async encryptWalletPopup() {
+      // Show the PIN modal popup
+      // Fetch a PIN first the first time
+      const firstPin = await modalController.create({
+        component: PIN,
+        componentProps: {
+          header: "Create a Wallet encryption PIN",
+          description: "This six-digit PIN is used to encrypt your entire wallet."
+        }
+      })
+
+      firstPin.present();
+
+      // Extract the first PIN
+      const pin = (await firstPin.onDidDismiss()).data;
+
+      // If the response is less than 6 characters, assume its empty, or they wanted to cancel, so go no further
+      if (pin.length < 6) {
+        return;
+      }
+
+      // Fetch the PIN again so we can confirm they match
+      const secondPin = await modalController.create({
+        component: PIN,
+        componentProps: {
+          header: "Confirm your Wallet encryption PIN",
+          description: "Please re-enter your six-digit Wallet encryption PIN."
+        }
+      })
+
+      secondPin.present();
+
+      // Extract the second (confirmation) PIN
+      const confirmPin = (await secondPin.onDidDismiss()).data;
+
+      // If the response is less than 6 characters, assume its empty, or they wanted to cancel, so go no further
+      if (confirmPin.length < 6) {
+        return;
+      }
+
+      // Compare the PINs against each other to make sure they match
+      if (pin !== confirmPin) {
+        const errorAlert = await alertController.create({
+          header: "Encryption PIN Error!",
+          message: "The Encryption PINs you provided do not match, please try again!",
+          buttons: ["Close"],
+          });
+          
+        errorAlert.present();
+
+        // Go through the process again...
+        this.encryptWalletPopup();
+      }
+
+      // Attempt to encrypt the wallet
+      await loadingController.create({
+        message: "Encrypting wallet..."
+      }).then(a => {
+        a.present().then(async() => {
+          await encryptWallet(pin)
+
+          // Dismiss the loading controller
+          a.dismiss();
+        })
+        .catch(e => {
+          // Dismiss the loading controller
+          a.dismiss()
+
+          // Log error
+          console.log(e);
+        })
+      })
+
+    },
     async logout() {
       const alert = await alertController.create({
         header: "Are you sure?",
