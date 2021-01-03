@@ -84,9 +84,7 @@ async function encryptWallet(pin: string) {
     const aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
 
     // Encrypt the wallet mnemonic
-    const mnemonicCipherText = aesCbc.encrypt(
-      utils.utf8.toBytes(wallet.mnemonic)
-    );
+    const mnemonicCipherText = aesCbc.encrypt(padding.pkcs7.pad(utils.utf8.toBytes(wallet.mnemonic)));
     wallet.mnemonic = bufferToHex(mnemonicCipherText);
 
     // Iterate over each of the coins and encrypt their root keys and extended private keys
@@ -97,9 +95,7 @@ async function encryptWallet(pin: string) {
         const rootKeyCiphertext = aesCbc.encrypt(padding.pkcs7.pad(utils.utf8.toBytes(coin.rootKey)));
         coin.rootKey = bufferToHex(rootKeyCiphertext);
 
-        const extendedPrivateKeyCiphertext = aesCbc.encrypt(
-          padding.pkcs7.pad(utils.utf8.toBytes(coin.extendedPrivateKey))
-        );
+        const extendedPrivateKeyCiphertext = aesCbc.encrypt(padding.pkcs7.pad(utils.utf8.toBytes(coin.extendedPrivateKey)));
         coin.extendedPrivateKey = bufferToHex(extendedPrivateKeyCiphertext);
 
         // Set coin state to encrypted
