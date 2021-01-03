@@ -46,7 +46,13 @@ export const wallet = {
 
         return true;
       },
-      isWalletEncrypted: state => state.wallet.encryption.isEncrypted,
+      isWalletEncrypted: state => {
+        if (state.wallet.encryption) {
+          return state.wallet.encryption.isEncrypted;
+        } else {
+          return false;
+        }
+      },
       isWalletDecrypted: state => state.isDecrypted
   }
 };
