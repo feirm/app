@@ -2,7 +2,8 @@ import { Wallet } from '@/lib/wallet';
 
 export const wallet = {
   state: {
-    wallet: {} as Wallet
+    wallet: {} as Wallet,
+    isDecrypted: false
   },
   mutations: {
     setWalletMnemonic(state, mnemonic) {
@@ -10,6 +11,10 @@ export const wallet = {
     },
     setWalletState(state, wallet) {
       localStorage.setItem("wallet", JSON.stringify(wallet));
+      state.wallet = wallet;
+    },
+    setWalletUnlockedState(state, wallet) {
+      state.isDecrypted = true;
       state.wallet = wallet;
     },
     deleteWalletState(state) {
@@ -40,6 +45,8 @@ export const wallet = {
         }
 
         return true;
-      }
+      },
+      isWalletEncrypted: state => state.wallet.encryption.isEncrypted,
+      isWalletDecrypted: state => state.isDecrypted
   }
 };

@@ -36,7 +36,7 @@
       <br />
 
       <ion-list lines="none">
-        <ion-item button="true" @click="encryptWalletPopup" :disabled="!walletPresent">
+        <ion-item button="true" @click="encryptWalletPopup" :disabled="!walletPresent || store.getters.isWalletEncrypted">
           <ion-icon slot="start" color="primary" :icon="lockClosedOutline"></ion-icon>
           <ion-label>Encrypt Wallet</ion-label>
         </ion-item>
