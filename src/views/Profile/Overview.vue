@@ -6,16 +6,69 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      <ion-item-group>
+      <!-- Account information start -->
+      <ion-note>My Account</ion-note>
+      <br />
+      <br />
+
+      <ion-list lines="none">
         <ion-item>
-          <ion-label>Feirm ID: {{ store.getters.getUsername }}</ion-label>
+          <ion-icon slot="start" color="primary" :icon="personOutline"></ion-icon>
+          <ion-label>Username</ion-label>
+          <ion-label slot="end" class="ion-text-right">{{ store.getters.getUsername }}</ion-label>
         </ion-item>
-      </ion-item-group>
+
+        <!--
+        <ion-item>
+          <ion-icon slot="start" color="primary" :icon="keyOutline"></ion-icon>
+          <ion-label>Identity Key</ion-label>
+          <ion-label slot="end" class="ion-text-right"></ion-label>
+        </ion-item>
+        -->
+      </ion-list>
+
+      <br />
+      <!-- Account information end -->
+
+      <!-- Wallet actions start -->
+      <ion-note>My Wallet</ion-note>
+      <br />
+      <br />
+
+      <ion-list lines="none">
+        <ion-item button="true" @click="encryptWallet" :disabled="!walletPresent">
+          <ion-icon slot="start" color="primary" :icon="lockClosedOutline"></ion-icon>
+          <ion-label>Encrypt Wallet</ion-label>
+        </ion-item>
+        <ion-item button="true" @click="deleteWallet" :disabled="!walletPresent">
+          <ion-icon slot="start" color="danger" :icon="walletOutline"></ion-icon>
+          <ion-label>Remove Wallet</ion-label>
+        </ion-item>
+      </ion-list>
+
+      <br>
+      <!-- Wallet actions end -->
+
+      <!-- About information start -->
+      <ion-note>About</ion-note>
+      <br />
+      <br />
+
+      <ion-list lines="none">
+        <ion-item>
+          <ion-icon slot="start" color="primary" :icon="arrowDownOutline"></ion-icon>
+          <ion-label>App Version</ion-label>
+          <ion-label slot="end" class="ion-text-right">{{ version }}</ion-label>
+        </ion-item>
+        <ion-item button="true" href="https://feirm.com/privacy-policy">
+          <ion-icon slot="start" color="primary" :icon="documentLockOutline"></ion-icon>
+          <ion-label>Privacy Policy</ion-label>
+        </ion-item>
+      </ion-list>
+      <!-- Wallet actions end -->
     </ion-content>
     <ion-footer class="ion-no-border ion-padding ion-text-center">
-      <ion-button color="light" @click="deleteWallet" expand="block" :disabled="!walletPresent">Delete wallet</ion-button>
       <ion-button color="danger" @click="logout" expand="block">Log out</ion-button>
-      <ion-note>Feirm - v{{ version }}</ion-note>
     </ion-footer>
   </ion-page>
 </template>
@@ -31,11 +84,20 @@ import {
   IonItem,
   IonLabel,
   IonButton,
-  IonItemGroup,
   IonFooter,
   IonNote,
+  IonList,
+  IonIcon,
   alertController,
 } from "@ionic/vue";
+import {
+  personOutline,
+  keyOutline,
+  walletOutline,
+  lockClosedOutline,
+  arrowDownOutline,
+  documentLockOutline
+} from "ionicons/icons";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { version } from "../../../package.json";
@@ -50,14 +112,15 @@ export default defineComponent({
     IonItem,
     IonLabel,
     IonButton,
-    IonItemGroup,
     IonFooter,
-    IonNote
+    IonNote,
+    IonList,
+    IonIcon,
   },
   data() {
     return {
-      walletPresent: true
-    }
+      walletPresent: true,
+    };
   },
   methods: {
     async logout() {
@@ -89,31 +152,32 @@ export default defineComponent({
     async deleteWallet() {
       const alert = await alertController.create({
         header: "Delete wallet",
-        message: "Are you sure you want to delete your wallet? If you do not have your 24-word mnemonic phrase backed up, your funds are lost forever.",
+        message:
+          "Are you sure you want to delete your wallet? If you do not have your 24-word mnemonic phrase backed up, your funds are lost forever.",
         buttons: [
           {
-            text: "No"
+            text: "No",
           },
           {
             text: "Yes",
             handler: async () => {
               this.walletPresent = false;
-              this.store.commit("deleteWalletState")
+              this.store.commit("deleteWalletState");
 
               const alert = await alertController.create({
                 header: "Operation successful!",
                 message: "Your wallet was removed.",
-                buttons: ["Okay"]
+                buttons: ["Okay"],
               });
 
               return alert.present();
-            }
-          }
-        ]
-      })
+            },
+          },
+        ],
+      });
 
       return alert.present();
-    }
+    },
   },
   ionViewWillEnter() {
     // Check if wallet is present
@@ -126,7 +190,13 @@ export default defineComponent({
     return {
       router,
       store,
-      version
+      version,
+      personOutline,
+      keyOutline,
+      walletOutline,
+      lockClosedOutline,
+      arrowDownOutline,
+      documentLockOutline
     };
   },
 });
