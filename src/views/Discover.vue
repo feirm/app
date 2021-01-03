@@ -99,6 +99,7 @@ import {
   IonCardContent,
   alertController,
   modalController,
+  loadingController,
 } from "@ionic/vue";
 
 import {
@@ -173,6 +174,31 @@ export default {
           const pin = pinResponse.data;
 
           // Attempt to decrypt the wallet
+          await loadingController.create({
+            message: "Decrypting wallet..."
+          }).then(a => {
+            a.present().then(async () => {
+              await decryptWallet(pin);
+
+              // Dismiss modal
+              a.dismiss();
+            })
+            .catch(async (e) => {
+              // An error occurred, so close modal and show an alert
+              a.dismiss();
+
+              const errorAlert = await alertController.create({
+                header: "Wallet decryption error!",
+                message: e,
+                buttons: ["Close"]
+              })
+
+              return errorAlert.present();
+            })
+          })
+
+
+
           try {
             decryptWallet(pin);
           } catch (e) {
