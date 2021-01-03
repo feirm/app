@@ -178,11 +178,13 @@ router.beforeEach(async (to, from, next) => {
       });
   }
 
-  // If the wallet isn't decrypted
-  if (!walletDecrypted) {
-    // Check if a wallet is present
-    const wallet = store.getters.getWallet;
-    if (wallet) {
+  // If the wallet isn't decrypted or not encrypted, but user is logged in
+  const wallet = store.getters.getWallet;
+  const walletHaveEncryption = store.getters.isWalletEncrypted
+
+  // Check for mnemonic
+  if (wallet.mnemonic && walletHaveEncryption) {
+    if (!walletDecrypted && loggedIn) {
       // Prompt user for PIN entry by creating a popup
       const pinEntry = await modalController.create({
         component: PIN,
