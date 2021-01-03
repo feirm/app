@@ -9,7 +9,6 @@ async function decryptWallet(pin: string) {
   const isUnlocked = store.getters.isWalletDecrypted;
 
   if (wallet.encryption.isEncrypted && !isUnlocked) {
-      console.log("Decrypt mothafucker:", isUnlocked)
     // Derive the encryption key from our PIN
     const secretKey = await hash({
       pass: pin,
@@ -41,35 +40,26 @@ async function decryptWallet(pin: string) {
 
       // Check that the coin has the encryption property
       if (coin.isEncrypted) {
-        // Attempt to decrypt the root key
         try {
+          // Attempt to decrypt the root key
           const rootKey = aesCbc.decrypt(utils.hex.toBytes(coin.rootKey));
-          wallet.rootKey = utils.utf8.fromBytes(padding.pkcs7.strip(rootKey));
-        } catch (e) {
-          console.log(e);
-          throw new Error("Unable to decrypt root key!");
-        }
+          coin.rootKey = utils.utf8.fromBytes(rootKey).replace('\u0001', ''); // Remove escape
 
-        // Attempt to decrypt extended private key
-        try {
-          const exPrivKey = aesCbc.decrypt(
-            utils.hex.toBytes(coin.extendedPrivateKey)
-          );
-          wallet.extendedPrivateKey = utils.utf8.fromBytes(
-            padding.pkcs7.strip(exPrivKey)
-          );
+          // Attempt to decrypt extended private key
+          const exPrivKey = aesCbc.decrypt(utils.hex.toBytes(coin.extendedPrivateKey));
+          coin.extendedPrivateKey = utils.utf8.fromBytes(padding.pkcs7.strip(exPrivKey));
+
+          // Set coin data again
+          wallet.coins[i] = coin;
         } catch (e) {
           console.log(e);
-          throw new Error("Unable to decrypt extended private key!");
+          throw new Error("Unable to decrypt wallet! Please make sure your PIN is correct!");
         }
 
         // Update state
         store.commit("setWalletUnlockedState", wallet);
-        console.log("State updated!")
       }
     }
-
-    console.log("Fetched wallet:", JSON.stringify(store.getters.getWallet))
   }
 }
 
@@ -86,7 +76,6 @@ async function encryptWallet(pin: string) {
 
   // Fetch the existing wallet state from our store
   const wallet = store.getters.getWallet;
-  const newWallet = wallet;
 
   // Generate an IV to encrypt the data
   const encryptionIv = window.crypto.getRandomValues(new Uint8Array(16));
@@ -98,16 +87,14 @@ async function encryptWallet(pin: string) {
     const mnemonicCipherText = aesCbc.encrypt(
       utils.utf8.toBytes(wallet.mnemonic)
     );
-    newWallet.mnemonic = bufferToHex(mnemonicCipherText);
+    wallet.mnemonic = bufferToHex(mnemonicCipherText);
 
     // Iterate over each of the coins and encrypt their root keys and extended private keys
     for (let i = 0; i < wallet.coins.length; i++) {
       const coin = wallet.coins[i];
 
       try {
-        const rootKeyCiphertext = aesCbc.encrypt(
-          padding.pkcs7.pad(utils.utf8.toBytes(coin.rootKey))
-        );
+        const rootKeyCiphertext = aesCbc.encrypt(padding.pkcs7.pad(utils.utf8.toBytes(coin.rootKey)));
         coin.rootKey = bufferToHex(rootKeyCiphertext);
 
         const extendedPrivateKeyCiphertext = aesCbc.encrypt(
@@ -117,6 +104,9 @@ async function encryptWallet(pin: string) {
 
         // Set coin state to encrypted
         coin.isEncrypted = true;
+
+        // Set coin data again
+        wallet.coins[i] = coin;
       } catch (e) {
         console.log("Error encrypting coin:", coin.name, "error:", e);
         break;
@@ -124,16 +114,17 @@ async function encryptWallet(pin: string) {
     }
 
     // Update the wallet with the newly encrypted one
-    newWallet.encryption.isEncrypted = true;
-    newWallet.encryption.encryptionKeySalt = bufferToHex(salt);
-    newWallet.encryption.encryptionIv = bufferToHex(encryptionIv);
+    wallet.encryption.isEncrypted = true;
+    wallet.encryption.encryptionKeySalt = bufferToHex(salt);
+    wallet.encryption.encryptionIv = bufferToHex(encryptionIv);
+
   } catch (e) {
     console.log(e);
     throw new Error(e);
   }
 
   // Commit to store
-  store.commit("setWalletState", newWallet);
+  store.commit("setWalletState", wallet);
 
   // As we have the PIN, we can decrypt the wallet and update our state for this session.
   try {
