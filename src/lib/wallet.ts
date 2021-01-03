@@ -7,6 +7,7 @@ import azureService from "@/apiService/azureService";
 import { store } from "@/store";
 import axios from "axios";
 import { BigNumber } from "bignumber.js";
+import { encryptCoin } from "./encryptWallet";
 
 // Wallet interface
 interface Wallet {
@@ -48,6 +49,7 @@ async function GenerateMnemonic(): Promise<string> {
 // Take a mnemonic and derive a wallet for a coin (based on ticker)
 async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
   // First of all, lets validate the mnemonic
+  console.log("mnemonic wallet.ts:54", mnemonic)
   const valid = validateMnemonic(mnemonic);
   if (!valid) {
     throw new Error("The mnemonic provided is not valid!");
@@ -93,8 +95,14 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
     // We need to parse the wallet so its available to us
     const pWallet = JSON.parse(existingWallet) as Wallet;
 
-    // Push the coin data to it
-    pWallet.coins.push(cData);
+    // Get pin
+    const pin = store.getters.getWalletPin;
+
+    // Encrypt coin data
+    const coin = await encryptCoin(pin, cData);
+
+    // Push to coins
+    pWallet.coins.push(coin);
 
     // Return the full wallet interface
     return pWallet;

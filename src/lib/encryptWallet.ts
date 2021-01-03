@@ -3,7 +3,7 @@ import { ModeOfOperation, padding, utils } from "aes-js";
 import { ArgonType, hash } from "argon2-browser";
 import bufferToHex from "./bufferToHex";
 import hexStringToBytes from "./hexStringToBytes";
-import { Wallet } from "./wallet";
+import { Coin, Wallet } from "./wallet";
 
 async function decryptWallet(pin: string) {
   // Fetch from localStorage as that will always be encrypted
@@ -28,7 +28,9 @@ async function decryptWallet(pin: string) {
     // Attempt to decrypt the mnemonic
     try {
       const mnemonic = await aesCbc.decrypt(utils.hex.toBytes(wallet.mnemonic));
-      wallet.mnemonic = utils.utf8.fromBytes(mnemonic).replace(/[^\x20-\x7E]/g, '');
+      wallet.mnemonic = utils.utf8
+        .fromBytes(mnemonic)
+        .replace(/[^\x20-\x7E]/g, "");
     } catch (e) {
       console.log(e);
       throw new Error(
@@ -70,7 +72,47 @@ async function decryptWallet(pin: string) {
 
     // Update state
     store.commit("setWalletUnlockedState", wallet);
+    store.commit("setWalletMnemonic", wallet.mnemonic);
+    store.commit("setWalletPin", pin);
   }
+}
+
+// Encrypt individual coin and return back the object
+async function encryptCoin(pin: string, coin: Coin): Promise<Coin> {
+  const wallet = store.getters.getWallet;
+
+  // Derive the same Argon2 encryption key from our PIN
+  const secretKey = await hash({
+    pass: pin,
+    type: ArgonType.Argon2id,
+    hashLen: 32,
+    salt: hexStringToBytes(wallet.encryption.encryptionKeySalt),
+  });
+
+  // Generate an IV to encrypt the data
+  const encryptionIv = hexStringToBytes(wallet.encryption.encryptionIv);
+  const aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
+
+  // Encrypt several elements of the coin
+  try {
+    const rootKeyCiphertext = aesCbc.encrypt(
+      padding.pkcs7.pad(utils.utf8.toBytes(coin.rootKey))
+    );
+    coin.rootKey = bufferToHex(rootKeyCiphertext);
+
+    const extendedPrivateKeyCiphertext = aesCbc.encrypt(
+      padding.pkcs7.pad(utils.utf8.toBytes(coin.extendedPrivateKey))
+    );
+    coin.extendedPrivateKey = bufferToHex(extendedPrivateKeyCiphertext);
+
+    // Set coin state to encrypted
+    coin.isEncrypted = true;
+  } catch (e) {
+    console.log("Error encrypting coin:", coin.name, "error:", e);
+  }
+
+  // Return the newly encrypted coin data
+  return coin;
 }
 
 async function encryptWallet(pin: string) {
@@ -94,7 +136,9 @@ async function encryptWallet(pin: string) {
     const aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
 
     // Encrypt the wallet mnemonic
-    const mnemonicCipherText = aesCbc.encrypt(utils.utf8.toBytes(wallet.mnemonic));
+    const mnemonicCipherText = aesCbc.encrypt(
+      utils.utf8.toBytes(wallet.mnemonic)
+    );
     wallet.mnemonic = bufferToHex(mnemonicCipherText);
 
     // Iterate over each of the coins and encrypt their root keys and extended private keys
@@ -143,6 +187,4 @@ async function encryptWallet(pin: string) {
   }
 }
 
-// TODO Encrypt individual coin
-
-export { encryptWallet, decryptWallet };
+export { encryptWallet, decryptWallet, encryptCoin };

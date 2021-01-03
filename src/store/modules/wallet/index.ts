@@ -3,11 +3,16 @@ import { Wallet } from '@/lib/wallet';
 export const wallet = {
   state: {
     wallet: {} as Wallet,
-    isDecrypted: false
+    isDecrypted: false,
+    pin: "",
+    mnemonic: ""
   },
   mutations: {
     setWalletMnemonic(state, mnemonic) {
-      state.wallet.mnemonic = mnemonic;
+      state.mnemonic = mnemonic;
+    },
+    setWalletPin(state, pin) {
+      state.pin = pin;
     },
     setWalletState(state, wallet) {
       localStorage.setItem("wallet", JSON.stringify(wallet));
@@ -53,6 +58,7 @@ export const wallet = {
           return false;
         }
       },
-      isWalletDecrypted: state => state.isDecrypted
+      isWalletDecrypted: state => state.isDecrypted,
+      getWalletPin: state => state.pin
   }
 };
