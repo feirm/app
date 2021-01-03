@@ -13,6 +13,14 @@ interface Wallet {
   id: string;
   mnemonic: string;
   coins: Coin[];
+  encryption: Encryption;
+}
+
+// Encryption data interface
+interface Encryption {
+  isEncrypted: boolean;
+  encryptionKeySalt: string;
+  encryptionIv: string;
 }
 
 // Coin interface
@@ -27,6 +35,7 @@ interface Coin {
   index: number;
   changeIndex: number;
   blockbook: string;
+  isEncrypted: boolean;
 }
 
 // Derive a new mnemonic
@@ -96,6 +105,7 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
     id: uuidv4(),
     mnemonic: mnemonic,
     coins: [] as {},
+    encryption: {} as Encryption
   } as Wallet;
 
   // Push the coin data to our new wallet
