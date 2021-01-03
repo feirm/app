@@ -88,7 +88,6 @@ export default defineComponent({
       toAddress: "",
       amount: 0,
       fee: 0,
-      feeString: "",
       max: 0,
       sendDisabled: true,
     };
@@ -118,9 +117,11 @@ export default defineComponent({
         <br />
         Amount: <b>${this.amount} ${this.$props.ticker?.toUpperCase()}</b>
         <br />
-        TX Fee: <b>${this.feeString} ${this.$props.ticker?.toUpperCase()}</b>
+        TX Fee: <b>${this.fee} ${this.$props.ticker?.toUpperCase()}</b>
         <br />
-        Total: <b>${new BigNumber(this.amount).plus(this.feeString).toNumber()} ${this.$props.ticker?.toUpperCase()}</b>`,
+        Total: <b>${new BigNumber(this.amount)
+          .plus(this.fee)
+          .toNumber()} ${this.$props.ticker?.toUpperCase()}</b>`,
         buttons: [
           {
             text: "Cancel",
@@ -180,23 +181,24 @@ export default defineComponent({
                       let errorMessage = "" as any;
                       errorMessage = e;
 
-                      /*
-                      switch (e.response.data.error) {
-                        // TX Fee is not high enough
-                        case "-26: 66: insufficient priority":
-                          errorMessage = "Transaction fee is not high enough!";
-                          break;
-                        // Dust (TX is too small)
-                        case "-26: 64: dust":
-                          errorMessage =
-                            "Transaction amount is too small (dust)!";
-                          break;
-                        default:
-                          // Condition isn't met, just use error from HTTP request
-                          errorMessage = "Something unexpected occurred";
-                          break;
+                      if (e.response.data.length) {
+                        switch (e.response.data.error) {
+                          // TX Fee is not high enough
+                          case "-26: 66: insufficient priority":
+                            errorMessage =
+                              "Transaction fee is not high enough!";
+                            break;
+                          // Dust (TX is too small)
+                          case "-26: 64: dust":
+                            errorMessage =
+                              "Transaction amount is too small (dust)!";
+                            break;
+                          default:
+                            // Condition isn't met, just use error from HTTP request
+                            errorMessage = "Something unexpected occurred";
+                            break;
+                        }
                       }
-                      */
 
                       // Show error alert
                       const alert = await alertController.create({
@@ -234,7 +236,10 @@ export default defineComponent({
           return;
         }
 
-        const decodedPayment = bip21.decode(modalResponse.data, this.coinObj.name.toLowerCase());
+        const decodedPayment = bip21.decode(
+          modalResponse.data,
+          this.coinObj.name.toLowerCase()
+        );
         // Update the address and amount fields to match one on payment
         this.toAddress = decodedPayment.address;
         this.amount = decodedPayment.options.amount;
@@ -242,63 +247,60 @@ export default defineComponent({
         const alert = await alertController.create({
           header: "Error decoding payment request!",
           message: e,
-          buttons: ["Close"]
-        })
+          buttons: ["Close"],
+        });
 
-        return alert.present()
+        return alert.present();
       }
     },
   },
   async mounted() {
     // Loading popup saying "fetching data"
-    await loadingController.create({
-      message: "Fetching data..."
-    })
-    .then(a => {
-      a.present().then(async () => {
-        // Find coin based on ticker and set coin data
-        await FindWallet(this.$props.ticker!).then((coin) => {
-          this.coinObj = coin as Coin;
-        });
-
-        // Fetch ideal transaction fee for transaction to be confirmed
-        // within 25 blocks.
-        const txFee = await axios.get(
-          "https://cors-anywhere.feirm.com/" +
-          this.coinObj.blockbook +
-          "/api/v2/estimatefee/25"
-        )
-
-        // Convert the TX fee into satoshi values
-        const fee = new BigNumber(txFee.data.result).multipliedBy(100000000);
-        this.fee = fee.toNumber();
-
-        this.feeString = fee.dividedBy(100000000).toString();
-
-        // Work out the maximum the user can send taking into consideration the TX fee.
-        const max = new BigNumber(this.coinObj.balance).minus(fee).dividedBy(100000000);
-        if (max < new BigNumber(0)) {
-          this.max = 0;
-        } else {
-          this.max = max.toNumber();
-        }
-
-        // Dismiss
-        a.dismiss()
-      }).catch(async e => {
-        // Dismiss
-        a.dismiss();
-
-        // Show alert
-        const errorAlert = await alertController.create({
-          header: "Error fetching data!",
-          message: e,
-          buttons: ["Close"]
-        })
-
-        return errorAlert.present();
+    await loadingController
+      .create({
+        message: "Fetching data...",
       })
-    })
+      .then((a) => {
+        a.present()
+          .then(async () => {
+            // Find coin based on ticker and set coin data
+            await FindWallet(this.$props.ticker!).then((coin) => {
+              this.coinObj = coin as Coin;
+            });
+
+            // Fetch ideal transaction fee for transaction to be confirmed
+            // within 25 blocks.
+            const txFee = await axios.get(
+              "https://cors-anywhere.feirm.com/" +
+                this.coinObj.blockbook +
+                "/api/v2/estimatefee/25"
+            );
+
+            // Convert the TX fee into satoshi values
+            const fee = new BigNumber(txFee.data.result);
+            this.fee = fee.toNumber();
+
+            // Work out the maximum the user can send taking into consideration the TX fee.
+            const max = new BigNumber(this.coinObj.balance).dividedBy(100000000).minus(fee).minus(fee);
+            this.max = max.toNumber();
+
+            // Dismiss
+            a.dismiss();
+          })
+          .catch(async (e) => {
+            // Dismiss
+            a.dismiss();
+
+            // Show alert
+            const errorAlert = await alertController.create({
+              header: "Error fetching data!",
+              message: e,
+              buttons: ["Close"],
+            });
+
+            return errorAlert.present();
+          });
+      });
   },
   setup() {
     return {
