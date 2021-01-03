@@ -84,7 +84,7 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
     extendedPrivateKey: addressNode.toBase58(),
     extendedPublicKey: addressNode.neutered().toBase58(),
     blockbook: coin.data.coinInformation.blockbook,
-    index: coin.data.coinInformation.blockbook,
+    index: 0,
   } as Coin;
 
   // If there is a wallet, then append the coin to it
