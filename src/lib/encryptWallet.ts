@@ -3,9 +3,11 @@ import { ModeOfOperation, padding, utils } from "aes-js";
 import { ArgonType, hash } from "argon2-browser";
 import bufferToHex from "./bufferToHex";
 import hexStringToBytes from "./hexStringToBytes";
+import { Wallet } from "./wallet";
 
 async function decryptWallet(pin: string) {
-  const wallet = store.getters.getWallet;
+  // Fetch from localStorage as that will always be encrypted
+  const wallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
   const isUnlocked = store.getters.isWalletDecrypted;
 
   if (wallet.encryption.isEncrypted && !isUnlocked) {
@@ -26,7 +28,7 @@ async function decryptWallet(pin: string) {
     // Attempt to decrypt the mnemonic
     try {
       const mnemonic = await aesCbc.decrypt(utils.hex.toBytes(wallet.mnemonic));
-      wallet.mnemonic = utils.utf8.fromBytes(mnemonic);
+      wallet.mnemonic = utils.utf8.fromBytes(mnemonic).replace(/[^\x20-\x7E]/g, '');
     } catch (e) {
       console.log(e);
       throw new Error(
@@ -35,29 +37,37 @@ async function decryptWallet(pin: string) {
     }
 
     // Attempt to decrypt all of the coins
-    for (let i = 0; i < wallet.coins.length; i++) {
-      const coin = wallet.coins[i];
+    if (wallet.coins.length !== 0) {
+      for (let i = 0; i < wallet.coins.length; i++) {
+        const coin = wallet.coins[i];
 
-      // Check that the coin has the encryption property
-      if (coin.isEncrypted) {
-        try {
-          // Attempt to decrypt the root key
-          const rootKey = aesCbc.decrypt(utils.hex.toBytes(coin.rootKey));
-          coin.rootKey = utils.utf8.fromBytes(rootKey).replace('\u0001', ''); // Remove escape
+        // Check that the coin has the encryption property
+        if (coin.isEncrypted) {
+          try {
+            // Attempt to decrypt the root key
+            const rootKey = aesCbc.decrypt(utils.hex.toBytes(coin.rootKey));
+            coin.rootKey = utils.utf8.fromBytes(rootKey).replace("\u0001", ""); // Remove escape
 
-          // Attempt to decrypt extended private key
-          const exPrivKey = aesCbc.decrypt(utils.hex.toBytes(coin.extendedPrivateKey));
-          coin.extendedPrivateKey = utils.utf8.fromBytes(padding.pkcs7.strip(exPrivKey));
+            // Attempt to decrypt extended private key
+            const exPrivKey = aesCbc.decrypt(
+              utils.hex.toBytes(coin.extendedPrivateKey)
+            );
+            coin.extendedPrivateKey = utils.utf8.fromBytes(
+              padding.pkcs7.strip(exPrivKey)
+            );
 
-          // Set coin data again
-          wallet.coins[i] = coin;
-        } catch (e) {
-          console.log(e);
-          throw new Error("Unable to decrypt wallet! Please make sure your PIN is correct!");
+            // Set coin data again
+            wallet.coins[i] = coin;
+          } catch (e) {
+            console.log(e);
+            throw new Error(
+              "Unable to decrypt wallet! Please make sure your PIN is correct!"
+            );
+          }
+
+          // Update state
+          store.commit("setWalletUnlockedState", wallet);
         }
-
-        // Update state
-        store.commit("setWalletUnlockedState", wallet);
       }
     }
   }
@@ -84,7 +94,7 @@ async function encryptWallet(pin: string) {
     const aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
 
     // Encrypt the wallet mnemonic
-    const mnemonicCipherText = aesCbc.encrypt(padding.pkcs7.pad(utils.utf8.toBytes(wallet.mnemonic)));
+    const mnemonicCipherText = aesCbc.encrypt(utils.utf8.toBytes(wallet.mnemonic));
     wallet.mnemonic = bufferToHex(mnemonicCipherText);
 
     // Iterate over each of the coins and encrypt their root keys and extended private keys
@@ -92,10 +102,14 @@ async function encryptWallet(pin: string) {
       const coin = wallet.coins[i];
 
       try {
-        const rootKeyCiphertext = aesCbc.encrypt(padding.pkcs7.pad(utils.utf8.toBytes(coin.rootKey)));
+        const rootKeyCiphertext = aesCbc.encrypt(
+          padding.pkcs7.pad(utils.utf8.toBytes(coin.rootKey))
+        );
         coin.rootKey = bufferToHex(rootKeyCiphertext);
 
-        const extendedPrivateKeyCiphertext = aesCbc.encrypt(padding.pkcs7.pad(utils.utf8.toBytes(coin.extendedPrivateKey)));
+        const extendedPrivateKeyCiphertext = aesCbc.encrypt(
+          padding.pkcs7.pad(utils.utf8.toBytes(coin.extendedPrivateKey))
+        );
         coin.extendedPrivateKey = bufferToHex(extendedPrivateKeyCiphertext);
 
         // Set coin state to encrypted
@@ -113,7 +127,6 @@ async function encryptWallet(pin: string) {
     wallet.encryption.isEncrypted = true;
     wallet.encryption.encryptionKeySalt = bufferToHex(salt);
     wallet.encryption.encryptionIv = bufferToHex(encryptionIv);
-
   } catch (e) {
     console.log(e);
     throw new Error(e);
