@@ -153,11 +153,11 @@ export default {
       // If the wallet isn't decrypted or not encrypted, but user is logged in
       const wallet = store.getters.getWallet;
       const walletHaveEncryption = store.getters.isWalletEncrypted;
-      const walletDecrypted = store.getters.isWalletDecrypted;
+      const walletUnlocked = store.getters.isWalletUnlocked;
 
       // Check for mnemonic
       if (wallet.mnemonic && walletHaveEncryption) {
-        if (!walletDecrypted) {
+        if (!walletUnlocked) {
           // Prompt user for PIN entry by creating a popup
           const pinEntry = await modalController.create({
             component: PIN,
@@ -187,6 +187,9 @@ export default {
 
               // Save decrypted wallet in Vuex
               store.commit("setWalletState", decryptedWallet);
+
+              // Update the wallet unlock status
+              store.commit("setWalletUnlock", true);
 
               // Dismiss modal
               a.dismiss();

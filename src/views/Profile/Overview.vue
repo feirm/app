@@ -196,6 +196,9 @@ export default defineComponent({
           const decryptedWallet = await decryptWallet(pin, wallet);
           this.store.commit("setWalletState", decryptedWallet);
 
+          // Update the unlocked state
+          this.store.commit("setWalletUnlock", true);
+
           // Dismiss the loading controller
           a.dismiss();
         })
