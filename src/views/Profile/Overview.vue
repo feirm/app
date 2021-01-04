@@ -199,6 +199,9 @@ export default defineComponent({
           // Update the unlocked state
           this.store.commit("setWalletUnlock", true);
 
+          // Set the wallet PIN state
+          this.store.commit("setWalletPin", pin);
+
           // Dismiss the loading controller
           a.dismiss();
         })

@@ -191,6 +191,9 @@ export default {
               // Update the wallet unlock status
               store.commit("setWalletUnlock", true);
 
+              // Set wallet PIN state
+              store.commit("setWalletPin", pin);
+
               // Dismiss modal
               a.dismiss();
             })
