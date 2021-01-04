@@ -10,7 +10,7 @@
             ></ion-icon>
             <h1>Update Available</h1>
             <p>
-              There is a new update available for Feirm. Please click the button below to update!
+              There is a new update available for Feirm (v{{ version }}). Please click the button below to update!
             </p>
             <ion-button @click="updatePWA">Update</ion-button>
           </ion-col>
@@ -32,6 +32,7 @@ import {
   IonButton
 } from "@ionic/vue";
 import { refreshCircleOutline } from "ionicons/icons";
+import { version } from "../../package.json"
 
 export default defineComponent({
   components: {
@@ -45,12 +46,13 @@ export default defineComponent({
   },
   methods: {
       updatePWA() {
-          window.location.href = "/";
+          window.location.reload(true);
       }
   },
   setup() {
     return {
-      refreshCircleOutline
+      refreshCircleOutline,
+      version
     };
   },
 });
