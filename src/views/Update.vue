@@ -46,7 +46,7 @@ export default defineComponent({
   },
   methods: {
       updatePWA() {
-          window.location.reload(true);
+        location.reload(true);
       }
   },
   setup() {
