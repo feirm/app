@@ -104,7 +104,7 @@ import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { version } from "../../../package.json";
 import PIN from "@/components/Auth/PIN.vue";
-import { encryptWallet } from "@/lib/encryptWallet";
+import { decryptWallet, encryptWallet } from "@/lib/encryptWallet";
 
 export default defineComponent({
   components: {
@@ -186,17 +186,31 @@ export default defineComponent({
         message: "Encrypting wallet..."
       }).then(a => {
         a.present().then(async() => {
-          await encryptWallet(pin)
+          // Encrypt wallet and return its encrypted form
+          const wallet = await encryptWallet(pin)
+
+          // Save the encrypted wallet to localStorage
+          localStorage.setItem("wallet", JSON.stringify(wallet));
+
+          // Do something with the wallet, such as decrypt it, and then save it to Vuex
+          const decryptedWallet = decryptWallet(pin, wallet);
+          this.store.commit("setWalletState", decryptedWallet);
 
           // Dismiss the loading controller
           a.dismiss();
         })
-        .catch(e => {
+        .catch(async e => {
           // Dismiss the loading controller
           a.dismiss()
 
-          // Log error
-          console.log(e);
+          // Error alert
+          const errorAlert = await alertController.create({
+            header: "Wallet Encryption Error!",
+            message: e,
+            buttons: ["Close"],
+          });
+          
+          errorAlert.present();
         })
       })
 
