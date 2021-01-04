@@ -45,7 +45,7 @@ async function decryptWallet(pin: string, wallet: Wallet): Promise<Wallet> {
             // Attempt to decrypt the root key
             let aesCoinCipher = new ModeOfOperation.cbc(secretKey.hash, iv);
             const rootKey = aesCoinCipher.decrypt(utils.hex.toBytes(coin.rootKey));
-            coin.rootKey = utils.utf8.fromBytes(rootKey);
+            coin.rootKey = utils.utf8.fromBytes(rootKey).replace(/[^\u000-\u007F]/g, "");
 
             // Attempt to decrypt extended private key
             aesCoinCipher = new ModeOfOperation.cbc(secretKey.hash, iv);
@@ -82,17 +82,19 @@ async function encryptCoin(pin: string, coin: Coin): Promise<Coin> {
 
   // Generate an IV to encrypt the data
   const encryptionIv = hexStringToBytes(wallet.encryption.encryptionIv);
-  const aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
+  let aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
 
   // Encrypt several elements of the coin
   try {
     console.log("rootkey during encryption:", coin.rootKey);
 
+    aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
     const rootKeyCiphertext = aesCbc.encrypt(padding.pkcs7.pad(utils.utf8.toBytes(coin.rootKey)));
     coin.rootKey = utils.hex.fromBytes(rootKeyCiphertext);
 
     console.log("rootkey after encryption:", coin.rootKey);
 
+    aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
     const extendedPrivateKeyCiphertext = aesCbc.encrypt(
       padding.pkcs7.pad(utils.utf8.toBytes(coin.extendedPrivateKey))
     );
@@ -126,7 +128,7 @@ async function encryptWallet(pin: string) {
   const encryptionIv = window.crypto.getRandomValues(new Uint8Array(16));
 
   try {
-    const aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
+    let aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
 
     // Encrypt the wallet mnemonic
     const mnemonicCipherText = aesCbc.encrypt(
@@ -139,11 +141,13 @@ async function encryptWallet(pin: string) {
       const coin = wallet.coins[i];
 
       try {
+        aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
         const rootKeyCiphertext = aesCbc.encrypt(
           padding.pkcs7.pad(utils.utf8.toBytes(coin.rootKey))
         );
         coin.rootKey = bufferToHex(rootKeyCiphertext);
 
+        aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
         const extendedPrivateKeyCiphertext = aesCbc.encrypt(
           padding.pkcs7.pad(utils.utf8.toBytes(coin.extendedPrivateKey))
         );
