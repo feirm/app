@@ -58,12 +58,12 @@ export default defineComponent({
             mnemonic: ""
         }
     },
-    async mounted() {
-        const seed = await GenerateMnemonic()
+    mounted() {
+        const seed = GenerateMnemonic()
         this.mnemonic = seed;
 
         // Store mnemonic in Vuex
-        this.store.commit("setWalletMnemonic", this.mnemonic);
+        this.store.commit("setWalletMnemonic", seed);
     },
     setup() {
         const store = useStore();

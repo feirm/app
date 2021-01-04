@@ -38,7 +38,7 @@ export const wallet = {
     }
   },
   getters: {
-      getWalletMnemonic: state => state.wallet.mnemonic,
+      getWalletMnemonic: state => state.mnemonic,
       getWallet: state => state.wallet,
       getWalletId: state => state.wallet.id,
       getCoins: state => state.wallet.coins,

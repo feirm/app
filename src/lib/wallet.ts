@@ -40,7 +40,7 @@ interface Coin {
 }
 
 // Derive a new mnemonic
-async function GenerateMnemonic(): Promise<string> {
+function GenerateMnemonic(): string {
   const entropy = window.crypto.getRandomValues(new Uint8Array(32));
   const mnemonic = entropyToMnemonic(bufferToHex(entropy));
   return mnemonic;
