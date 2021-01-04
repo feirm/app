@@ -21,17 +21,14 @@ async function decryptWallet(pin: string, wallet: Wallet): Promise<Wallet> {
     // Convert the encryption data IV to a valid byte source
     const iv = utils.hex.toBytes(wallet.encryption.encryptionIv);
 
-    // Create a new AES-CBC decipher
-    const aesCbc = new ModeOfOperation.cbc(secretKey.hash, iv);
-
     // Attempt to decrypt the mnemonic
     try {
+      // Create a new AES-CBC decipher for mnemonic decryption
+      const aesCbc = new ModeOfOperation.cbc(secretKey.hash, iv);
       const mnemonic = await aesCbc.decrypt(utils.hex.toBytes(wallet.mnemonic));
-      wallet.mnemonic = utils.utf8
-        .fromBytes(mnemonic)
-        .replace(/[^\x20-\x7E]/g, "");
+
+      wallet.mnemonic = utils.utf8.fromBytes(mnemonic).replace(/[^\x20-\x7E]/g, "");
     } catch (e) {
-      console.log(e);
       throw new Error(
         "Unable to decrypt mnemonic. Please make sure your PIN is correct!"
       );
@@ -46,16 +43,14 @@ async function decryptWallet(pin: string, wallet: Wallet): Promise<Wallet> {
         if (coin.isEncrypted) {
           try {
             // Attempt to decrypt the root key
-            const rootKey = aesCbc.decrypt(utils.hex.toBytes(coin.rootKey));
-            coin.rootKey = utils.utf8.fromBytes(rootKey).replace("\u0001", ""); // Remove escape
+            let aesCoinCipher = new ModeOfOperation.cbc(secretKey.hash, iv);
+            const rootKey = aesCoinCipher.decrypt(utils.hex.toBytes(coin.rootKey));
+            coin.rootKey = utils.utf8.fromBytes(rootKey);
 
             // Attempt to decrypt extended private key
-            const exPrivKey = aesCbc.decrypt(
-              utils.hex.toBytes(coin.extendedPrivateKey)
-            );
-            coin.extendedPrivateKey = utils.utf8.fromBytes(
-              padding.pkcs7.strip(exPrivKey)
-            );
+            aesCoinCipher = new ModeOfOperation.cbc(secretKey.hash, iv);
+            const exPrivKey = aesCoinCipher.decrypt(utils.hex.toBytes(coin.extendedPrivateKey));
+            coin.extendedPrivateKey = utils.utf8.fromBytes(padding.pkcs7.strip(exPrivKey));
 
             // Set coin data again
             wallet.coins[i] = coin;
@@ -91,10 +86,12 @@ async function encryptCoin(pin: string, coin: Coin): Promise<Coin> {
 
   // Encrypt several elements of the coin
   try {
-    const rootKeyCiphertext = aesCbc.encrypt(
-      padding.pkcs7.pad(utils.utf8.toBytes(coin.rootKey))
-    );
-    coin.rootKey = bufferToHex(rootKeyCiphertext);
+    console.log("rootkey during encryption:", coin.rootKey);
+
+    const rootKeyCiphertext = aesCbc.encrypt(padding.pkcs7.pad(utils.utf8.toBytes(coin.rootKey)));
+    coin.rootKey = utils.hex.fromBytes(rootKeyCiphertext);
+
+    console.log("rootkey after encryption:", coin.rootKey);
 
     const extendedPrivateKeyCiphertext = aesCbc.encrypt(
       padding.pkcs7.pad(utils.utf8.toBytes(coin.extendedPrivateKey))
