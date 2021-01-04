@@ -7,7 +7,7 @@ import azureService from "@/apiService/azureService";
 import { store } from "@/store";
 import axios from "axios";
 import { BigNumber } from "bignumber.js";
-import { encryptCoin } from "./encryptWallet";
+import { decryptWallet, encryptCoin } from "./encryptWallet";
 
 // Wallet interface
 interface Wallet {
@@ -47,7 +47,7 @@ async function GenerateMnemonic(): Promise<string> {
 }
 
 // Take a mnemonic and derive a wallet for a coin (based on ticker)
-async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
+async function DeriveWallet(mnemonic: string, ticker: string) {
   // First of all, lets validate the mnemonic
   const valid = validateMnemonic(mnemonic);
   if (!valid) {
@@ -87,6 +87,28 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
     blockbook: coin.data.coinInformation.blockbook,
     index: 0,
   } as Coin;
+
+  // Check if we already have a wallet
+  const walletPresent = store.getters.isWalletPresent;
+  if (walletPresent) {
+    // Get the PIN from Vuex
+    const pin = store.getters.getWalletPin;
+
+    // Encrypt the coin data
+    const encryptedCoin = await encryptCoin(pin, cData);
+
+    // Get localStorage encrypted wallet and update it
+    const encryptedWallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
+    encryptedWallet.coins.push(encryptedCoin)
+    localStorage.setItem("wallet", JSON.stringify(encryptedWallet));
+
+    // Add the new wallet to Vuex state
+    // Decrypt the entire wallet again to get our newly added coin, and save state
+    const decryptedWallet = await decryptWallet(pin, encryptedWallet);
+    store.commit("setWalletState", decryptedWallet);
+
+    return;
+  }
 
   // Generate a new wallet
   const wallet = {
