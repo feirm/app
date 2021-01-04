@@ -86,13 +86,9 @@ async function encryptCoin(pin: string, coin: Coin): Promise<Coin> {
 
   // Encrypt several elements of the coin
   try {
-    console.log("rootkey during encryption:", coin.rootKey);
-
     aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
     const rootKeyCiphertext = aesCbc.encrypt(padding.pkcs7.pad(utils.utf8.toBytes(coin.rootKey)));
     coin.rootKey = utils.hex.fromBytes(rootKeyCiphertext);
-
-    console.log("rootkey after encryption:", coin.rootKey);
 
     aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
     const extendedPrivateKeyCiphertext = aesCbc.encrypt(

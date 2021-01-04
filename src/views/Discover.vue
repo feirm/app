@@ -208,7 +208,6 @@ export default {
             } catch (e) {
               if (maxUnlockAttempts - i === 1) {
                 // Clear state
-                console.log("Clear state...");
                 store.commit("clearSessionState");
                 store.commit("deleteWalletState");
                 router.push({ path: "/auth/login" });
