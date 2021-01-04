@@ -5,7 +5,7 @@ import bufferToHex from "./bufferToHex";
 import hexStringToBytes from "./hexStringToBytes";
 import { Coin, Wallet } from "./wallet";
 
-async function decryptWallet(pin: string) {
+async function decryptWallet(pin: string): Promise<Wallet> {
   // Fetch from localStorage as that will always be encrypted
   const wallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
   const isUnlocked = store.getters.isWalletDecrypted;
@@ -38,7 +38,7 @@ async function decryptWallet(pin: string) {
       );
     }
 
-    // Attempt to decrypt all of the coins
+    // Attempt to decrypt all of the coins which exist in the users wallet
     if (wallet.coins.length !== 0) {
       for (let i = 0; i < wallet.coins.length; i++) {
         const coin = wallet.coins[i];
@@ -69,12 +69,9 @@ async function decryptWallet(pin: string) {
         }
       }
     }
-
-    // Update state
-    store.commit("setWalletUnlockedState", wallet);
-    store.commit("setWalletMnemonic", wallet.mnemonic);
-    store.commit("setWalletPin", pin);
   }
+
+  return wallet;
 }
 
 // Encrypt individual coin and return back the object
@@ -176,15 +173,7 @@ async function encryptWallet(pin: string) {
     throw new Error(e);
   }
 
-  // Commit to store
-  store.commit("setWalletState", wallet);
-
-  // As we have the PIN, we can decrypt the wallet and update our state for this session.
-  try {
-    decryptWallet(pin);
-  } catch (e) {
-    console.log("Decrypt error:", e);
-  }
+  return wallet;
 }
 
 export { encryptWallet, decryptWallet, encryptCoin };
