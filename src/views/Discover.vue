@@ -99,7 +99,6 @@ import {
   IonCardContent,
   alertController,
   modalController,
-  loadingController,
 } from "@ionic/vue";
 
 import {
@@ -114,7 +113,8 @@ import axios from "axios";
 import { useStore } from "vuex";
 import { decryptWallet } from "@/lib/encryptWallet";
 import PIN from "@/components/Auth/PIN.vue";
-import { Wallet } from '@/lib/wallet';
+import { Wallet } from "@/lib/wallet";
+import { useRouter } from "vue-router";
 
 export default {
   name: "Discover",
@@ -145,6 +145,7 @@ export default {
     }
 
     const store = useStore();
+    const router = useRouter();
 
     const users = ref(0);
     const xfePrice = ref(0);
@@ -153,34 +154,43 @@ export default {
       // If the wallet isn't decrypted or not encrypted, but user is logged in
       const wallet = store.getters.getWallet;
       const walletHaveEncryption = store.getters.isWalletEncrypted;
-      const walletUnlocked = store.getters.isWalletUnlocked;
 
-      // Check for mnemonic
-      if (wallet.mnemonic && walletHaveEncryption) {
+      // Max unlock attempt counter
+      const maxUnlockAttempts = 3;
+
+      for (let i = 0; i < maxUnlockAttempts; i++) {
+        // Check if we already have an unlocked wallet
+        const walletUnlocked = store.getters.isWalletUnlocked;
+
         if (!walletUnlocked) {
-          // Prompt user for PIN entry by creating a popup
-          const pinEntry = await modalController.create({
-            component: PIN,
-            componentProps: {
-              header: "Unlock your Wallet",
-              description:
-                "Please enter your six-digit PIN to unlock your wallet.",
-            },
-          });
+          // Check if the mnemonic is present for wallet (encrypted/decryption)
+          // and that it has also been encrypted
+          if (wallet.mnemonic && walletHaveEncryption) {
+            console.log("Attempts left:", maxUnlockAttempts - i);
 
-          pinEntry.present();
+            // Prompt for PIN entry
+            const pinEntry = await modalController.create({
+              component: PIN,
+              componentProps: {
+                header: "Unlock your Wallet",
+                description: `You have ${
+                  maxUnlockAttempts - i
+                } unlock attempts remaining.`,
+              },
+            });
 
-          // Fetch the entered PIN
-          const pinResponse = await pinEntry.onDidDismiss();
-          const pin = pinResponse.data;
+            pinEntry.present();
 
-          // Attempt to decrypt the wallet
-          await loadingController.create({
-            message: "Decrypting wallet..."
-          }).then(a => {
-            a.present().then(async () => {
+            // Fetch the entered PIN
+            const pinResponse = await pinEntry.onDidDismiss();
+            const pin = pinResponse.data;
+
+            // Attempt to decrypt the wallet
+            try {
               // Fetch encrypted wallet from localStorage
-              const wallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
+              const wallet = JSON.parse(
+                localStorage.getItem("wallet")!
+              ) as Wallet;
 
               // Decrypt the wallet
               const decryptedWallet = await decryptWallet(pin, wallet);
@@ -194,22 +204,18 @@ export default {
               // Set wallet PIN state
               store.commit("setWalletPin", pin);
 
-              // Dismiss modal
-              a.dismiss();
-            })
-            .catch(async (e) => {
-              // An error occurred, so close modal and show an alert
-              a.dismiss();
-
-              const errorAlert = await alertController.create({
-                header: "Wallet decryption error!",
-                message: e,
-                buttons: ["Close"]
-              })
-
-              return errorAlert.present();
-            })
-          })
+              break;
+            } catch (e) {
+              if (maxUnlockAttempts - i === 1) {
+                // Clear state
+                console.log("Clear state...");
+                store.commit("clearSessionState");
+                store.commit("deleteWalletState");
+                router.push({ path: "/auth/login" });
+                break;
+              }
+            }
+          }
         }
       }
 
