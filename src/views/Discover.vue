@@ -114,6 +114,7 @@ import axios from "axios";
 import { useStore } from "vuex";
 import { decryptWallet } from "@/lib/encryptWallet";
 import PIN from "@/components/Auth/PIN.vue";
+import { Wallet } from '@/lib/wallet';
 
 export default {
   name: "Discover",
@@ -178,7 +179,14 @@ export default {
             message: "Decrypting wallet..."
           }).then(a => {
             a.present().then(async () => {
-              await decryptWallet(pin);
+              // Fetch encrypted wallet from localStorage
+              const wallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
+
+              // Decrypt the wallet
+              const decryptedWallet = await decryptWallet(pin, wallet);
+
+              // Save decrypted wallet in Vuex
+              // this.store.commit("setWalletState", decryptedWallet);
 
               // Dismiss modal
               a.dismiss();
@@ -196,20 +204,6 @@ export default {
               return errorAlert.present();
             })
           })
-
-
-
-          try {
-            decryptWallet(pin);
-          } catch (e) {
-            const errorAlert = await alertController.create({
-              header: "Unable to decrypt wallet!",
-              message: e,
-              buttons: ["Close"],
-            });
-
-            return errorAlert.present();
-          }
         }
       }
 
