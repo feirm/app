@@ -5,12 +5,11 @@ import bufferToHex from "./bufferToHex";
 import hexStringToBytes from "./hexStringToBytes";
 import { Coin, Wallet } from "./wallet";
 
-async function decryptWallet(pin: string): Promise<Wallet> {
-  // Fetch from localStorage as that will always be encrypted
-  const wallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
-  const isUnlocked = store.getters.isWalletDecrypted;
+async function decryptWallet(pin: string, wallet: Wallet): Promise<Wallet> {
+  // Determine if wallet itself is encrypted
+  const isEncrypted = store.getters.isWalletDecrypted;
 
-  if (wallet.encryption.isEncrypted && !isUnlocked) {
+  if (wallet.encryption.isEncrypted && !isEncrypted) {
     // Derive the encryption key from our PIN
     const secretKey = await hash({
       pass: pin,
