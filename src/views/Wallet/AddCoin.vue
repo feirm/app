@@ -25,7 +25,7 @@
           v-for="coin in coins"
           v-bind:key="coin.name"
           button="true"
-          @click="createCoinWallet(store.getters.getWalletMnemonic, coin.name, coin.ticker)"
+          @click="createCoinWallet(store.getters.getWallet.mnemonic, coin.name, coin.ticker)"
         >
           <ion-avatar slot="start">
             <img :src="coin.icon" />
