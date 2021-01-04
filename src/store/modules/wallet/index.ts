@@ -3,13 +3,16 @@ import { Wallet } from '@/lib/wallet';
 export const wallet = {
   state: {
     wallet: {} as Wallet,
-    isDecrypted: false,
+    isUnlocked: false,
     pin: "",
     mnemonic: ""
   },
   mutations: {
     setWalletMnemonic(state, mnemonic) {
       state.mnemonic = mnemonic;
+    },
+    setWalletUnlock(state, unlocked) {
+      state.isUnlocked = unlocked;
     },
     setWalletPin(state, pin) {
       state.pin = pin;
@@ -53,7 +56,7 @@ export const wallet = {
           return false;
         }
       },
-      isWalletDecrypted: state => state.isDecrypted,
+      isWalletUnlocked: state => state.isUnlocked,
       getWalletPin: state => state.pin
   }
 };
