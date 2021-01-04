@@ -2,6 +2,11 @@
 
 All notable changes to the Feirm PWA will be documented in this file.
 
+## [1.1.3](https://github.com/feirm/app/commits/1.1.3) - 04-01-2020
+### Changed
+* Show PWA version on page when a new update is available.
+* Fix transaction creation issue with encrypted wallets.
+
 ## [1.1.2](https://github.com/feirm/app/commits/1.1.2) - 04-01-2020
 ### Changed
 * Fix issue with deriving new coin wallets due to an invalid mnemonic.
