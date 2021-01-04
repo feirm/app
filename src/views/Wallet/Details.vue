@@ -180,20 +180,24 @@ export default defineComponent({
           {
             text: "Confirm",
             handler: () => {
-              // Fetch entire wallet from LocalStorage and parse it
-              const localWallet = localStorage.getItem("wallet") as string;
-              const wallet = JSON.parse(localWallet) as Wallet;
+              // Fetch entire encrypted wallet from localStorage
+              const encryptedWallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
+              const decryptedWallet = this.store.getters.getWallet;
 
-              // Fetch the index of the coin based on its ticker
-              const index = wallet.coins
-                .map((coin) => coin.ticker)
-                .indexOf(this.coin.ticker);
+              // Fetch the index of the coin based on its ticker in the decrypted wallet
+              const index = decryptedWallet.coins.map((coin) => coin.ticker).indexOf(this.coin.ticker);
 
-              // Remove the coin from wallet
-              wallet.coins.splice(index, 1);
+              // Remove the coin from decrypted wallet in Vuex
+              decryptedWallet.coins.splice(index, 1);
+              this.store.commit("setWalletState", decryptedWallet);
 
-              // Update the wallet state
-              this.store.commit("setWalletState", wallet);
+              // Do the same, but on the encrypted one for localStorage
+              // Fetch the index of the coin based on its ticker in the encrypted
+              const eIndex = encryptedWallet.coins.map((coin) => coin.ticker).indexOf(this.coin.ticker);
+
+              // Remove the coin from encrypted wallet found in localStorage
+              encryptedWallet.coins.splice(eIndex, 1);
+              localStorage.setItem("wallet", JSON.stringify(encryptedWallet));
 
               // Push to overall view page
               this.router.push("/tabs/wallet");
