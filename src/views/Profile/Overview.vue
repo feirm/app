@@ -41,7 +41,7 @@
           <ion-label>Encrypt Wallet</ion-label>
         </ion-item>
         <ion-item button="true" @click="deleteWallet" :disabled="!walletPresent">
-          <ion-icon slot="start" color="danger" :icon="walletOutline"></ion-icon>
+          <ion-icon slot="start" color="danger" :icon="trashOutline"></ion-icon>
           <ion-label>Remove Wallet</ion-label>
         </ion-item>
       </ion-list>
@@ -95,7 +95,7 @@ import {
 import {
   personOutline,
   keyOutline,
-  walletOutline,
+  trashOutline,
   lockClosedOutline,
   arrowDownOutline,
   documentLockOutline
@@ -291,7 +291,7 @@ export default defineComponent({
       version,
       personOutline,
       keyOutline,
-      walletOutline,
+      trashOutline,
       lockClosedOutline,
       arrowDownOutline,
       documentLockOutline
