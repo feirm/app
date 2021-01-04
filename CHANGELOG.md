@@ -2,6 +2,10 @@
 
 All notable changes to the Feirm PWA will be documented in this file.
 
+## [1.1.2](https://github.com/feirm/app/commits/1.1.2) - 04-01-2020
+### Changed
+* Fix issue with deriving new coin wallets due to an invalid mnemonic.
+
 ## [1.1.1](https://github.com/feirm/app/commits/1.1.1) - 04-01-2020
 ### Changed
 * Fix issue with verifying wallet mnemonic on backup screen.
