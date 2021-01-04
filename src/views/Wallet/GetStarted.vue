@@ -101,6 +101,11 @@ export default defineComponent({
               // Derive an XFE wallet from the mnemonic
               try {
                 const wallet = await DeriveWallet(inputs.mnemonic, "xfe");
+                
+                // Store wallet in localStorage
+                localStorage.setItem("wallet", JSON.stringify(wallet));
+
+                // Set state in Vuex
                 this.store.commit("setWalletState", wallet);
 
                 this.router.push({ path: "/tabs/wallet" });
