@@ -10,7 +10,7 @@
             ></ion-icon>
             <h1>Update Available</h1>
             <p>
-              There is a new update available for Feirm (v{{ version }}). Please click the button below to update!
+              There is a new update available for Feirm. Please click the button below to update to v{{ version }}!
             </p>
             <ion-button @click="updatePWA">Update</ion-button>
           </ion-col>
