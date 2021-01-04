@@ -89,27 +89,8 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
     index: 0,
   } as Coin;
 
-  // If there is a wallet, then append the coin to it
-  const existingWallet = localStorage.getItem("wallet");
-  if (existingWallet) {
-    // We need to parse the wallet so its available to us
-    const pWallet = JSON.parse(existingWallet) as Wallet;
-
-    // Get pin
-    const pin = store.getters.getWalletPin;
-
-    // Encrypt coin data
-    const coin = await encryptCoin(pin, cData);
-
-    // Push to coins
-    pWallet.coins.push(coin);
-
-    // Return the full wallet interface
-    return pWallet;
-  }
-
-  // If we made it here, we are going to assume a wallet doesn't exist, so lets generate one
-  const nWallet = {
+  // Generate a new wallet
+  const wallet = {
     id: uuidv4(),
     mnemonic: mnemonic,
     coins: [] as {},
@@ -117,10 +98,13 @@ async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
   } as Wallet;
 
   // Push the coin data to our new wallet
-  nWallet.coins.push(cData);
+  wallet.coins.push(cData);
+
+  // New wallets aren't encrypted by default
+  wallet.encryption.isEncrypted = false;
 
   // Return the newly created wallet
-  return nWallet;
+  return wallet;
 }
 
 // Derive a new coin address from the Extended public key
