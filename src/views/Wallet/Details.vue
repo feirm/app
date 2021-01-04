@@ -50,6 +50,7 @@
             ></ion-icon>
           </ion-button>
         </ion-col>
+        <!--
         <ion-col>
           <ion-button color="light">
             <ion-icon
@@ -59,6 +60,7 @@
             ></ion-icon>
           </ion-button>
         </ion-col>
+        -->
       </ion-row>
     </ion-content>
   </ion-page>
