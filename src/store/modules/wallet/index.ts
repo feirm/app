@@ -15,11 +15,6 @@ export const wallet = {
       state.pin = pin;
     },
     setWalletState(state, wallet) {
-      localStorage.setItem("wallet", JSON.stringify(wallet));
-      state.wallet = wallet;
-    },
-    setWalletUnlockedState(state, wallet) {
-      state.isDecrypted = true;
       state.wallet = wallet;
     },
     deleteWalletState(state) {
