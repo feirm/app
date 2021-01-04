@@ -186,7 +186,7 @@ export default {
               const decryptedWallet = await decryptWallet(pin, wallet);
 
               // Save decrypted wallet in Vuex
-              // this.store.commit("setWalletState", decryptedWallet);
+              store.commit("setWalletState", decryptedWallet);
 
               // Dismiss modal
               a.dismiss();
