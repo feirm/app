@@ -97,6 +97,8 @@ async function DeriveWallet(mnemonic: string, ticker: string) {
       // Get the PIN from Vuex
       const pin = store.getters.getWalletPin;
 
+      console.log("rootkey before encryption:", cData.rootKey);
+
       // Encrypt the coin data
       const encryptedCoin = await encryptCoin(pin, cData);
 
@@ -213,6 +215,8 @@ async function CreateSignedTransaction(
 
   // Lets find our wallet
   const wallet = await FindWallet(ticker);
+
+  console.log("rootkey used to create tx:", wallet.rootKey);
 
   // Derive the master BIP32 keypair from rootkey
   const masterKey = bip32.fromBase58(wallet.rootKey, network);
