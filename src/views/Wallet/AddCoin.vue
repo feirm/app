@@ -66,6 +66,7 @@ import azureService from "@/apiService/azureService";
 import { Coin, DeriveWallet, Wallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+import { decryptWallet } from "@/lib/encryptWallet";
 
 export default defineComponent({
   name: "AddCoin",
@@ -143,7 +144,23 @@ export default defineComponent({
             handler: async () => {
               // Add coin to wallet
               const wallet = await DeriveWallet(mnemonic, ticker);
-              this.store.commit("setWalletState", wallet);
+
+              // Update localStorage wallet
+              localStorage.setItem("wallet", JSON.stringify(wallet));
+
+              // Check whether or not wallet is encrypted
+              const walletEncrypted = this.store.getters.isWalletEncrypted;
+              if (walletEncrypted) {
+                // Get PIN
+                const pin = this.store.getters.getWalletPin;
+
+                // Decrypt the wallet and update Vuex state
+                const decryptedWallet = await decryptWallet(pin, wallet);
+                this.store.commit("setWalletState", decryptedWallet)
+              } else {
+                // Otherwise just update Vuex state for decrypted wallet
+                this.store.commit("setWalletState", wallet);
+              }
 
               this.router.push({ path: "/tabs/wallet" });
             },

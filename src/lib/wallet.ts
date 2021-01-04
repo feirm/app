@@ -91,23 +91,37 @@ async function DeriveWallet(mnemonic: string, ticker: string) {
   // Check if we already have a wallet
   const walletPresent = store.getters.isWalletPresent;
   if (walletPresent) {
-    // Get the PIN from Vuex
-    const pin = store.getters.getWalletPin;
+    // Handle encrypted wallets
+    const walletEncrypted = store.getters.isWalletEncrypted;
+    if (walletEncrypted) {
+      // Get the PIN from Vuex
+      const pin = store.getters.getWalletPin;
 
-    // Encrypt the coin data
-    const encryptedCoin = await encryptCoin(pin, cData);
+      // Encrypt the coin data
+      const encryptedCoin = await encryptCoin(pin, cData);
 
-    // Get localStorage encrypted wallet and update it
-    const encryptedWallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
-    encryptedWallet.coins.push(encryptedCoin)
-    localStorage.setItem("wallet", JSON.stringify(encryptedWallet));
+      // Get localStorage encrypted wallet and update it
+      const encryptedWallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
+      encryptedWallet.coins.push(encryptedCoin)
+      localStorage.setItem("wallet", JSON.stringify(encryptedWallet));
 
-    // Add the new wallet to Vuex state
-    // Decrypt the entire wallet again to get our newly added coin, and save state
-    const decryptedWallet = await decryptWallet(pin, encryptedWallet);
-    store.commit("setWalletState", decryptedWallet);
+      // Add the new wallet to Vuex state
+      // Decrypt the entire wallet again to get our newly added coin, and save state
+      //const decryptedWallet = await decryptWallet(pin, encryptedWallet);
+      //store.commit("setWalletState", decryptedWallet);
 
-    return;
+      return encryptedWallet;
+    }
+
+    // Otherwise, just add the coin to localStorage wallet, and update Vuex state
+    const localWallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
+    localWallet.coins.push(cData);
+    localStorage.setItem("wallet", JSON.stringify(localWallet));
+
+    // Update Vuex
+    store.commit("setWalletState", localWallet);
+      
+    return localWallet;
   }
 
   // Generate a new wallet
