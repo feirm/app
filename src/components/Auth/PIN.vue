@@ -1,6 +1,9 @@
 <template>
   <ion-content class="ion-padding" fullscreen="true">
-    <!-- Push the PIN pad down a bit -->
+    <br>
+    <br>
+    <br>
+    <br>
     <br>
     <br>
     <br>
@@ -182,11 +185,6 @@
       </ion-row>
     </ion-grid>
   </ion-content>
-
-  <!-- Footer -->
-  <ion-footer class="ion-no-border ion-padding ion-text-center">
-      <ion-button expand="block" color="danger" @click="close">Close</ion-button>
-  </ion-footer>
 </template>
 
 <script lang="ts">
@@ -200,7 +198,6 @@ import {
   IonText,
   IonFab,
   IonFabButton,
-  IonFooter,
   IonButton,
   modalController
 } from "@ionic/vue";
@@ -223,7 +220,6 @@ export default defineComponent({
     IonText,
     IonFab,
     IonFabButton,
-    IonFooter,
     IonButton
   },
   props: {
@@ -254,10 +250,6 @@ export default defineComponent({
         // Dismiss the modal and return the PIN
         modalController.dismiss(this.pin);
     },
-    close() {
-        // Exit the modal without any data being returned
-        modalController.dismiss();
-    }
   },
   setup() {
     return {
