@@ -193,7 +193,7 @@ export default defineComponent({
           localStorage.setItem("wallet", JSON.stringify(wallet));
 
           // Do something with the wallet, such as decrypt it, and then save it to Vuex
-          const decryptedWallet = decryptWallet(pin, wallet);
+          const decryptedWallet = await decryptWallet(pin, wallet);
           this.store.commit("setWalletState", decryptedWallet);
 
           // Dismiss the loading controller
