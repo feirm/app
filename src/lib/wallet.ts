@@ -49,7 +49,6 @@ async function GenerateMnemonic(): Promise<string> {
 // Take a mnemonic and derive a wallet for a coin (based on ticker)
 async function DeriveWallet(mnemonic: string, ticker: string): Promise<Wallet> {
   // First of all, lets validate the mnemonic
-  console.log("mnemonic wallet.ts:54", mnemonic)
   const valid = validateMnemonic(mnemonic);
   if (!valid) {
     throw new Error("The mnemonic provided is not valid!");

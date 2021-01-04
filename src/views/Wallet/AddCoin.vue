@@ -130,7 +130,6 @@ export default defineComponent({
       return alert.present();
     },
     async createCoinWallet(mnemonic: string, coin: string, ticker: string) {
-      console.log("mnemonic:", mnemonic)
       // Create a confirmation alert asking the user if they want to add a new coin
       const confirmAlert = await alertController.create({
         header: "Add new coin?",
