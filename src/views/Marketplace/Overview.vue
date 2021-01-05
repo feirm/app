@@ -3,9 +3,9 @@
     <ion-header>
       <ion-toolbar class="ion-text-center">
         <ion-buttons slot="start">
-            <ion-button>
-                <ion-icon slot="icon-only"></ion-icon>
-            </ion-button>
+          <ion-button>
+            <ion-icon slot="icon-only"></ion-icon>
+          </ion-button>
         </ion-buttons>
         <ion-buttons slot="secondary">
           <ion-button color="primary" @click="navToChat">
@@ -33,6 +33,34 @@
         </ion-card-content>
       </ion-card>
       <ion-grid>
+        <!-- Quick options -->
+        <ion-row>
+          <ion-col>
+            <p><b>Quick Actions</b></p>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="3">
+            <ion-button color="light">
+              <ion-icon
+                slot="icon-only"
+                color="primary"
+                :icon="addCircleOutline"
+              ></ion-icon>
+            </ion-button>
+          </ion-col>
+          <ion-col size="3">
+            <ion-button color="light">
+              <ion-icon
+                slot="icon-only"
+                color="primary"
+                :icon="cashOutline"
+              ></ion-icon>
+            </ion-button>
+          </ion-col>
+        </ion-row>
+
+        <!-- Recent listings -->
         <ion-row>
           <ion-col>
             <p><b>Recent Listings</b></p>
@@ -77,11 +105,9 @@ import {
   IonCol,
   IonButtons,
   IonButton,
-  IonIcon
+  IonIcon,
 } from "@ionic/vue";
-import {
-    chatbubbleEllipsesOutline
-} from "ionicons/icons";
+import { chatbubbleEllipsesOutline, addCircleOutline, cashOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
 
 export default defineComponent({
@@ -101,22 +127,24 @@ export default defineComponent({
     IonCol,
     IonButtons,
     IonButton,
-    IonIcon
+    IonIcon,
   },
   methods: {
-      navToChat() {
-          this.router.push({ path: "/tabs/marketplace/chat" })
-      }
+    navToChat() {
+      this.router.push({ path: "/tabs/marketplace/chat" });
+    },
   },
   setup() {
-      // Get router instance
-      const router = useRouter();
+    // Get router instance
+    const router = useRouter();
 
-      return {
-          router,
+    return {
+      router,
 
-          chatbubbleEllipsesOutline
-      }
-  }
+      chatbubbleEllipsesOutline,
+      addCircleOutline,
+      cashOutline
+    };
+  },
 });
 </script>
