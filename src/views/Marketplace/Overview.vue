@@ -23,10 +23,12 @@
     <ion-content class="ion-padding" fullscreen="true">
       <ion-card>
         <ion-card-content>
+          <ion-img src="/assets/logo.png"></ion-img>
+          <hr />
           <ion-text class="ion-text-center">
             <p>
-              Welcome to the Feirm Marketplace. Transact freely with complete
-              privacy and security.
+              Welcome. Transact freely with complete <b>privacy</b> and
+              <b>security</b>.
             </p>
           </ion-text>
           <ion-searchbar color="dark" animated></ion-searchbar>
@@ -54,7 +56,16 @@
               <ion-icon
                 slot="icon-only"
                 color="primary"
-                :icon="cashOutline"
+                :icon="pricetagsOutline"
+              ></ion-icon>
+            </ion-button>
+          </ion-col>
+          <ion-col size="3">
+            <ion-button color="light">
+              <ion-icon
+                slot="icon-only"
+                color="primary"
+                :icon="personOutline"
               ></ion-icon>
             </ion-button>
           </ion-col>
@@ -106,8 +117,14 @@ import {
   IonButtons,
   IonButton,
   IonIcon,
+  IonImg,
 } from "@ionic/vue";
-import { chatbubbleEllipsesOutline, addCircleOutline, cashOutline } from "ionicons/icons";
+import {
+  chatbubbleEllipsesOutline,
+  addCircleOutline,
+  pricetagsOutline,
+  personOutline
+} from "ionicons/icons";
 import { useRouter } from "vue-router";
 
 export default defineComponent({
@@ -128,6 +145,7 @@ export default defineComponent({
     IonButtons,
     IonButton,
     IonIcon,
+    IonImg,
   },
   methods: {
     navToChat() {
@@ -143,8 +161,16 @@ export default defineComponent({
 
       chatbubbleEllipsesOutline,
       addCircleOutline,
-      cashOutline
+      pricetagsOutline,
+      personOutline
     };
   },
 });
 </script>
+
+<style scoped>
+ion-img {
+  margin: 0 auto;
+  width: 42px;
+}
+</style>
