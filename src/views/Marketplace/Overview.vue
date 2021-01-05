@@ -43,31 +43,40 @@
         </ion-row>
         <ion-row>
           <ion-col size="3">
-            <ion-button color="light">
+            <ion-tab-button>
               <ion-icon
-                slot="icon-only"
                 color="primary"
                 :icon="addCircleOutline"
               ></ion-icon>
-            </ion-button>
+              <ion-label>New</ion-label>
+            </ion-tab-button>
           </ion-col>
           <ion-col size="3">
-            <ion-button color="light">
+            <ion-tab-button>
               <ion-icon
-                slot="icon-only"
                 color="primary"
-                :icon="pricetagsOutline"
+                :icon="fileTrayFullOutline"
               ></ion-icon>
-            </ion-button>
+              <ion-label>History</ion-label>
+            </ion-tab-button>
           </ion-col>
           <ion-col size="3">
-            <ion-button color="light">
+            <ion-tab-button>
               <ion-icon
-                slot="icon-only"
                 color="primary"
-                :icon="personOutline"
+                :icon="storefrontOutline"
               ></ion-icon>
-            </ion-button>
+              <ion-label>Store</ion-label>
+            </ion-tab-button>
+          </ion-col>
+          <ion-col size="3">
+            <ion-tab-button>
+              <ion-icon
+                color="primary"
+                :icon="starOutline"
+              ></ion-icon>
+              <ion-label>Stars</ion-label>
+            </ion-tab-button>
           </ion-col>
         </ion-row>
 
@@ -116,14 +125,17 @@ import {
   IonCol,
   IonButtons,
   IonButton,
+  IonTabButton,
   IonIcon,
   IonImg,
+  IonLabel
 } from "@ionic/vue";
 import {
   chatbubbleEllipsesOutline,
   addCircleOutline,
-  pricetagsOutline,
-  personOutline
+  fileTrayFullOutline,
+  storefrontOutline,
+  starOutline
 } from "ionicons/icons";
 import { useRouter } from "vue-router";
 
@@ -144,8 +156,10 @@ export default defineComponent({
     IonCol,
     IonButtons,
     IonButton,
+    IonTabButton,
     IonIcon,
     IonImg,
+    IonLabel
   },
   methods: {
     navToChat() {
@@ -161,8 +175,9 @@ export default defineComponent({
 
       chatbubbleEllipsesOutline,
       addCircleOutline,
-      pricetagsOutline,
-      personOutline
+      fileTrayFullOutline,
+      storefrontOutline,
+      starOutline
     };
   },
 });
