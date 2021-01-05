@@ -101,8 +101,10 @@ async function DeriveWallet(mnemonic: string, ticker: string) {
       const encryptedCoin = await encryptCoin(pin, cData);
 
       // Get localStorage encrypted wallet and update it
-      const encryptedWallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
-      encryptedWallet.coins.push(encryptedCoin)
+      const encryptedWallet = JSON.parse(
+        localStorage.getItem("wallet")!
+      ) as Wallet;
+      encryptedWallet.coins.push(encryptedCoin);
       localStorage.setItem("wallet", JSON.stringify(encryptedWallet));
 
       // Add the new wallet to Vuex state
@@ -120,7 +122,7 @@ async function DeriveWallet(mnemonic: string, ticker: string) {
 
     // Update Vuex
     store.commit("setWalletState", localWallet);
-      
+
     return localWallet;
   }
 
@@ -129,7 +131,7 @@ async function DeriveWallet(mnemonic: string, ticker: string) {
     id: uuidv4(),
     mnemonic: mnemonic,
     coins: [] as {},
-    encryption: {} as Encryption
+    encryption: {} as Encryption,
   } as Wallet;
 
   // Push the coin data to our new wallet
@@ -162,16 +164,40 @@ async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
     "https://cors-anywhere.feirm.com/" +
       coinData.data.coinInformation.blockbook +
       "/api/v2/xpub/" +
-      xpub
+      xpub +
+      "?tokens=used"
   );
+
+  // Find the lowest index missing index
+  let missingIndex = 0;
+
+  if (xpubData.data.tokens) {
+    for (let i = 0; i < xpubData.data.tokens.length; i++) {
+      // Get the path
+      const path: string = xpubData.data.tokens[i].path;
+
+      // Split the path to extract index
+      const index = path.split("/")[5];
+
+      console.log("Have path:", index);
+
+      // Increment the index until we reach one that doesnt exist
+      if (i + 1 != parseInt(index) + 1) {
+        console.log("Missing path:", i);
+        missingIndex = i;
+        break;
+      }
+
+      missingIndex = i + 1;
+    }
+  }
 
   // Derive an address using xpub data response
   const { address } = payments.p2pkh({
     pubkey: bip32
       .fromBase58(xpub)
       .derive(0)
-      .derive(xpubData.data.usedTokens ? xpubData.data.usedTokens : 0)
-      .publicKey,
+      .derive(xpubData.data.usedTokens ? missingIndex : 0).publicKey,
     network: network,
   });
 
@@ -294,7 +320,7 @@ async function CreateSignedTransaction(
             }
           });
       }
-      
+
       // We can now be sure that the loop has ended and that we are using inputs of the correct value
       // Create an output for the initial amount being spent to the recipient
       console.log("XFE to spend:", AMOUNT_IN_SATOSHIS.toNumber());
