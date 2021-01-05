@@ -69,6 +69,12 @@ const routes: Array<RouteRecordRaw> = [
         component: () => import("@/views/Wallet/Transactions.vue"),
       },
 
+      // Marketplace
+      {
+        path: "marketplace",
+        component: () => import("@/views/Marketplace/Overview.vue")
+      },
+
       // Account
       {
         path: "contacts",
