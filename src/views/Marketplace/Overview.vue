@@ -2,6 +2,20 @@
   <ion-page>
     <ion-header>
       <ion-toolbar class="ion-text-center">
+        <ion-buttons slot="start">
+            <ion-button>
+                <ion-icon slot="icon-only"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-buttons slot="secondary">
+          <ion-button color="primary" @click="navToChat">
+            <ion-icon
+              slot="icon-only"
+              :icon="chatbubbleEllipsesOutline"
+            ></ion-icon>
+          </ion-button>
+        </ion-buttons>
+
         <ion-title>Marketplace</ion-title>
       </ion-toolbar>
     </ion-header>
@@ -61,7 +75,14 @@ import {
   IonGrid,
   IonRow,
   IonCol,
+  IonButtons,
+  IonButton,
+  IonIcon
 } from "@ionic/vue";
+import {
+    chatbubbleEllipsesOutline
+} from "ionicons/icons";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "Overview",
@@ -78,6 +99,24 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
+    IonButtons,
+    IonButton,
+    IonIcon
   },
+  methods: {
+      navToChat() {
+          this.router.push({ path: "/tabs/marketplace/chat" })
+      }
+  },
+  setup() {
+      // Get router instance
+      const router = useRouter();
+
+      return {
+          router,
+
+          chatbubbleEllipsesOutline
+      }
+  }
 });
 </script>
