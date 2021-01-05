@@ -89,18 +89,22 @@ async function encryptCoin(pin: string, coin: Coin): Promise<Coin> {
     aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
     const rootKeyCiphertext = aesCbc.encrypt(padding.pkcs7.pad(utils.utf8.toBytes(coin.rootKey)));
     coin.rootKey = utils.hex.fromBytes(rootKeyCiphertext);
+  } catch (e) {
+    throw new Error(e);
+  }
 
+  try {
     aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
     const extendedPrivateKeyCiphertext = aesCbc.encrypt(
       padding.pkcs7.pad(utils.utf8.toBytes(coin.extendedPrivateKey))
     );
     coin.extendedPrivateKey = bufferToHex(extendedPrivateKeyCiphertext);
-
-    // Set coin state to encrypted
-    coin.isEncrypted = true;
   } catch (e) {
-    console.log("Error encrypting coin:", coin.name, "error:", e);
+    throw new Error(e);
   }
+
+  // Set coin state to encrypted
+  coin.isEncrypted = true;
 
   // Return the newly encrypted coin data
   return coin;
@@ -138,26 +142,27 @@ async function encryptWallet(pin: string) {
 
       try {
         aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
-        const rootKeyCiphertext = aesCbc.encrypt(
-          padding.pkcs7.pad(utils.utf8.toBytes(coin.rootKey))
-        );
-        coin.rootKey = bufferToHex(rootKeyCiphertext);
+        const rootKeyCiphertext = aesCbc.encrypt(padding.pkcs7.pad(utils.utf8.toBytes(coin.rootKey)));
+        coin.rootKey = utils.hex.fromBytes(rootKeyCiphertext);
+      } catch (e) {
+        throw new Error("Root key encryption error. " + e);
+      }
 
+      try {
         aesCbc = new ModeOfOperation.cbc(secretKey.hash, encryptionIv);
         const extendedPrivateKeyCiphertext = aesCbc.encrypt(
           padding.pkcs7.pad(utils.utf8.toBytes(coin.extendedPrivateKey))
         );
         coin.extendedPrivateKey = bufferToHex(extendedPrivateKeyCiphertext);
-
-        // Set coin state to encrypted
-        coin.isEncrypted = true;
-
-        // Set coin data again
-        wallet.coins[i] = coin;
       } catch (e) {
-        console.log("Error encrypting coin:", coin.name, "error:", e);
-        break;
+        throw new Error("Extended private key encryption error. " + e);
       }
+
+      // Set coin state to encrypted
+      coin.isEncrypted = true;
+
+      // Set coin data again
+      wallet.coins[i] = coin;
     }
 
     // Update the wallet with the newly encrypted one
