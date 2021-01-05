@@ -2,6 +2,12 @@
 
 All notable changes to the Feirm PWA will be documented in this file.
 
+## [1.1.4](https://github.com/feirm/app/commits/1.1.4) - 05-01-2020
+### Changed
+* Fix bug which skipped over BIP32 indexes.
+* Make use of unused (skipped) BIP32 indexes.
+* Improved error handling for wallet encryption feature.
+
 ## [1.1.3](https://github.com/feirm/app/commits/1.1.3) - 04-01-2020
 ### Changed
 * Show PWA version on page when a new update is available.
