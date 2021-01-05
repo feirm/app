@@ -132,7 +132,7 @@ async function encryptWallet(pin: string) {
 
     // Encrypt the wallet mnemonic
     const mnemonicCipherText = aesCbc.encrypt(
-      utils.utf8.toBytes(wallet.mnemonic)
+      padding.pkcs7.pad(utils.utf8.toBytes(wallet.mnemonic))
     );
     wallet.mnemonic = bufferToHex(mnemonicCipherText);
 
