@@ -177,18 +177,22 @@ async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
       const path: string = xpubData.data.tokens[i].path;
 
       // Split the path to extract index
-      const index = path.split("/")[5];
+      const splitPath = path.split("/");
+      const index = splitPath[5];
 
-      console.log("Have path:", index);
+      // Only continue if the account level is 0 (receiving account)
+      if (parseInt(splitPath[4]) === 0) {
+        // console.log("Have path:", index);
 
-      // Increment the index until we reach one that doesnt exist
-      if (i + 1 != parseInt(index) + 1) {
-        console.log("Missing path:", i);
-        missingIndex = i;
-        break;
+        // Increment the index until we reach one that doesnt exist
+        if (i + 1 != parseInt(index) + 1) {
+          // console.log("Missing path:", i);
+          missingIndex = i;
+          break;
+        }
+
+        missingIndex = i + 1;
       }
-
-      missingIndex = i + 1;
     }
   }
 
@@ -339,18 +343,41 @@ async function CreateSignedTransaction(
           "?tokens=used"
       );
 
-      // Fetch the last used (change) index
-      const lastChange = xpubData.data.tokens[xpubData.data.tokens.length - 1];
-      const lastChangeIndex = bip32
-        .fromBase58(wallet.rootKey)
-        .derivePath(lastChange.path).index;
+      // Find the lowest index missing index
+      let lowestChangeIndex = 0;
+
+      if (xpubData.data.tokens) {
+        for (let i = 0; i < xpubData.data.tokens.length; i++) {
+          // Get the path
+          const path: string = xpubData.data.tokens[i].path;
+
+          // Split the path to extract index
+          const splitPath = path.split("/");
+          const account = parseInt(splitPath[4]);
+          const index = parseInt(splitPath[5]);
+
+          // Check that its under the change account we can continue
+          if (account == 1) {
+            // Increment the index until we reach one that doesnt exist
+            // console.log("Have change index:", index);
+
+            if (i + 1 != index + 1) {
+              // console.log("Missing change index:", i + 1);
+              lowestChangeIndex = i;
+              break;
+            }
+
+            lowestChangeIndex = i + 1;
+          }
+        }
+      }
 
       // Derive the change address
       const changeAddress = payments.p2pkh({
         pubkey: bip32
           .fromBase58(wallet.extendedPublicKey)
           .derive(1)
-          .derive(lastChangeIndex + 1).publicKey,
+          .derive(lowestChangeIndex).publicKey,
         network: network,
       }).address;
 
