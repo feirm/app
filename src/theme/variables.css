@@ -1,30 +1,9 @@
 /* Ionic Variables and Theming. For more info, please see:
 http://ionicframework.com/docs/theming/ */
 
-/** Custom fonts **/
-@font-face {
-    font-family: 'Nunito';
-    src: url('./fonts/Nunito-Black.ttf'),
-         url('./fonts/Nunito-BlackItalic.ttf'),
-         url('./fonts/Nunito-Bold.ttf'),
-         url('./fonts/Nunito-BoldItalic.ttf'),
-         url('./fonts/Nunito-ExtraBold.ttf'),
-         url('./fonts/Nunito-ExtraBoldItalic.ttf'),
-         url('./fonts/Nunito-ExtraLight.ttf'),
-         url('./fonts/Nunito-ExtraLightItalic.ttf'),
-         url('./fonts/Nunito-Italic.ttf'),
-         url('./fonts/Nunito-Light.ttf'),
-         url('./fonts/Nunito-LightItalic.ttf'),
-         url('./fonts/Nunito-Regular.ttf'),
-         url('./fonts/Nunito-SemiBold.ttf'),
-         url('./fonts/Nunito-SemiBoldItalic.ttf');
-}
-
 /** Ionic CSS Variables **/
 :root {
   /** primary **/
-  --ion-font-family: "Nunito";
-
   /* Feirm orange */
   --ion-color-primary: #f69738;
   --ion-color-primary-rgb: 246, 151, 56;
@@ -261,3 +240,13 @@ http://ionicframework.com/docs/theming/ */
   position: absolute;
   display: block;
 }
+
+/* Sending coins modal */
+/*
+.sendCoinsModal .modal-wrapper {
+  max-height: 37%;
+  bottom: 0%;
+  position: absolute;
+  display: block;
+}
+*/
