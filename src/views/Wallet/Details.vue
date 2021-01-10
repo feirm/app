@@ -1,9 +1,9 @@
 <template>
   <ion-page>
     <ion-header class="ion-no-border">
-      <ion-toolbar class="ion-text-center header-gradient">
+      <ion-toolbar class="ion-text-left header-gradient">
         <ion-grid>
-          <ion-row>
+          <ion-row class="ion-no-padding">
             <ion-col>
               <ion-buttons class="ion-float-left">
                 <ion-back-button color="dark"></ion-back-button>
@@ -18,9 +18,9 @@
           </ion-row>
 
           <!-- Balance -->
-          <ion-row>
+          <ion-row class="ion-padding">
             <ion-col>
-              <p><b>{{ coin.name }}</b></p>
+              <h4><b>{{ coin.name }}</b></h4>
               <h1>{{ (coin.balance / 100000000).toFixed(3) }} {{ ticker.toUpperCase() }}</h1>
             </ion-col>
           </ion-row>
