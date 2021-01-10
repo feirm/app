@@ -231,22 +231,3 @@ http://ionicframework.com/docs/theming/ */
     --ion-card-background: #1e1e1e;
   }
 }
-
-/* Custom Feirm component styles */
-/* Receiving address modal */
-.receivingAddressModal .modal-wrapper {
-  max-height: 70%;
-  bottom: 0%;
-  position: absolute;
-  display: block;
-}
-
-/* Sending coins modal */
-/*
-.sendCoinsModal .modal-wrapper {
-  max-height: 37%;
-  bottom: 0%;
-  position: absolute;
-  display: block;
-}
-*/
