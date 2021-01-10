@@ -10,30 +10,36 @@
     </ion-toolbar>
   </ion-header>
   <ion-content class="ion-padding ion-text-center" v-if="qrCode.length !== 0">
-    <!-- QR Code -->
-    <ion-card>
-      <ion-card-content>
-        <ion-img :src="qrCode"></ion-img>
-      </ion-card-content>
-    </ion-card>
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <!-- QR Code -->
+          <ion-card>
+            <ion-card-content>
+              <ion-img :src="qrCode"></ion-img>
+            </ion-card-content>
+          </ion-card>
 
-    <br>
+          <br>
 
-    <!-- Address text functionality -->
-    <ion-text @click="copyToClipboard">
-      <code>
-        <p class="address">
-          <b>{{ address }}</b>
-        </p>
-      </code>
-    </ion-text>
+          <!-- Address text functionality -->
+          <ion-text @click="copyToClipboard">
+            <code>
+              <p class="address">
+                <b>{{ address }}</b>
+              </p>
+            </code>
+          </ion-text>
 
-    <br>
+          <br>
 
-    <ion-button expand="block" @click="share">
-      <ion-icon slot="start" :icon="shareSocial"></ion-icon>
-      Share
-    </ion-button>
+          <ion-button expand="block" @click="share">
+            <ion-icon slot="start" :icon="shareSocial"></ion-icon>
+              Share
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
   </ion-content>
 </template>
 
@@ -51,6 +57,9 @@ import {
   IonButton,
   IonCard,
   IonCardContent,
+  IonGrid,
+  IonRow,
+  IonCol,
   toastController,
   alertController,
   modalController,
@@ -185,7 +194,10 @@ export default defineComponent({
     IonIcon,
     IonButton,
     IonCard,
-    IonCardContent
+    IonCardContent,
+    IonGrid,
+    IonRow,
+    IonCol
   },
 });
 </script>
@@ -193,5 +205,16 @@ export default defineComponent({
 <style scoped>
 .address {
   font-size: 12px;
+}
+
+ion-grid {
+  height: 100%;
+}
+
+ion-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 </style>
