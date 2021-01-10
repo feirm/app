@@ -1,11 +1,10 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar class="ion-text-center">
+    <ion-header class="ion-no-border">
+      <ion-toolbar class="ion-text-center" color="transparent">
         <ion-buttons slot="start">
-          <ion-back-button></ion-back-button>
+          <ion-back-button color="dark"></ion-back-button>
         </ion-buttons>
-        <ion-title>{{ coin.name }} ({{ ticker.toUpperCase() }})</ion-title>
         <ion-buttons slot="secondary">
           <ion-button @click="removeCoin" color="danger">
             <ion-icon :icon="trashOutline" slot="icon-only"></ion-icon>
@@ -13,56 +12,53 @@
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    <ion-content :fullscreen="true" class="ion-padding ion-text-center">
-      <ion-card color="light">
-        <ion-card-content>
-          <h1>
-            {{ (coin.balance / 100000000).toFixed(2) }}
-            {{ ticker.toUpperCase() }}
-          </h1>
-        </ion-card-content>
-      </ion-card>
-      <ion-row class="ion-text-center">
-        <ion-col>
-          <ion-button color="light" @click="sendModal">
-            <ion-icon
-              color="primary"
-              slot="icon-only"
-              :icon="arrowUpOutline"
-            ></ion-icon>
-          </ion-button>
-        </ion-col>
-        <ion-col>
-          <ion-button color="light" @click="receiveModal">
-            <ion-icon
-              color="primary"
-              slot="icon-only"
-              :icon="arrowDownOutline"
-            ></ion-icon>
-          </ion-button>
-        </ion-col>
-        <ion-col>
-          <ion-button color="light" @click="transactionHistory">
-            <ion-icon
-              color="primary"
-              slot="icon-only"
-              :icon="receiptOutline"
-            ></ion-icon>
-          </ion-button>
-        </ion-col>
-        <!--
-        <ion-col>
-          <ion-button color="light">
-            <ion-icon
-              color="primary"
-              slot="icon-only"
-              :icon="settingsOutline"
-            ></ion-icon>
-          </ion-button>
-        </ion-col>
-        -->
-      </ion-row>
+    <ion-content :fullscreen="true" class="ion-padding">
+      <ion-grid>
+        <!-- Wallet coin name and balance showcase -->
+        <ion-row>
+          <ion-col>
+            <p><b>{{ coin.name }}</b></p>
+            <h1>{{ (coin.balance / 100000000).toFixed(3) }} {{ ticker.toUpperCase() }}</h1>
+          </ion-col>
+        </ion-row>
+
+        <ion-button v-show="coin.ticker === 'xfe'" expand="block" href="https://trade.birake.com">Buy Feirm</ion-button>
+
+        <!-- Recent transactions -->
+        <ion-row>
+          <ion-col>
+            <h4 class="ion-text-bold">
+              <b>Transactions</b>
+            </h4>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <p>It appears that you do not have any transactions yet...</p>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-content>
+
+    <!-- Send and receive buttons -->
+    <ion-footer class="ion-no-border ion-padding">
+      <ion-grid>
+        <ion-row class="ion-no-padding">
+          <ion-col>
+            <ion-button expand="block">
+              <ion-icon slot="start" :icon="chevronDownCircleOutline"></ion-icon>
+              Receive
+            </ion-button>
+          </ion-col>
+          <ion-col>
+            <ion-button expand="block">
+              <ion-icon slot="start" :icon="chevronUpCircleOutline"></ion-icon>
+              Send
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </ion-footer>
   </ion-page>
 </template>
 
@@ -72,25 +68,22 @@ import {
   IonPage,
   IonContent,
   IonIcon,
-  IonCard,
-  IonCardContent,
-  IonRow,
-  IonCol,
   IonHeader,
   IonToolbar,
   IonButton,
   IonButtons,
-  IonTitle,
   IonBackButton,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonFooter,
   modalController,
   alertController,
 } from "@ionic/vue";
 import {
-  arrowUpOutline,
-  arrowDownOutline,
-  receiptOutline,
-  trashOutline,
-  settingsOutline,
+  chevronUpCircleOutline,
+  chevronDownCircleOutline,
+  trashOutline
 } from "ionicons/icons";
 import { useStore } from "vuex";
 import { Coin, FindWallet, Wallet } from "@/lib/wallet";
@@ -108,16 +101,15 @@ export default defineComponent({
     IonPage,
     IonContent,
     IonIcon,
-    IonRow,
-    IonCol,
-    IonCard,
-    IonCardContent,
     IonHeader,
     IonToolbar,
     IonButton,
     IonButtons,
-    IonTitle,
     IonBackButton,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonFooter
   },
   data() {
     return {
@@ -223,11 +215,9 @@ export default defineComponent({
     return {
       store,
       router,
-      arrowUpOutline,
-      arrowDownOutline,
-      receiptOutline,
-      trashOutline,
-      settingsOutline,
+      chevronUpCircleOutline,
+      chevronDownCircleOutline,
+      trashOutline
     };
   },
 });
