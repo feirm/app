@@ -1,4 +1,14 @@
 <template>
+  <ion-header class="ion-no-border">
+    <ion-toolbar class="ion-text-left" color="transparent">
+      <ion-title color="dark">Receive</ion-title>
+      <ion-buttons slot="secondary">
+        <ion-button @click="closeModal" color="dark">
+          <ion-icon slot="icon-only" :icon="close"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
   <ion-content class="ion-padding ion-text-center" v-if="qrCode.length !== 0">
     <!-- QR Code -->
     <ion-card>
@@ -7,8 +17,10 @@
       </ion-card-content>
     </ion-card>
 
+    <br>
+
     <!-- Address text functionality -->
-    <ion-text>
+    <ion-text @click="copyToClipboard">
       <code>
         <p class="address">
           <b>{{ address }}</b>
@@ -16,18 +28,11 @@
       </code>
     </ion-text>
 
-    <!-- Copy, share and exit buttons -->
-    <ion-button expand="block" @click="copyToClipboard">
-      <ion-icon slot="start" :icon="clipboard"></ion-icon>
-      Copy to clipboard
-    </ion-button>
+    <br>
+
     <ion-button expand="block" @click="share">
       <ion-icon slot="start" :icon="shareSocial"></ion-icon>
-      Share address
-    </ion-button>
-    <ion-button expand="block" @click="closeModal" color="danger">
-      <ion-icon slot="start" :icon="close"></ion-icon>
-      Close
+      Share
     </ion-button>
   </ion-content>
 </template>
@@ -35,6 +40,10 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
   IonContent,
   IonText,
   IonImg,
@@ -91,7 +100,7 @@ export default defineComponent({
               const payment = bip21.encode(address, {}, this.$props.coin)
 
               // Generate a QR code of the address
-              await QRCode.toDataURL(payment, { width: 200 }).then((qr) => {
+              await QRCode.toDataURL(payment, { width: 200, margin: 1 }).then((qr) => {
                 this.qrCode = qr;
               });
 
@@ -132,8 +141,6 @@ export default defineComponent({
           });
 
           toast.present();
-
-          await modalController.dismiss();
         })
         .catch(async (err) => {
           // Error alert
@@ -168,6 +175,10 @@ export default defineComponent({
     };
   },
   components: {
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonButtons,
     IonContent,
     IonText,
     IonImg,
