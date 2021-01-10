@@ -5,10 +5,30 @@ import Tabs from "../views/Tabs.vue";
 import tatsuyaService from "@/apiService/tatsuyaService";
 import * as nacl from "tweetnacl";
 import bufferToHex from "@/lib/bufferToHex";
-import { alertController, modalController } from "@ionic/vue";
 
-import PIN from "@/components/Auth/PIN.vue";
-import { decryptWallet } from "@/lib/encryptWallet";
+// Pages and Components
+// Authentication
+import Login from "@/views/Auth/Login/Login.vue";
+import RegisterUsername from "@/views/Auth/Register/Username.vue";
+import RegisterPassword from "@/views/Auth/Register/Password.vue";
+
+// Tabs
+import TabDiscover from "@/views/Discover.vue";
+import TabWalletOverview from "@/views/Wallet/Overview.vue";
+import TabWalletDetails from "@/views/Wallet/Details.vue";
+import TabWalletTransactions from "@/views/Wallet/Transactions.vue";
+import TabMarketplaceOverview from "@/views/Marketplace/Overview.vue";
+import TabContacts from "@/views/Contacts/Contacts.vue";
+import TabProfileOverview from "@/views/Profile/Overview.vue";
+
+// Wallet
+import WalletGetStarted from "@/views/Wallet/GetStarted.vue";
+import WalletNewSeed from "@/views/Wallet/NewSeed.vue";
+import WalletBackupSeed from "@/views/Wallet/BackupSeed.vue";
+import WalletAddCoin from "@/views/Wallet/AddCoin.vue";
+
+// Update
+import Update from "@/views/Update.vue";
 
 const routes: Array<RouteRecordRaw> = [
   // Redirect index page to Discover route
@@ -19,21 +39,21 @@ const routes: Array<RouteRecordRaw> = [
   // Authentication routes
   {
     path: "/auth/login",
-    component: () => import("@/views/Auth/Login/Login.vue"),
+    component: Login,
     meta: {
       requiresAuth: false,
     },
   },
   {
     path: "/auth/register",
-    component: () => import("@/views/Auth/Register/Username.vue"),
+    component: RegisterUsername,
     meta: {
       requiresAuth: false,
     },
   },
   {
     path: "/auth/register/password",
-    component: () => import("@/views/Auth/Register/Password.vue"),
+    component: RegisterPassword,
     meta: {
       requiresAuth: false,
     },
@@ -52,62 +72,62 @@ const routes: Array<RouteRecordRaw> = [
       },
       {
         path: "discover",
-        component: () => import("@/views/Discover.vue"),
+        component: TabDiscover,
       },
 
       // Wallet
       {
         path: "wallet",
-        component: () => import("@/views/Wallet/Overview.vue"),
+        component: TabWalletOverview,
       },
       {
         path: "wallet/:id/:coin",
-        component: () => import("@/views/Wallet/Details.vue"),
+        component: TabWalletDetails,
       },
       {
         path: "wallet/:id/:coin/transactions",
-        component: () => import("@/views/Wallet/Transactions.vue"),
+        component: TabWalletTransactions,
       },
 
       // Marketplace
       {
         path: "marketplace",
-        component: () => import("@/views/Marketplace/Overview.vue")
+        component: TabMarketplaceOverview
       },
 
       // Account
       {
         path: "contacts",
-        component: () => import("@/views/Contacts/Contacts.vue"),
+        component: TabContacts,
       },
       {
         path: "profile",
-        component: () => import("@/views/Profile/Overview.vue"),
+        component: TabProfileOverview,
       },
     ],
   },
   // Wallet Service
   {
     path: "/wallet/getStarted",
-    component: () => import("@/views/Wallet/GetStarted.vue"),
+    component: WalletGetStarted,
   },
   {
     path: "/wallet/newSeed",
-    component: () => import("@/views/Wallet/NewSeed.vue"),
+    component: WalletNewSeed,
   },
   {
     path: "/wallet/backupSeed",
-    component: () => import("@/views/Wallet/BackupSeed.vue"),
+    component: WalletBackupSeed,
   },
   {
     path: "/wallet/addCoin",
-    component: () => import("@/views/Wallet/AddCoin.vue"),
+    component: WalletAddCoin,
   },
 
   // New PWA Version
   {
     path: "/update",
-    component: () => import("@/views/Update.vue"),
+    component: Update,
     meta: {
       requiresAuth: false,
     },
