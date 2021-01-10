@@ -2,11 +2,6 @@
   <ion-page>
     <ion-tabs>
       <ion-tab-bar slot="bottom">
-        <ion-tab-button tab="discover" href="/tabs/discover">
-          <ion-icon :icon="compassOutline" />
-          <ion-label>Discover</ion-label>
-        </ion-tab-button>
-
         <ion-tab-button tab="wallet" href="/tabs/wallet">
           <ion-icon :icon="walletOutline" />
           <ion-label>Wallet</ion-label>
@@ -14,7 +9,7 @@
 
         <ion-tab-button tab="marketplace" href="/tabs/marketplace">
           <ion-icon :icon="cartOutline" />
-          <ion-label>Market</ion-label>
+          <ion-label>Marketplace</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="contacts" href="/tabs/contacts">

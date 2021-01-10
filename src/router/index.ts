@@ -13,7 +13,6 @@ import RegisterUsername from "@/views/Auth/Register/Username.vue";
 import RegisterPassword from "@/views/Auth/Register/Password.vue";
 
 // Tabs
-import TabDiscover from "@/views/Discover.vue";
 import TabWalletOverview from "@/views/Wallet/Overview.vue";
 import TabWalletDetails from "@/views/Wallet/Details.vue";
 import TabWalletTransactions from "@/views/Wallet/Transactions.vue";
@@ -34,7 +33,7 @@ const routes: Array<RouteRecordRaw> = [
   // Redirect index page to Discover route
   {
     path: "/",
-    redirect: "/tabs/discover",
+    redirect: "/tabs/wallet",
   },
   // Authentication routes
   {
@@ -68,11 +67,7 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       {
         path: "",
-        redirect: "discover",
-      },
-      {
-        path: "discover",
-        component: TabDiscover,
+        redirect: "wallet",
       },
 
       // Wallet
