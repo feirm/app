@@ -7,6 +7,7 @@
 <script lang="ts">
 import { IonApp, IonRouterOutlet, loadingController } from '@ionic/vue';
 import { defineComponent, onMounted } from 'vue';
+import { useStore } from 'vuex';
 
 export default defineComponent({
   name: 'App',
@@ -24,6 +25,9 @@ export default defineComponent({
       "Definitely not a virus... 🦠",
       "Fetching more code monkeys... 🐒"
     ]
+
+    // Existing instance of Vuex store
+    const store = useStore();
 
     // When the Vue instance is first mounting, we want
     // to pre-load everything from addresses, transactions etc,
