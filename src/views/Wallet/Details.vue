@@ -53,13 +53,13 @@
       <ion-grid>
         <ion-row class="ion-no-padding">
           <ion-col>
-            <ion-button expand="block">
+            <ion-button expand="block" @click="receiveModal">
               <ion-icon slot="start" :icon="chevronDownCircleOutline"></ion-icon>
               Receive
             </ion-button>
           </ion-col>
           <ion-col>
-            <ion-button expand="block">
+            <ion-button expand="block" @click="sendModal">
               <ion-icon slot="start" :icon="chevronUpCircleOutline"></ion-icon>
               Send
             </ion-button>
