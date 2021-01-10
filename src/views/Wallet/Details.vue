@@ -1,28 +1,36 @@
 <template>
   <ion-page>
     <ion-header class="ion-no-border">
-      <ion-toolbar class="ion-text-center" color="transparent">
-        <ion-buttons slot="start">
-          <ion-back-button color="dark"></ion-back-button>
-        </ion-buttons>
-        <ion-buttons slot="secondary">
-          <ion-button @click="removeCoin" color="danger">
-            <ion-icon :icon="trashOutline" slot="icon-only"></ion-icon>
-          </ion-button>
-        </ion-buttons>
+      <ion-toolbar class="ion-text-center header-gradient">
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              <ion-buttons class="ion-float-left">
+                <ion-back-button color="dark"></ion-back-button>
+              </ion-buttons>
+
+              <ion-buttons class="ion-float-right">
+                <ion-button @click="removeCoin" color="danger">
+                  <ion-icon :icon="trashOutline" slot="icon-only"></ion-icon>
+                </ion-button>
+              </ion-buttons>
+            </ion-col>
+          </ion-row>
+
+          <!-- Balance -->
+          <ion-row>
+            <ion-col>
+              <p><b>{{ coin.name }}</b></p>
+              <h1>{{ (coin.balance / 100000000).toFixed(3) }} {{ ticker.toUpperCase() }}</h1>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
       </ion-toolbar>
     </ion-header>
+    
     <ion-content :fullscreen="true" class="ion-padding">
       <ion-grid>
-        <!-- Wallet coin name and balance showcase -->
-        <ion-row>
-          <ion-col>
-            <p><b>{{ coin.name }}</b></p>
-            <h1>{{ (coin.balance / 100000000).toFixed(3) }} {{ ticker.toUpperCase() }}</h1>
-          </ion-col>
-        </ion-row>
-
-        <ion-button v-show="coin.ticker === 'xfe'" expand="block" color="light" href="https://trade.birake.com">Buy Feirm</ion-button>
+        <ion-button v-show="coin.ticker === 'xfe'" expand="block" color="primary" href="https://trade.birake.com">Buy Feirm</ion-button>
 
         <!-- Recent transactions -->
         <ion-row>
@@ -235,5 +243,11 @@ ion-footer {
   font-weight: bold;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}
+
+/* Header gradient */
+.header-gradient {
+  background: rgb(22,22,22);
+  background: linear-gradient(90deg, rgba(27,27,27,1) 0%, rgba(50,50,50,1) 100%); 
 }
 </style>
