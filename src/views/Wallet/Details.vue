@@ -22,7 +22,7 @@
           </ion-col>
         </ion-row>
 
-        <ion-button v-show="coin.ticker === 'xfe'" expand="block" href="https://trade.birake.com">Buy Feirm</ion-button>
+        <ion-button v-show="coin.ticker === 'xfe'" expand="block" color="light" href="https://trade.birake.com">Buy Feirm</ion-button>
 
         <!-- Recent transactions -->
         <ion-row>
