@@ -76,22 +76,17 @@ export default defineComponent({
       wallet: {} as Wallet,
     };
   },
-  async ionViewWillEnter() {
-    const walletPresent = this.store.getters.isWalletPresent;
-    if (!walletPresent) {
-      // Assume the user has removed the wallet somehow, or they are a new user
-      this.router.push({
-        path: "/wallet/getStarted",
-      });
-
-      return;
-    }
-  },
   methods: {
     detailedWallet(id: string, coin: string) {
       this.router.push("/tabs/wallet/" + id + "/" + coin);
     },
     addCoin() {
+      // Check that a wallet is present
+      if (!this.store.getters.isWalletPresent) {
+        this.router.push({ path: "/wallet/getStarted" });
+        return;
+      }
+
       this.router.push("/wallet/addCoin");
     }
   },
