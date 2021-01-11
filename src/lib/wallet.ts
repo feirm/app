@@ -80,11 +80,9 @@ async function DeriveWallet(mnemonic: string, ticker: string) {
     name: coin.name,
     balance: 0,
     ticker: coin.ticker.toLowerCase(),
-    icon: encodeURI(coin.icon),
     rootKey: rootKey.toBase58(),
     extendedPrivateKey: addressNode.toBase58(),
     extendedPublicKey: addressNode.neutered().toBase58(),
-    blockbook: coin.blockbook,
     index: 0,
   } as Coin;
 
