@@ -1,65 +1,34 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar class="ion-text-center">
-        <ion-title>Wallet</ion-title>
+    <ion-header class="ion-no-border">
+      <ion-toolbar class="ion-text-left" color="transparent">
+        <ion-title color="dark">Wallet</ion-title>
+        <ion-buttons slot="secondary">
+          <ion-button color="primary" @click="addCoin">
+            <ion-icon slot="icon-only" :icon="addCircleOutline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      <!-- Present the wallet/coins in a nice format -->
-      <div>
-        <ion-card color="light">
-          <ion-card-content>
-            <ion-col>
-              <ion-row>
-                <p>Balance</p>
-              </ion-row>
-              <ion-row>
-                <h1>${{ fiatBalance.toFixed(2) }}</h1>
-              </ion-row>
-            </ion-col>
-          </ion-card-content>
-        </ion-card>
-
-        <h6 class="ion-text-center">Your Coins</h6>
-
         <!-- Showcase coins -->
         <ion-card
           v-for="coin in store.getters.getWallet.coins"
           v-bind:key="coin"
-          color="light"
           button="true"
           @click="detailedWallet(store.getters.getWalletId, coin.ticker)"
         >
-          <ion-card-content>
-            <ion-item lines="none" color="light">
-              <ion-avatar>
-                <img :src="coin.icon" />
-              </ion-avatar>
-              <ion-grid>
-                <ion-row>
-                  <ion-col>
-                    <p class="ion-text-right">
-                      {{ coin.name }} ({{ coin.ticker.toUpperCase() }})
-                    </p>
-                  </ion-col>
-                  <ion-col>
-                    <ion-text color="primary">
-                      <p class="ion-text-center">
-                        {{ (coin.balance / 100000000).toFixed(2) }}
-                        {{ coin.ticker.toUpperCase() }}
-                      </p>
-                    </ion-text>
-                  </ion-col>
-                </ion-row>
-              </ion-grid>
-            </ion-item>
-          </ion-card-content>
+          <ion-card-header class="ion-text-left">
+            <ion-text style="color: white">
+              <h5>{{ coin.name }}</h5>
+              <h1>
+                {{ (coin.balance / 100000000).toFixed(3) }}
+                {{ coin.ticker.toUpperCase() }}
+              </h1>
+            </ion-text>
+          </ion-card-header>
+          <ion-card-content></ion-card-content>
         </ion-card>
-        <ion-button fill="clear" expand="block" @click="addCoin">
-          <ion-icon slot="icon-only" :icon="addCircleOutline"></ion-icon>
-        </ion-button>
-      </div>
     </ion-content>
   </ion-page>
 </template>
@@ -72,25 +41,18 @@ import {
   IonToolbar,
   IonTitle,
   IonHeader,
-  IonGrid,
-  IonRow,
-  IonCol,
   IonCard,
+  IonCardHeader,
   IonCardContent,
-  IonItem,
-  IonAvatar,
   IonText,
   IonIcon,
   IonButton,
-  loadingController,
-  alertController,
+  IonButtons
 } from "@ionic/vue";
 import { walletOutline, addCircleOutline } from "ionicons/icons";
 import { Wallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import axios from "axios";
-import BigNumber from "bignumber.js";
 import { preload } from "@/preload";
 
 export default defineComponent({
@@ -101,20 +63,17 @@ export default defineComponent({
     IonToolbar,
     IonTitle,
     IonHeader,
-    IonGrid,
-    IonRow,
-    IonCol,
     IonCard,
+    IonCardHeader,
     IonCardContent,
-    IonItem,
-    IonAvatar,
     IonText,
     IonIcon,
     IonButton,
+    IonButtons
   },
   data() {
     return {
-      balance: 0,
+      balance: 0.00,
       fiatBalance: 0 as any,
       wallet: {} as Wallet,
     };
@@ -129,57 +88,6 @@ export default defineComponent({
 
       return;
     }
-
-    // Loading controller
-    await loadingController
-      .create({
-        message: "Loading balances...",
-      })
-      .then((a) => {
-        a.present().then(async () => {
-          // Fetch latest wallet balances from Blockbook
-          const coins = this.store.getters.getCoins;
-
-          // Reset cumulative fiat balance
-          let fiatBal = 0;
-
-          // Iterate over each coin
-          coins.forEach(async (coin) => {
-            await axios
-              .get(`https://cors-anywhere.feirm.com/${coin.blockbook}/api/v2/xpub/${coin.extendedPublicKey}`)
-              .then((res) => {
-                const balance = new BigNumber(res.data.balance).plus(res.data.unconfirmedBalance).toString(); 
-                coin.balance = res.data.balance ? balance : 0;
-              });
-
-            // Fetch cumulative fiat balance for USD
-            // Hardcoded to Feirm for now
-            await axios
-              .get(
-                `https://api.coingecko.com/api/v3/simple/price?ids=feirm&vs_currencies=usd`
-              )
-              .then((res) => {
-                // Need to make this dynamic
-                fiatBal += res.data.feirm.usd * (coin.balance / 100000000);
-                
-                this.fiatBalance = fiatBal;
-              });
-          });
-
-          a.dismiss();
-        })
-        .catch(async (err) => {
-          a.dismiss();
-
-          const error = await alertController.create({
-            header: "Error fetching balances!",
-            message: err,
-            buttons: ["Okay!"]
-          })
-
-          return error.present();
-        });
-      });
   },
   methods: {
     detailedWallet(id: string, coin: string) {
@@ -222,5 +130,11 @@ ion-row {
   align-items: center;
   justify-content: center;
   height: 100%;
+}
+
+ion-card {
+  background-image: url("../../assets/img/covers/feirm.png"), linear-gradient(#242424, #1c1c1c);
+  background-repeat: no-repeat;
+  background-position: bottom right;
 }
 </style>
