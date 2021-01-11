@@ -234,6 +234,5 @@ http://ionicframework.com/docs/theming/ */
 
 /* Header gradient */
 .header-gradient {
-  --background: rgb(22,22,22);
-  --background: linear-gradient(90deg, rgba(27,27,27,1) 0%, rgba(50,50,50,1) 100%); 
+  --background: linear-gradient(#242424, #1c1c1c);
 }
