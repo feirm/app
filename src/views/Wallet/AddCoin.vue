@@ -95,6 +95,8 @@ export default defineComponent({
     const availableCoins = this.store.getters.getAllCoins as Coin[];
     const wallet = this.store.getters.getWallet as Wallet;
 
+    console.log(availableCoins);
+
     // Iterate over each coin we have in our wallet, and remove any duplicates from the available coins list
     wallet.coins.forEach(coin => {
       for (let i = 0; i < availableCoins.length; i++) {
@@ -104,11 +106,11 @@ export default defineComponent({
           // Remove the coin already in use
           availableCoins.splice(i, 1);
         }
-
-        // Update the coins list
-        this.coins = availableCoins;
       }
     })
+
+    // Update the coins list
+    this.coins = availableCoins;
   },
   methods: {
     async presentAlert() {
