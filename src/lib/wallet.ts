@@ -58,16 +58,16 @@ async function DeriveWallet(mnemonic: string, ticker: string) {
   const seed = await mnemonicToSeed(mnemonic);
 
   // Fetch the coin data based on the ticker provided
-  const coin = await azureService.getCoin(ticker);
+  const coin = store.getters.getCoin(ticker);
 
   // Form the network information from coin data
-  const network = coin.data.coinInformation.networks.p2pkh;
+  const network = coin.networks.p2pkh;
   network.pubKeyHash = network.pubKeyHash[0];
   network.scriptHash = network.scriptHash[0];
   network.wif = network.wif[0];
 
   // Set the derivation path
-  const derivationPath = "m/44'/" + coin.data.coinInformation.bip44 + "'/0'";
+  const derivationPath = "m/44'/" + coin.bip44 + "'/0'";
 
   // Generate the root key
   const rootKey = fromSeed(seed, network);
@@ -78,13 +78,13 @@ async function DeriveWallet(mnemonic: string, ticker: string) {
   // Now that we've got our address node, we can begin to either create a new wallet, or append to an existing one.
   // But first, lets assemble all the coin data
   const cData = {
-    name: coin.data.coinInformation.name,
-    ticker: coin.data.coinInformation.ticker.toLowerCase(),
-    icon: encodeURI(coin.data.coinInformation.icon),
+    name: coin.name,
+    ticker: coin.ticker.toLowerCase(),
+    icon: encodeURI(coin.icon),
     rootKey: rootKey.toBase58(),
     extendedPrivateKey: addressNode.toBase58(),
     extendedPublicKey: addressNode.neutered().toBase58(),
-    blockbook: coin.data.coinInformation.blockbook,
+    blockbook: coin.blockbook,
     index: 0,
   } as Coin;
 
@@ -151,10 +151,10 @@ async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
   }
 
   // Fetch the coin data for the provided ticker and assemble network information from it
-  const coinData = await azureService.getCoin(ticker);
+  const coin = store.getters.getCoin(ticker);
 
   // Set the network
-  const network = coinData.data.coinInformation.networks.p2pkh;
+  const network = coin.networks.p2pkh;
   network.pubKeyHash = network.pubKeyHash[0];
   network.scriptHash = network.scriptHash[0];
   network.wif = network.wif[0];
@@ -162,7 +162,7 @@ async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
   // Fetch xpub data
   const xpubData = await axios.get(
     "https://cors-anywhere.feirm.com/" +
-      coinData.data.coinInformation.blockbook +
+      coin.blockbook +
       "/api/v2/xpub/" +
       xpub +
       "?tokens=used"
@@ -232,11 +232,11 @@ async function CreateSignedTransaction(
   amount: number,
   fee: number
 ): Promise<any> {
-  // Before starting anything, fetch the coin data from Azure API
-  const cData = await azureService.getCoin(ticker);
+  // Before starting anything, get specific coin data
+  const cData = await store.getters.getCoin(ticker);
 
   // We can now construct the network information for said coin (p2pkh)
-  const network = cData.data.coinInformation.networks.p2pkh as Network;
+  const network = cData.networks.p2pkh as Network;
   network.pubKeyHash = network.pubKeyHash[0];
   network.scriptHash = network.scriptHash[0];
   network.wif = network.wif[0];
@@ -249,7 +249,7 @@ async function CreateSignedTransaction(
 
   // Create and configure the transaction builder
   const psbt = new Psbt({ network: network });
-  psbt.setVersion(cData.data.coinInformation.txVersion);
+  psbt.setVersion(cData.txVersion);
 
   // Keep track of the amount we want to send, and the value of inputs
   const AMOUNT_IN_SATOSHIS = new BigNumber(amount).multipliedBy(100000000);
@@ -262,7 +262,7 @@ async function CreateSignedTransaction(
   await axios
     .get(
       "https://cors-anywhere.feirm.com/" +
-        cData.data.coinInformation.blockbook +
+        cData.blockbook +
         "/api/v2/utxo/" +
         wallet.extendedPublicKey
     )
@@ -285,7 +285,7 @@ async function CreateSignedTransaction(
         await axios
           .get(
             "https://cors-anywhere.feirm.com/" +
-              cData.data.coinInformation.blockbook +
+              cData.blockbook +
               "/api/v2/tx-specific/" +
               utxos.data[i].txid
           )
@@ -337,7 +337,7 @@ async function CreateSignedTransaction(
       // Fetch the extended public key data from Blockbook so we can use the correct change address to send excess funds to.
       const xpubData = await axios.get(
         "https://cors-anywhere.feirm.com/" +
-          cData.data.coinInformation.blockbook +
+          cData.blockbook +
           "/api/v2/xpub/" +
           wallet.extendedPublicKey +
           "?tokens=used"
@@ -418,7 +418,7 @@ async function CreateSignedTransaction(
 
   await axios.get(
     "https://cors-anywhere.feirm.com/" +
-      cData.data.coinInformation.blockbook +
+      cData.blockbook +
       "/api/v2/sendtx/" +
       txHex
   );

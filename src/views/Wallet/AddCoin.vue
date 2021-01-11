@@ -90,34 +90,25 @@ export default defineComponent({
       coins: [] as Coin[],
     };
   },
-  async ionViewWillEnter() {
-    // Fetch coins list
-    await azureService
-      .getCoins()
-      .then((res) => {
-        const cData = res.data as Coin[];
+  ionViewWillEnter() {
+    // Get available coins list and current wallet
+    const availableCoins = this.store.getters.getAllCoins as Coin[];
+    const wallet = this.store.getters.getWallet as Wallet;
 
-        // Fetch current wallet
-        const wallet = this.store.getters.getWallet as Wallet;
+    // Iterate over each coin we have in our wallet, and remove any duplicates from the available coins list
+    wallet.coins.forEach(coin => {
+      for (let i = 0; i < availableCoins.length; i++) {
+        const availableCoin = availableCoins[i];
 
-        // Iterate over each coin and remove existing coins from response data
-        wallet.coins.forEach(coin => {
-          for (let i = 0; i < cData.length; i++) {
-            const c = cData[i] as Coin;
+        if (availableCoin.ticker.toLowerCase() === coin.ticker.toLowerCase()) {
+          // Remove the coin already in use
+          availableCoins.splice(i, 1);
+        }
 
-            if (c.ticker.toLocaleLowerCase() === coin.ticker.toLocaleLowerCase()) {
-              // Remove the coin already in use
-              cData.splice(i, 1);
-            }
-          }
-        })
-
-        this.coins = cData;
-      })
-      .catch(async (err) => {
-        // TODO: Error alert
-        console.log(err);
-      });
+        // Update the coins list
+        this.coins = availableCoins;
+      }
+    })
   },
   methods: {
     async presentAlert() {
