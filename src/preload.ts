@@ -32,9 +32,6 @@ export async function preload() {
       return;
   }
 
-  // Testing statement
-  console.log("Preloading...");
-
   // Check the Vuex state for a wallet and any encryption properties
   const wallet = store.getters.getWallet;
   const walletPresent = store.getters.isWalletPresent;
@@ -104,6 +101,9 @@ export async function preload() {
     .then((a) => {
       // Show loading popup
       a.present().then(async () => {
+        // Fetch coin data from Azure microservice
+        await store.dispatch("setCoins");
+
         // TODO Fetch transaction data
         // TODO Fetch wallet balance data
 
