@@ -27,7 +27,6 @@
               </h1>
             </ion-text>
           </ion-card-header>
-          <ion-card-content></ion-card-content>
         </ion-card>
     </ion-content>
   </ion-page>
@@ -43,7 +42,6 @@ import {
   IonHeader,
   IonCard,
   IonCardHeader,
-  IonCardContent,
   IonText,
   IonIcon,
   IonButton,
@@ -65,7 +63,6 @@ export default defineComponent({
     IonHeader,
     IonCard,
     IonCardHeader,
-    IonCardContent,
     IonText,
     IonIcon,
     IonButton,
