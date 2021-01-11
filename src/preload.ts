@@ -10,26 +10,18 @@ import { DecryptContacts, EncryptedContact } from "./lib/contacts";
 import { decryptWallet } from "./lib/encryptWallet";
 import { Wallet } from "./lib/wallet";
 import axios from "axios";
+import LoadingMessages from "./class/loadingMessages";
 
 export async function preload() {
-  // An array of funny messages
-  const funnyMessages: string[] = [
-    "Spinning the hamster wheel... 🐹",
-    "Generating witty dialog... 🤖",
-    "Spinning the Bitcoin wheel of fortune... 💸",
-    "Twiddling our thumbs... 👍",
-    "Definitely not a virus... 🦠",
-    "Fetching more code monkeys... 🐒",
-  ];
+  // Random loading message
+  const wittyLoader = new LoadingMessages();
+  const loadingMessage = wittyLoader.getRandom();
 
   // Existing instance of Vuex store
   const store = useStore();
 
   // We want to pre-load everything from addresses, transactions etc,
-  // and continue to check for new transactions every couple of seconds
-  // Pick a funny loading message at random
-  const loadingMessage =
-    funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
+  // and continue to check for new transactions every couple of seconds.
 
   // Check the Vuex state for a wallet and any encryption properties
   const wallet = store.getters.getWallet;
