@@ -8,7 +8,9 @@
 import { IonApp, IonRouterOutlet, loadingController, modalController } from '@ionic/vue';
 import { defineComponent, onMounted } from 'vue';
 import { useStore } from 'vuex';
+import tatsuyaService from './apiService/tatsuyaService';
 import PINVue from './components/Auth/PIN.vue';
+import { DecryptContacts, EncryptedContact } from './lib/contacts';
 import { decryptWallet } from './lib/encryptWallet';
 import { Wallet } from './lib/wallet';
 
@@ -101,13 +103,33 @@ export default defineComponent({
         }
       }
 
-      // Show a loading controller
-      const load = await loadingController.create({
-        message: loadingMessage,
-        duration: 2000
-      })
+      await loadingController.create({
+        message: loadingMessage
+      }).then(a => {
+        // Show loading popup
+        a.present().then(async () => {
+          // TODO Fetch transaction data
+          // TODO Fetch wallet balance data
 
-      load.present();
+          // Fetch and decrypt contacts
+          await tatsuyaService.fetchContacts().then(async (res) => {
+            // Set the encrypted contacts array
+            const contacts = res.data as EncryptedContact[];
+
+            // Attempt to decrypt contacts array
+            await DecryptContacts(contacts)
+              .then((decryptedContacts) => {
+                store.commit("setContacts", decryptedContacts);
+              })
+              .catch((e) => {
+                console.log(e);
+              });
+            });
+          })
+
+          // Once complete, dismiss the loading controller
+          a.dismiss();
+      })
     })
   }
 });

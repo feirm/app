@@ -77,31 +77,6 @@ export default defineComponent({
     IonRow,
     IonCol,
   },
-  async ionViewWillEnter() {
-    try {
-      await tatsuyaService.fetchContacts().then(async (res) => {
-        // Set the encrypted contacts array
-        const contacts = res.data as EncryptedContact[];
-
-        // Attempt to decrypt contacts array
-        await DecryptContacts(contacts)
-          .then((decryptedContacts) => {
-            this.store.commit("setContacts", decryptedContacts);
-          })
-          .catch((e) => {
-            console.log(e);
-          });
-      });
-    } catch (e) {
-      const error = await alertController.create({
-        header: "Error fetching contacts!",
-        message: e,
-        buttons: ["Close"],
-      });
-
-      return error.present();
-    }
-  },
   methods: {
     async newContactModal() {
       const modal = await modalController.create({
