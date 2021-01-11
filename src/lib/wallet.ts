@@ -61,9 +61,6 @@ async function DeriveWallet(mnemonic: string, ticker: string) {
 
   // Form the network information from coin data
   const network = coin.networks.p2pkh;
-  network.pubKeyHash = network.pubKeyHash[0];
-  network.scriptHash = network.scriptHash[0];
-  network.wif = network.wif[0];
 
   // Set the derivation path
   const derivationPath = "m/44'/" + coin.bip44 + "'/0'";
@@ -84,6 +81,7 @@ async function DeriveWallet(mnemonic: string, ticker: string) {
     extendedPrivateKey: addressNode.toBase58(),
     extendedPublicKey: addressNode.neutered().toBase58(),
     index: 0,
+    blockbook: coin.blockbook
   } as Coin;
 
   // Check if we already have a wallet
@@ -153,9 +151,6 @@ async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
 
   // Set the network
   const network = coin.networks.p2pkh;
-  network.pubKeyHash = network.pubKeyHash[0];
-  network.scriptHash = network.scriptHash[0];
-  network.wif = network.wif[0];
 
   // Fetch xpub data
   const xpubData = await axios.get(
@@ -235,9 +230,6 @@ async function CreateSignedTransaction(
 
   // We can now construct the network information for said coin (p2pkh)
   const network = cData.networks.p2pkh as Network;
-  network.pubKeyHash = network.pubKeyHash[0];
-  network.scriptHash = network.scriptHash[0];
-  network.wif = network.wif[0];
 
   // Lets find our wallet
   const wallet = await FindWallet(ticker);
