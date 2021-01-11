@@ -15,7 +15,6 @@ import LoadingMessages from "./class/loadingMessages";
 export async function preload() {
   // Random loading message
   const wittyLoader = new LoadingMessages();
-  const loadingMessage = wittyLoader.getRandom();
 
   // Existing instance of Vuex store
   const store = useStore();
@@ -87,7 +86,7 @@ export async function preload() {
 
   await loadingController
     .create({
-      message: loadingMessage,
+      message: wittyLoader.getRandom(),
     })
     .then((a) => {
       // Show loading popup
