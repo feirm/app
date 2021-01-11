@@ -73,8 +73,6 @@ export default defineComponent({
   },
   data() {
     return {
-      balance: 0.00,
-      fiatBalance: 0 as any,
       wallet: {} as Wallet,
     };
   },

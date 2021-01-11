@@ -5,6 +5,7 @@ import PINVue from "./components/Auth/PIN.vue";
 import { DecryptContacts, EncryptedContact } from "./lib/contacts";
 import { decryptWallet } from "./lib/encryptWallet";
 import { Wallet } from "./lib/wallet";
+import axios from "axios";
 
 export async function preload() {
   // An array of funny messages
@@ -23,7 +24,8 @@ export async function preload() {
   // We want to pre-load everything from addresses, transactions etc,
   // and continue to check for new transactions every couple of seconds
   // Pick a funny loading message at random
-  const loadingMessage = funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
+  const loadingMessage =
+    funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
 
   // Check the Vuex state for a wallet and any encryption properties
   const wallet = store.getters.getWallet;
@@ -89,7 +91,7 @@ export async function preload() {
 
   await loadingController
     .create({
-      message: loadingMessage
+      message: loadingMessage,
     })
     .then((a) => {
       // Show loading popup
@@ -98,26 +100,57 @@ export async function preload() {
         await store.dispatch("setCoins");
 
         // TODO Fetch transaction data
-        
-        // TODO Fetch wallet balance data
+
+        // Fetch wallet balance data for each coin we have.
+        const walletCoins = store.getters.getCoins;
+        for (let i = 0; i < walletCoins.length; i++) {
+          const coin = walletCoins[i];
+
+          console.log("Fetching balance for:", coin.name);
+
+          try {
+            await axios
+              .get(
+                `https://cors-anywhere.feirm.com/${coin.blockbook}/api/v2/xpub/${coin.extendedPublicKey}`
+              )
+              .then((res) => {
+                coin.balance = res.data.balance ? res.data.balance : 0;
+
+                // Update state
+                store.commit("setWalletBalance", {
+                  ticker: coin.ticker,
+                  balance: coin.balance,
+                });
+              });
+          } catch (e) {
+            console.log("Error fetching coin balances...");
+          }
+
+          // TODO Attempt to establish a WebSocket connection to the coins Blockbook explorer
+          // const wss = new WebSocket(coin.blockbook + "/websocket");
+        }
 
         // Fetch and decrypt contacts
-        await tatsuyaService.fetchContacts().then(async (res) => {
-          // Set the encrypted contacts array
-          const contacts = res.data as EncryptedContact[];
+        try {
+          await tatsuyaService.fetchContacts().then(async (res) => {
+            // Set the encrypted contacts array
+            const contacts = res.data as EncryptedContact[];
 
-          // Attempt to decrypt contacts array
-          await DecryptContacts(contacts)
-            .then((decryptedContacts) => {
-              store.commit("setContacts", decryptedContacts);
-            })
-            .catch((e) => {
-              console.log(e);
-            });
-        });
+            // Attempt to decrypt contacts array
+            await DecryptContacts(contacts)
+              .then((decryptedContacts) => {
+                store.commit("setContacts", decryptedContacts);
+              })
+              .catch((e) => {
+                console.log(e);
+              });
+          });
+        } catch (e) {
+          console.log("Error decrypting contacts...");
+        }
+
+        // Dismiss the modal
+        a.dismiss();
       });
-
-      // Once complete, dismiss the loading controller
-      a.dismiss();
     });
 }
