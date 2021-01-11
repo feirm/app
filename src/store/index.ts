@@ -5,11 +5,13 @@ import { createStore } from "vuex";
 import { auth } from "./modules/auth";
 import { wallet } from "./modules/wallet";
 import { contacts } from "./modules/contacts";
+import { coins } from "./modules/coins";
 
 export const store = createStore({
   modules: {
     auth,
     wallet,
-    contacts
+    contacts,
+    coins
   }
 });
