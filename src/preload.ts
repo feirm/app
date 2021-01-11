@@ -25,13 +25,6 @@ export async function preload() {
   // Pick a funny loading message at random
   const loadingMessage = funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
 
-  // Check the Vuex state to see if a user is logged in
-  const loggedIn = store.getters.isUserLoggedIn;
-
-  if (!loggedIn) {
-      return;
-  }
-
   // Check the Vuex state for a wallet and any encryption properties
   const wallet = store.getters.getWallet;
   const walletPresent = store.getters.isWalletPresent;
@@ -96,7 +89,7 @@ export async function preload() {
 
   await loadingController
     .create({
-      message: loadingMessage,
+      message: loadingMessage
     })
     .then((a) => {
       // Show loading popup
@@ -105,6 +98,7 @@ export async function preload() {
         await store.dispatch("setCoins");
 
         // TODO Fetch transaction data
+        
         // TODO Fetch wallet balance data
 
         // Fetch and decrypt contacts

@@ -116,22 +116,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-ion-img {
-  margin: 0 auto;
-  width: 100px;
-}
-
-ion-grid {
-  height: 100%;
-}
-
-ion-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
 ion-card {
   background-image: url("../../assets/img/covers/feirm.png"), linear-gradient(#242424, #1c1c1c);
   background-repeat: no-repeat;
