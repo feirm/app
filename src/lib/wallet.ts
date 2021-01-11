@@ -79,6 +79,7 @@ async function DeriveWallet(mnemonic: string, ticker: string) {
   // But first, lets assemble all the coin data
   const cData = {
     name: coin.name,
+    balance: 0,
     ticker: coin.ticker.toLowerCase(),
     icon: encodeURI(coin.icon),
     rootKey: rootKey.toBase58(),
