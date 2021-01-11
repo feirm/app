@@ -248,4 +248,8 @@ ion-footer {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
+
+ion-header {
+  background-image: linear-gradient(#242424, #1c1c1c);
+}
 </style>

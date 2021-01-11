@@ -3,11 +3,10 @@ import { fromSeed } from "bip32";
 import { v4 as uuidv4 } from "uuid";
 import bufferToHex from "./bufferToHex";
 import { payments, bip32, Psbt, Network } from "bitcoinjs-lib";
-import azureService from "@/apiService/azureService";
 import { store } from "@/store";
 import axios from "axios";
 import { BigNumber } from "bignumber.js";
-import { decryptWallet, encryptCoin } from "./encryptWallet";
+import { encryptCoin } from "./encryptWallet";
 
 // Wallet interface
 interface Wallet {
