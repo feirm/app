@@ -6,7 +6,7 @@
           <ion-row class="ion-no-padding">
             <ion-col>
               <ion-buttons class="ion-float-left">
-                <ion-back-button color="dark"></ion-back-button>
+                <ion-back-button color="white"></ion-back-button>
               </ion-buttons>
 
               <ion-buttons class="ion-float-right">
@@ -20,8 +20,10 @@
           <!-- Balance -->
           <ion-row class="ion-padding">
             <ion-col>
-              <h4><b>{{ coin.name }}</b></h4>
-              <h1>{{ (coin.balance / 100000000).toFixed(3) }} {{ ticker.toUpperCase() }}</h1>
+              <ion-text color="white">
+                <h4><b>{{ coin.name }}</b></h4>
+                <h1>{{ (coin.balance / 100000000).toFixed(3) }} {{ ticker.toUpperCase() }}</h1>
+              </ion-text>
             </ion-col>
           </ion-row>
         </ion-grid>
@@ -85,6 +87,7 @@ import {
   IonRow,
   IonCol,
   IonFooter,
+  IonText,
   modalController,
   alertController,
 } from "@ionic/vue";
@@ -117,7 +120,8 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    IonFooter
+    IonFooter,
+    IonText
   },
   data() {
     return {
