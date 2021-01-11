@@ -1,13 +1,9 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar class="ion-text-center">
-        <ion-buttons slot="start">
-          <ion-back-button @click="router.push({ path: '/' })"></ion-back-button>
-        </ion-buttons>
-        <ion-title>Wallet</ion-title>
-        <ion-buttons slot="end">
-          <ion-button></ion-button>
+    <ion-header class="ion-no-border">
+      <ion-toolbar color="transparent">
+        <ion-buttons slot="secondary">
+          <ion-back-button :icon="closeOutline" color="dark" @click="router.push({ path: '/' })"></ion-back-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -47,7 +43,6 @@ import {
   IonPage,
   IonContent,
   IonToolbar,
-  IonTitle,
   IonHeader,
   IonButton,
   IonButtons,
@@ -58,7 +53,7 @@ import {
   IonCol,
   alertController,
 } from "@ionic/vue";
-import { walletOutline } from "ionicons/icons";
+import { walletOutline, closeOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { DeriveWallet } from "@/lib/wallet";
@@ -69,7 +64,6 @@ export default defineComponent({
     IonPage,
     IonContent,
     IonToolbar,
-    IonTitle,
     IonHeader,
     IonButton,
     IonFooter,
@@ -138,6 +132,7 @@ export default defineComponent({
       router,
       store,
       walletOutline,
+      closeOutline
     };
   },
 });
