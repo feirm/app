@@ -37,13 +37,14 @@ export async function preload() {
 
   // Check the Vuex state for a wallet and any encryption properties
   const wallet = store.getters.getWallet;
+  const walletPresent = store.getters.isWalletPresent;
   const isWalletFormatEncrypted = store.getters.isWalletEncrypted;
 
   // Maximum unlock attempts we can have is 3
   const maxUnlockAttempts = 3;
 
   // If the wallet isn't unlocked, try and unlock it
-  if (!store.getters.isWalletUnlocked) {
+  if (!store.getters.isWalletUnlocked && walletPresent) {
     // Check that a mnemonic is present and that the wallet if encrypted
     if (wallet.mnemonic && isWalletFormatEncrypted) {
       // Enter a loop asking for PIN entry
