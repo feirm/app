@@ -65,7 +65,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, onMounted } from "vue";
 import {
   IonPage,
   IonContent,
@@ -91,6 +91,7 @@ import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import axios from "axios";
 import BigNumber from "bignumber.js";
+import { preload } from "@/preload";
 
 export default defineComponent({
   name: "WalletOverview",
@@ -191,6 +192,10 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const store = useStore();
+
+    onMounted(async () => {
+      await preload();
+    })
 
     return {
       router,
