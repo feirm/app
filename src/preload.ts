@@ -1,4 +1,8 @@
-import { alertController, loadingController, modalController } from "@ionic/vue";
+import {
+  alertController,
+  loadingController,
+  modalController,
+} from "@ionic/vue";
 import { useStore } from "vuex";
 import tatsuyaService from "./apiService/tatsuyaService";
 import PINVue from "./components/Auth/PIN.vue";
@@ -95,75 +99,79 @@ export async function preload() {
     })
     .then((a) => {
       // Show loading popup
-      a.present().then(async () => {
-        // Fetch coin data from Azure microservice
-        await store.dispatch("setCoins");
+      a.present()
+        .then(async () => {
+          // Fetch coin data from Azure microservice
+          await store.dispatch("setCoins");
 
-        // TODO Fetch transaction data
+          // TODO Fetch transaction data
 
-        // Fetch wallet balance data for each coin we have.
-        const walletCoins = store.getters.getCoins;
-        for (let i = 0; i < walletCoins.length; i++) {
-          const coin = walletCoins[i];
+          // Fetch wallet balance data for each coin we have.
+          const walletCoins = store.getters.getCoins;
 
-          console.log("Fetching balance for:", coin.name);
+          if (walletCoins) {
+            for (let i = 0; i < walletCoins.length; i++) {
+              const coin = walletCoins[i];
 
-          try {
-            await axios
-              .get(
-                `https://cors-anywhere.feirm.com/${coin.blockbook}/api/v2/xpub/${coin.extendedPublicKey}`
-              )
-              .then((res) => {
-                coin.balance = res.data.balance ? res.data.balance : 0;
+              console.log("Fetching balance for:", coin.name);
 
-                // Update state
-                store.commit("setWalletBalance", {
-                  ticker: coin.ticker,
-                  balance: coin.balance,
-                });
-              });
-          } catch (e) {
-            console.log("Error fetching coin balances...");
+              try {
+                await axios
+                  .get(
+                    `https://cors-anywhere.feirm.com/${coin.blockbook}/api/v2/xpub/${coin.extendedPublicKey}`
+                  )
+                  .then((res) => {
+                    coin.balance = res.data.balance ? res.data.balance : 0;
+
+                    // Update state
+                    store.commit("setWalletBalance", {
+                      ticker: coin.ticker,
+                      balance: coin.balance,
+                    });
+                  });
+              } catch (e) {
+                console.log("Error fetching coin balances...");
+              }
+
+              // TODO Attempt to establish a WebSocket connection to the coins Blockbook explorer
+              // const wss = new WebSocket(coin.blockbook + "/websocket");
+            }
           }
 
-          // TODO Attempt to establish a WebSocket connection to the coins Blockbook explorer
-          // const wss = new WebSocket(coin.blockbook + "/websocket");
-        }
+          // Fetch and decrypt contacts
+          try {
+            await tatsuyaService.fetchContacts().then(async (res) => {
+              // Set the encrypted contacts array
+              const contacts = res.data as EncryptedContact[];
 
-        // Fetch and decrypt contacts
-        try {
-          await tatsuyaService.fetchContacts().then(async (res) => {
-            // Set the encrypted contacts array
-            const contacts = res.data as EncryptedContact[];
+              // Attempt to decrypt contacts array
+              await DecryptContacts(contacts)
+                .then((decryptedContacts) => {
+                  store.commit("setContacts", decryptedContacts);
+                })
+                .catch((e) => {
+                  console.log(e);
+                });
+            });
+          } catch (e) {
+            console.log("Error decrypting contacts...");
+          }
 
-            // Attempt to decrypt contacts array
-            await DecryptContacts(contacts)
-              .then((decryptedContacts) => {
-                store.commit("setContacts", decryptedContacts);
-              })
-              .catch((e) => {
-                console.log(e);
-              });
-          });
-        } catch (e) {
-          console.log("Error decrypting contacts...");
-        }
-
-        // Dismiss the modal
-        a.dismiss();
-      })
-      .catch(async e => {
-        // Dismiss current loading controller
-        a.dismiss();
-
-        // Show error alert
-        const alert = await alertController.create({
-          header: "Error fetching data!",
-          message: e,
-          buttons: ["Okay!"]
+          // Dismiss the modal
+          a.dismiss();
         })
+        .catch(async (e) => {
+          // Dismiss current loading controller
+          a.dismiss();
 
-        return alert.present();
-      }) 
+          // Show error alert
+          const alert = await alertController.create({
+            header: "Error fetching data!",
+            message: e,
+            buttons: ["Okay!"],
+          });
+
+          return alert.present();
+        });
     });
 }
