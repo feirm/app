@@ -1,4 +1,4 @@
-import { loadingController, modalController } from "@ionic/vue";
+import { alertController, loadingController, modalController } from "@ionic/vue";
 import { useStore } from "vuex";
 import tatsuyaService from "./apiService/tatsuyaService";
 import PINVue from "./components/Auth/PIN.vue";
@@ -151,6 +151,19 @@ export async function preload() {
 
         // Dismiss the modal
         a.dismiss();
-      });
+      })
+      .catch(async e => {
+        // Dismiss current loading controller
+        a.dismiss();
+
+        // Show error alert
+        const alert = await alertController.create({
+          header: "Error fetching data!",
+          message: e,
+          buttons: ["Okay!"]
+        })
+
+        return alert.present();
+      }) 
     });
 }
