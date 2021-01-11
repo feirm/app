@@ -20,6 +20,10 @@ export const wallet = {
     setWalletState(state, wallet) {
       state.wallet = wallet;
     },
+    setWalletBalance(state, { ticker, balance }) {
+      const index = state.wallet.coins.map(coin => coin.ticker.toLowerCase()).indexOf(ticker.toLowerCase())
+      state.wallet.coins[index].balance = balance;
+    },
     deleteWalletState(state) {
       localStorage.removeItem("wallet");
       state.wallet = {};
