@@ -4,16 +4,16 @@ Each wallet should be able to derive multiple coins using the same BIP39 private
 */
 
 import bufferToHex from "@/lib/bufferToHex";
+import { Coin } from "@/models/coin";
 import { entropyToMnemonic } from "bip39";
+import { v4 } from "uuid";
 
 export abstract class AbstractWallet {
     secret: string; // Going to be a private key or mnemonic
 
-    // Generate a wallet ID based on secret (SHA256)
-    async getId() {
-        const encodedText = new TextEncoder().encode(this.getSecret());
-        const id = await window.crypto.subtle.digest("SHA256", encodedText);
-        return id;
+    // Generate a wallet UUID
+    getId() {
+        return v4();
     }
 
     // Generate a wallet secret (bip39 mnemonic)
@@ -26,4 +26,22 @@ export abstract class AbstractWallet {
     getSecret() {
         return this.secret;
     }
+
+    /*
+      * Persistance = need to save mnemonic and wallet ID
+    */
+    // Save to disk (localStorage)
+    saveToDisk(coins: Coin[]) {
+        // Construct an object which resembles a wallet
+        const wallet = {
+            id: this.getId(),
+            secret: this.getSecret(),
+            coins: coins
+        }
+
+        localStorage.setItem("wallet", JSON.stringify(wallet));
+    }
+
+    // Save to cache (vuex)
+    // saveToCache() {}
 }

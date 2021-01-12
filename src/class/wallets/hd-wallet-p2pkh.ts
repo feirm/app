@@ -11,12 +11,17 @@ import { store } from "@/store";
  * Going to be used for majority of coins except BTC
  */
 export class HDWalletP2PKH extends AbstractWallet {
-    public coins: { ticker: string; coin: Coin }[] = [];
+    public coins: { [ticker: string]: Coin }[] = [];
 
     // Return a wallet by ticker
     public getCoin(ticker: string): Coin {
         ticker = ticker.toLocaleLowerCase();
         return this.coins[ticker];
+    }
+
+    // Return all coins
+    public getAllCoins() {
+        return this.coins;
     }
 
     // Return all coin data
