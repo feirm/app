@@ -19,6 +19,16 @@ export class HDWalletP2PKH extends AbstractWallet {
         return this.coins[ticker];
     }
 
+    // Return all coin data
+    public getCoinData(ticker: string) {
+        return store.getters.getCoin(ticker);
+    }
+
+    // Return all coin networks
+    public getNetwork(ticker: string) {
+        return store.getters.getCoin(ticker).networks;
+    }
+
     // Get xpub for coin
     public getXpub(ticker: string) {
         // Get existing coin wallet
@@ -30,17 +40,48 @@ export class HDWalletP2PKH extends AbstractWallet {
         }
 
         // Fetch the coin data
-        const coinData = store.getters.getCoin(ticker)
+        const coinData = this.getCoinData(ticker);
+        const networks = this.getNetwork(ticker);
 
         // Derive it otherwise
         const mnemonic = this.secret;
         const seed = bip39.mnemonicToSeedSync(mnemonic);
-        const root = bitcoin.bip32.fromSeed(seed, coinData.networks.p2pkh);
+        const root = bitcoin.bip32.fromSeed(seed, networks.p2pkh);
 
         const path = "m/44'/" + coinData.hdIndex + "'/0'";
         const child = root.derivePath(path).neutered();
 
         coin.extendedPublicKey = child.toBase58();
         return coin.extendedPublicKey;
+    }
+
+    // Fetch an address by its node and index
+    public getNodeAddressByIndex(ticker: string, node: number, index: number) {
+        // Fetch coin network
+        const networks = this.getNetwork(ticker);
+
+        // Receiving or internal account
+        if (node === 0) {
+            const xpub = this.getXpub(ticker);
+
+            const { address } = bitcoin.payments.p2pkh({
+                pubkey: bitcoin.bip32.fromBase58(xpub).derive(node).derive(index).publicKey,
+                network: networks.p2pkh
+            })
+
+            return address;
+        }
+
+        // External or change account
+        if (node === 1) {
+            const xpub = this.getXpub(ticker);
+
+            const { address } = bitcoin.payments.p2pkh({
+                pubkey: bitcoin.bip32.fromBase58(xpub).derive(node).derive(index).publicKey,
+                network: networks.p2pkh
+            })
+
+            return address;
+        }
     }
 }
