@@ -6,11 +6,13 @@ export default class LoadingMessages {
     "Twiddling our thumbs... 👍",
     "Definitely not a virus... 🦠",
     "Fetching more code monkeys... 🐒",
+    "Just going to the moon and back! 🌙",
+    "Stocking up on bananas! 🍌"
   ];
 
   // Fetch a message at random
   getRandom() {
-    return LoadingMessages.messages[
+    return "Please wait. " + LoadingMessages.messages[
       Math.floor(Math.random() * LoadingMessages.messages.length)
     ];
   }
