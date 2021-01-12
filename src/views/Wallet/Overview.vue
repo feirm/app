@@ -12,7 +12,7 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
         <!-- Hint if no wallet is present -->
-        <ion-card v-show="!store.getters.isWalletPresent">
+        <ion-card v-show="!store.getters.isWalletPresent" button @click="addCoin">
           <ion-card-header class="ion-text-left">
             <ion-text style="color: white">
               <h3>Add a wallet</h3>
