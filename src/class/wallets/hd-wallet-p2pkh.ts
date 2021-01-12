@@ -103,4 +103,28 @@ export class HDWalletP2PKH extends AbstractWallet {
         
         return address;
     }
+
+    /*
+      * Persistance = need to save mnemonic and wallet ID
+    */
+    // Save to disk (localStorage)
+    async saveToDisk() {
+        // Construct an object which resembles a wallet
+        const wallet = {
+            id: await this.getId(),
+            secret: this.getSecret(),
+            coins: this.getAllCoins()
+        }
+
+        localStorage.setItem("wallet", JSON.stringify(wallet));
+    }
+
+    // TODO Save to cache (vuex)
+    // saveToCache() {}
+
+    // TODO Load wallet from disk
+    loadFromDisk() {
+        const wallet = localStorage.getItem("wallet");
+        return JSON.parse(wallet!);
+    }
 }
