@@ -1,21 +1,43 @@
 <template>
     <ion-page>
-        <ion-header>
-            <ion-toolbar class="ion-text-center">
+        <ion-header class="ion-no-border">
+            <ion-toolbar class="ion-text-left" color="transparent">
                 <ion-buttons slot="start">
-                    <ion-back-button></ion-back-button>
+                    <ion-back-button color="dark"></ion-back-button>
                 </ion-buttons>
-                <ion-title>Storing your mnemonic</ion-title>
             </ion-toolbar>
         </ion-header>
         <ion-content class="ion-padding" :fullscreen="true">
+            <h3>Your wallet has been generated!</h3>
             <ion-text>
-                <p>As the Feirm Platform is non-custodial, you own your private keys. In order to make it easy for you to backup and remember, we give you a string of 24 words. Please be sure to write these down on paper and store them securely. A digital copy is NOT recommended.</p>
-                <p>Please note that if you lose these words, you will not be able to access your funds again, so be sure to save them carefully.</p>
+                <p>Please take a moment to write down this 24-word mnemonic phrase onto a piece of paper. It is your backup which can be used to restore access to your wallet. Without this backup, your funds are lost forever!</p>
             </ion-text>
-            <h1 class="ion-text-center">
-                <b>{{ mnemonic }}</b>
-            </h1>
+            
+            <!-- Show mnemonic -->
+            <ion-grid>
+                <ion-row>
+                    <!-- Words 1 - 8 -->
+                    <ion-col>
+                        <div v-for="(word, index) in splitMnemonic" v-bind:key="word">
+                            <ion-chip v-if="index < 8">{{ index + 1 }}. {{ word }}</ion-chip>
+                        </div>
+                    </ion-col>
+
+                    <!-- Words 9 - 16 -->
+                    <ion-col>
+                        <div v-for="(word, index) in splitMnemonic" v-bind:key="word">
+                            <ion-chip v-if="index >= 8 && index < 16">{{ index + 1 }}. {{ word }}</ion-chip>
+                        </div>
+                    </ion-col>
+
+                    <!-- Words 17 - 24 -->
+                    <ion-col>
+                        <div v-for="(word, index) in splitMnemonic" v-bind:key="word">
+                            <ion-chip v-if="index >= 16">{{ index + 1 }}. {{ word }}</ion-chip>
+                        </div>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
         </ion-content>
         <ion-footer class="ion-no-border ion-padding">
             <ion-button expand="block" @click="router.push({ path: '/wallet/backupSeed' })">Next</ion-button>
@@ -30,11 +52,14 @@ import {
     IonContent,
     IonHeader,
     IonToolbar,
-    IonTitle,
     IonText,
     IonBackButton,
     IonButton,
     IonFooter,
+    IonChip,
+    IonGrid,
+    IonRow,
+    IonCol
 } from "@ionic/vue";
 import { GenerateMnemonic } from "@/lib/wallet";
 import { useStore } from "vuex";
@@ -47,20 +72,25 @@ export default defineComponent({
         IonContent,
         IonHeader,
         IonToolbar,
-        IonTitle,
         IonText,
         IonBackButton,
         IonButton,
-        IonFooter
+        IonFooter,
+        IonChip,
+        IonGrid,
+        IonRow,
+        IonCol
     },
     data() {
         return {
-            mnemonic: ""
+            mnemonic: "",
+            splitMnemonic: [] as string[]
         }
     },
     mounted() {
-        const seed = GenerateMnemonic()
+        const seed = GenerateMnemonic();
         this.mnemonic = seed;
+        this.splitMnemonic = seed.split(" ");
 
         // Store mnemonic in Vuex
         this.store.commit("setWalletMnemonic", seed);
@@ -76,3 +106,10 @@ export default defineComponent({
     }
 })
 </script>
+
+<style scoped>
+ion-chip {
+    font-size: 10px;
+    font-weight: bold;
+}
+</style>
