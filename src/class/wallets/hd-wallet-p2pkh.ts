@@ -120,7 +120,17 @@ export class HDWalletP2PKH extends AbstractWallet {
     }
 
     // TODO Save to cache (vuex)
-    // saveToCache() {}
+    async saveToCache() {
+        // Construct an object which resembles a wallet
+        const wallet = {
+            id: await this.getId(),
+            secret: this.getSecret(),
+            coins: this.getAllCoins()
+        }
+
+        store.commit("setWalletState", wallet)
+        // TODO: Refactor ^^^^
+    }
 
     // TODO Load wallet from disk
     loadFromDisk() {
