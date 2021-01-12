@@ -6,7 +6,7 @@ Each wallet should be able to derive multiple coins using the same BIP39 private
 import bufferToHex from "@/lib/bufferToHex";
 import { entropyToMnemonic } from "bip39";
 
-export class AbstractWallet {
+export abstract class AbstractWallet {
     secret: string; // Going to be a private key or mnemonic
 
     // Generate a wallet ID based on secret (SHA256)
