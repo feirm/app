@@ -66,7 +66,8 @@ import {
     IonGrid,
     IonRow,
     IonCol,
-    modalController
+    modalController,
+    alertController
 } from "@ionic/vue";
 
 import BackupMnemonic from "@/components/Wallet/Setup/BackupMnemonic.vue";
@@ -91,7 +92,9 @@ export default defineComponent({
     data() {
         return {
             mnemonic: "",
-            splitMnemonic: [] as string[]
+            splitMnemonic: [] as string[],
+
+            wallet: new HDWalletP2PKH()
         }
     },
     methods: {
@@ -104,14 +107,43 @@ export default defineComponent({
                 }
             })
 
-            return backupModal.present();
+            // Show the backup modal
+            await backupModal.present();
+
+            // Capture on dismiss
+            backupModal.onDidDismiss().then(() => {
+                // Generate a Feirm wallet
+                this.wallet.addCoin("xfe");
+
+                // Save wallet to disk
+                this.wallet.saveToDisk();
+
+                // Set wallet state in Vuex
+                this.wallet.saveToCache();
+            })
         }
     },
-    created() {
+    async created() {
         // Generate a new wallet
         const wallet = new HDWalletP2PKH();
-        wallet.generateSecret();
 
+        // Check if a wallet already exists
+        const loadedWallet = wallet.loadFromDisk();
+        if (loadedWallet) {
+            const alert = await alertController.create({
+                header: "Error!",
+                message: "A wallet already exists! If you wish to create a new wallet, please delete the existing one.",
+                buttons: ["Close"]
+            })
+
+            return alert.present();
+        }
+
+        // Create a new mnemonic and store wallet
+        wallet.generateSecret();
+        this.wallet = wallet;
+
+        // Set and split mnemonic
         this.mnemonic = wallet.getSecret();
         this.splitMnemonic = this.mnemonic.split(" ");
     }
