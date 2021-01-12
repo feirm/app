@@ -106,10 +106,3 @@ export default defineComponent({
     }
 })
 </script>
-
-<style scoped>
-ion-chip {
-    font-size: 10px;
-    font-weight: bold;
-}
-</style>
