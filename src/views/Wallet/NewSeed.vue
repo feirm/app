@@ -9,9 +9,6 @@
         </ion-header>
         <ion-content class="ion-padding" :fullscreen="true">
             <h3>Your wallet has been generated!</h3>
-            <ion-text>
-                <p>Please take a moment to write down this 24-word mnemonic phrase onto a piece of paper. It is your backup which can be used to restore access to your wallet. Without this backup, your funds are lost forever!</p>
-            </ion-text>
             
             <!-- Show mnemonic -->
             <ion-grid>
@@ -38,6 +35,10 @@
                     </ion-col>
                 </ion-row>
             </ion-grid>
+
+            <ion-text>
+                <p>Please take a moment to write down this 24-word mnemonic phrase onto a piece of paper. It is your backup which can be used to restore access to your wallet. Without this backup, your funds are lost forever!</p>
+            </ion-text>
         </ion-content>
         <ion-footer class="ion-no-border ion-padding">
             <ion-button expand="block" @click="router.push({ path: '/wallet/backupSeed' })">Next</ion-button>
