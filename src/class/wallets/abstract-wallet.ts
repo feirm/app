@@ -9,10 +9,6 @@ import { entropyToMnemonic } from "bip39";
 export class AbstractWallet {
     secret: string; // Going to be a private key or mnemonic
 
-    constructor(secret: string) {
-        this.secret = secret;
-    }
-
     // Generate a wallet ID based on secret (SHA256)
     async getId() {
         const encodedText = new TextEncoder().encode(this.getSecret());
@@ -22,7 +18,7 @@ export class AbstractWallet {
 
     // Generate a wallet secret (bip39 mnemonic)
     generateSecret() {
-        const buf = window.crypto.getRandomValues(new Uint8Array(16));
+        const buf = window.crypto.getRandomValues(new Uint8Array(32));
         this.secret = entropyToMnemonic(bufferToHex(buf));
     }
 

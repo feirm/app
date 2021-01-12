@@ -11,7 +11,7 @@ import { store } from "@/store";
  * Going to be used for majority of coins except BTC
  */
 export class HDWalletP2PKH extends AbstractWallet {
-    public coins: { ticker: string, coin: Coin }[] = [];
+    public coins: { ticker: string; coin: Coin }[] = [];
 
     // Return a wallet by ticker
     public getCoin(ticker: string): Coin {
@@ -59,29 +59,13 @@ export class HDWalletP2PKH extends AbstractWallet {
     public getNodeAddressByIndex(ticker: string, node: number, index: number) {
         // Fetch coin network
         const networks = this.getNetwork(ticker);
-
-        // Receiving or internal account
-        if (node === 0) {
-            const xpub = this.getXpub(ticker);
-
-            const { address } = bitcoin.payments.p2pkh({
-                pubkey: bitcoin.bip32.fromBase58(xpub).derive(node).derive(index).publicKey,
-                network: networks.p2pkh
-            })
-
-            return address;
-        }
-
-        // External or change account
-        if (node === 1) {
-            const xpub = this.getXpub(ticker);
-
-            const { address } = bitcoin.payments.p2pkh({
-                pubkey: bitcoin.bip32.fromBase58(xpub).derive(node).derive(index).publicKey,
-                network: networks.p2pkh
-            })
-
-            return address;
-        }
+        
+        const xpub = this.getXpub(ticker);
+        const { address } = bitcoin.payments.p2pkh({
+            pubkey: bitcoin.bip32.fromBase58(xpub).derive(node).derive(index).publicKey,
+            network: networks.p2pkh
+        })
+        
+        return address;
     }
 }
