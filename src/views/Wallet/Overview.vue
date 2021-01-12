@@ -39,7 +39,32 @@
             </ion-text>
           </ion-card-header>
         </ion-card>
+
+        <!-- Showcase recent transactions -->
+        <ion-grid>
+          <ion-row>
+            <ion-col>
+              <h4>Transactions</h4>
+            </ion-col>
+          </ion-row>
+          <ion-row>
+            <ion-col v-show="!store.getters.isWalletPresent">
+              <ion-text class="ion-text-center" color="medium">
+                <p>Your transactions will appear here once you create your wallet.</p>
+              </ion-text>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
     </ion-content>
+
+    <!-- Footer -->
+    <ion-footer class="ion-no-border ion-padding ion-text-center">
+      <ion-button color="light" shape="round">
+        <ion-icon slot="start" :icon="scanOutline"></ion-icon>
+        Scan
+      </ion-button>
+    </ion-footer>
+
   </ion-page>
 </template>
 
@@ -56,9 +81,13 @@ import {
   IonText,
   IonIcon,
   IonButton,
-  IonButtons
+  IonButtons,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonFooter
 } from "@ionic/vue";
-import { walletOutline, addCircleOutline } from "ionicons/icons";
+import { walletOutline, addCircleOutline, scanOutline } from "ionicons/icons";
 import { Wallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
@@ -77,7 +106,11 @@ export default defineComponent({
     IonText,
     IonIcon,
     IonButton,
-    IonButtons
+    IonButtons,
+    IonGrid,
+    IonRow,
+    IonCol,
+    IonFooter
   },
   data() {
     return {
@@ -111,6 +144,7 @@ export default defineComponent({
       store,
       walletOutline,
       addCircleOutline,
+      scanOutline
     };
   },
 });
