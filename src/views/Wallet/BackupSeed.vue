@@ -19,14 +19,14 @@
 
       <!-- Area where mnemonic is being assembled -->
       <div class="mnemonic-area">
-        <ion-chip v-for="word in assembledMnemonic" v-bind:key="word" @click="removeWord(word)">
+        <ion-chip color="dark" v-for="word in assembledMnemonic" v-bind:key="word" @click="removeWord(word)">
           {{ word }}
         </ion-chip>
       </div>
 
       <!-- Random pool of mnemonic words -->
       <p v-show="splitMnemonic.length > 0">Available words: {{ splitMnemonic.length }}</p>
-      <ion-chip v-for="word in splitMnemonic" v-bind:key="word" @click="addWord(word)">
+      <ion-chip color="dark" v-for="word in splitMnemonic" v-bind:key="word" @click="addWord(word)">
         {{ word }}
       </ion-chip>
     </ion-content>
@@ -132,7 +132,7 @@ export default defineComponent({
 
 <style scoped>
 .mnemonic-area {
-  background-color: #eee;
+  background-color: var(--ion-color-light);
   padding: 15px;
   min-height: 4.5em;
 }
