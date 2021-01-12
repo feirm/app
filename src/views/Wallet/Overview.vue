@@ -12,7 +12,7 @@
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
         <!-- Hint if no wallet is present -->
-        <ion-card v-show="!store.getters.isWalletPresent" button @click="addCoin">
+        <ion-card button @click="addCoin">
           <ion-card-header class="ion-text-left">
             <ion-text style="color: white">
               <h3>Add a wallet</h3>
@@ -24,7 +24,7 @@
 
         <!-- Showcase coins -->
         <ion-card
-          v-for="coin in store.getters.getWallet.coins"
+          v-for="coin in coins"
           v-bind:key="coin"
           button="true"
           @click="detailedWallet(store.getters.getWalletId, coin.ticker)"
@@ -48,7 +48,7 @@
             </ion-col>
           </ion-row>
           <ion-row>
-            <ion-col v-show="!store.getters.isWalletPresent">
+            <ion-col>
               <ion-text class="ion-text-center" color="medium">
                 <p>Your transactions will appear here once you create your wallet.</p>
               </ion-text>
@@ -122,13 +122,10 @@ export default defineComponent({
       this.router.push("/tabs/wallet/" + id + "/" + coin);
     },
     addCoin() {
-      // Check that a wallet is present
-      if (!this.store.getters.isWalletPresent) {
-        this.router.push({ path: "/wallet/getStarted" });
-        return;
-      }
+      this.router.push({ path: "/wallet/getStarted" });
 
-      this.router.push("/wallet/addCoin");
+      // TODO Check if wallet is already present
+      // this.router.push("/wallet/addCoin");
     }
   },
   setup() {

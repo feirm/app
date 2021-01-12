@@ -46,7 +46,7 @@
             </ion-text>
         </ion-content>
         <ion-footer class="ion-no-border ion-padding">
-            <ion-button expand="block" @click="router.push({ path: '/wallet/backupSeed' })">Next</ion-button>
+            <ion-button expand="block" @click="backupTest">Next</ion-button>
         </ion-footer>
     </ion-page>
 </template>
@@ -65,11 +65,12 @@ import {
     IonChip,
     IonGrid,
     IonRow,
-    IonCol
+    IonCol,
+    modalController
 } from "@ionic/vue";
-import { GenerateMnemonic } from "@/lib/wallet";
-import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+
+import BackupMnemonic from "@/components/Wallet/Setup/BackupMnemonic.vue";
+import { HDWalletP2PKH } from "@/class/wallets/hd-wallet-p2pkh";
 
 export default defineComponent({
     name: "NewSeed",
@@ -93,22 +94,26 @@ export default defineComponent({
             splitMnemonic: [] as string[]
         }
     },
-    mounted() {
-        const seed = GenerateMnemonic();
-        this.mnemonic = seed;
-        this.splitMnemonic = seed.split(" ");
+    methods: {
+        async backupTest() {
+            // Create a modal to go through the backup test
+            const backupModal = await modalController.create({
+                component: BackupMnemonic,
+                componentProps: {
+                    mnemonic: this.mnemonic
+                }
+            })
 
-        // Store mnemonic in Vuex
-        this.store.commit("setWalletMnemonic", seed);
-    },
-    setup() {
-        const store = useStore();
-        const router = useRouter();
-
-        return {
-            store,
-            router
+            return backupModal.present();
         }
+    },
+    created() {
+        // Generate a new wallet
+        const wallet = new HDWalletP2PKH();
+        wallet.generateSecret();
+
+        this.mnemonic = wallet.getSecret();
+        this.splitMnemonic = this.mnemonic.split(" ");
     }
 })
 </script>

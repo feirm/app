@@ -1,9 +1,10 @@
 <template>
-  <ion-page>
     <ion-header class="ion-no-border">
       <ion-toolbar class="ion-text-center" color="transparent">
-        <ion-buttons slot="start">
-          <ion-back-button></ion-back-button>
+        <ion-buttons slot="secondary">
+          <ion-button slot="icon-only" @click="closeModal">
+            <ion-icon :icon="closeOutline"></ion-icon>
+          </ion-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -33,38 +34,39 @@
     <ion-footer class="ion-no-border ion-padding">
       <ion-button expand="block" @click="verify">Validate</ion-button>
     </ion-footer>
-  </ion-page>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import {
-  IonPage,
   IonContent,
   IonHeader,
   IonToolbar,
   IonText,
-  IonBackButton,
   IonButton,
   IonFooter,
-  IonChip
+  IonChip,
+  IonIcon,
+  modalController
 } from "@ionic/vue";
-import { useStore } from "vuex";
-import { useRouter } from "vue-router";
+import { closeOutline } from "ionicons/icons";
+
 import { validateMnemonic } from "bip39";
 
 export default defineComponent({
-  name: "NewSeed",
+  name: "BackupMnemonic",
+  props: {
+    mnemonic: { type: String }
+  },
   components: {
-    IonPage,
     IonContent,
     IonHeader,
     IonToolbar,
     IonText,
-    IonBackButton,
     IonButton,
     IonFooter,
-    IonChip
+    IonChip,
+    IonIcon
   },
   data() {
     return {
@@ -95,7 +97,7 @@ export default defineComponent({
 
     // Verify the assembled mnemonic and move onto the next stage
     verify() {
-      const mnemonic = this.store.getters.getWalletMnemonic; // Mnemonic generated for us
+      const mnemonic = this.$props.mnemonic; // Mnemonic passed to this component, previously generated.
       const assembledMnemonic = this.assembledMnemonic.join(" "); // Assembled mnemonic in its sentence form
 
       // Check the assembled string is valid according to bip39
@@ -110,23 +112,24 @@ export default defineComponent({
         // TODO Show a success message
         console.log("The mnemonics match...")
       }
+    },
+
+    // Close the component
+    async closeModal() {
+      await modalController.dismiss();
     }
   },
   created() {
     // Split and shuffle the array
-    let mnemonicArray = this.store.getters.getWalletMnemonic.split(" ");
+    let mnemonicArray = this.$props.mnemonic!.split(" ");
     mnemonicArray = mnemonicArray.sort(() => Math.random() - 0.5);
     this.splitMnemonic = mnemonicArray;
   },
   setup() {
-    const store = useStore();
-    const router = useRouter();
-
     return {
-      store,
-      router,
-    };
-  },
+      closeOutline
+    }
+  }
 });
 </script>
 
