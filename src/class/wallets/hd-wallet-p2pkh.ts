@@ -1,8 +1,9 @@
 import { Coin } from "@/models/coin";
 import bitcoin from "bitcoinjs-lib";
-import bip39 from "bip39";
 import { AbstractWallet } from "./abstract-wallet";
 import { store } from "@/store";
+import { mnemonicToSeedSync } from "bip39";
+import { fromSeed } from "bip32";
 
 /**
  * HD Wallet (BIP44)
@@ -11,7 +12,45 @@ import { store } from "@/store";
  * Going to be used for majority of coins except BTC
  */
 export class HDWalletP2PKH extends AbstractWallet {
-    public coins: { [ticker: string]: Coin }[] = [];
+    public coins: Coin[] = [];
+
+    // Add a new coin
+    public addCoin(ticker: string): Coin {
+        // New instance of the coin object
+        const coin = {} as Coin;
+
+        // Fetch coin network data based on ticker
+        const coinData = this.getCoinData(ticker);
+        const networks = this.getNetwork(ticker);
+
+        // Format the network data
+        networks.p2pkh.pubKeyHash = networks.p2pkh.pubKeyHash[0];
+        networks.p2pkh.scriptHash = networks.p2pkh.scriptHash[0];
+        networks.p2pkh.wif = networks.p2pkh.wif[0];
+
+        // Convert mnemonic secret into seed
+        const seed = mnemonicToSeedSync(this.getSecret());
+
+        // Derive the HD wallet data
+        const path = "m/44'/" + coinData.hdIndex + "'/0'";
+        const rootKey = fromSeed(seed, networks.p2pkh);
+        coin.rootKey = rootKey.toBase58();
+
+        const node = rootKey.derivePath(path);
+        coin.extendedPublicKey = node.neutered().toBase58();
+        coin.extendedPrivateKey = node.toBase58();
+
+        // Set the remainder of the properties
+        coin.name = coinData.name;
+        coin.ticker = coinData.ticker;
+        coin.balance = 0;
+        coin.unconfirmedBalance = 0;
+
+        // Add to the existing coins
+        this.coins.push(coin);
+
+        return coin;
+    }
 
     // Return a wallet by ticker
     public getCoin(ticker: string): Coin {
@@ -36,28 +75,19 @@ export class HDWalletP2PKH extends AbstractWallet {
 
     // Get xpub for coin
     public getXpub(ticker: string) {
-        // Get existing coin wallet
-        const coin = this.getCoin(ticker);
-
-        // Make sure we don't already have it
-        if (coin.extendedPublicKey) {
-            return coin.extendedPublicKey;
-        }
-
         // Fetch the coin data
         const coinData = this.getCoinData(ticker);
         const networks = this.getNetwork(ticker);
 
         // Derive it otherwise
         const mnemonic = this.secret;
-        const seed = bip39.mnemonicToSeedSync(mnemonic);
-        const root = bitcoin.bip32.fromSeed(seed, networks.p2pkh);
+        const seed = mnemonicToSeedSync(mnemonic);
+        const root = fromSeed(seed, networks.p2pkh);
 
         const path = "m/44'/" + coinData.hdIndex + "'/0'";
         const child = root.derivePath(path).neutered();
 
-        coin.extendedPublicKey = child.toBase58();
-        return coin.extendedPublicKey;
+        return child.toBase58();
     }
 
     // Fetch an address by its node and index
