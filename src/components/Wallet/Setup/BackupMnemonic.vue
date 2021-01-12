@@ -32,7 +32,7 @@
       </ion-chip>
     </ion-content>
     <ion-footer class="ion-no-border ion-padding">
-      <ion-button expand="block" @click="verify">Validate</ion-button>
+      <ion-button expand="block" @click="verify" :disabled="assembledMnemonic.length !== 24">Validate</ion-button>
     </ion-footer>
 </template>
 
@@ -47,7 +47,8 @@ import {
   IonFooter,
   IonChip,
   IonIcon,
-  modalController
+  modalController,
+  alertController
 } from "@ionic/vue";
 import { closeOutline } from "ionicons/icons";
 
@@ -96,22 +97,37 @@ export default defineComponent({
     },
 
     // Verify the assembled mnemonic and move onto the next stage
-    verify() {
+    async verify() {
       const mnemonic = this.$props.mnemonic; // Mnemonic passed to this component, previously generated.
       const assembledMnemonic = this.assembledMnemonic.join(" "); // Assembled mnemonic in its sentence form
+
+      // Check the two mnemonics match each other
+      if (mnemonic !== assembledMnemonic) {
+        // Show a non-matching error message
+        const alert = await alertController.create({
+          header: "Validation failed!",
+          message: "The mnemonic provided does not match the original version!",
+          buttons: ["Close"]
+        });
+
+        return alert.present();
+      }
 
       // Check the assembled string is valid according to bip39
       const valid = validateMnemonic(assembledMnemonic);
       if (!valid) {
-        // TODO Throw some error about validation
-        return;
-      }
+        // Throw some error about validation
+        const alert = await alertController.create({
+          header: "Validation failed!",
+          message: "There was an error validating your mnemonic.",
+          buttons: ["Close"]
+        });
 
-      // Check the two mnemonics match each other
-      if (mnemonic === assembledMnemonic) {
-        // TODO Show a success message
-        console.log("The mnemonics match...")
+        return alert.present();
       }
+      
+      // Dismiss the modal
+      await modalController.dismiss();
     },
 
     // Close the component
