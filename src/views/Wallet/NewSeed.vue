@@ -41,7 +41,8 @@
             </ion-grid>
 
             <ion-text>
-                <p>⚠️ Without this backup, your funds are lost forever! Feirm is non-custodial, making us unable to recover them for you!</p>
+                <p><b>⚠️ Warning!</b></p>
+                <p>Without this backup, your funds are lost forever! Feirm is non-custodial, making us unable to recover them for you!</p>
             </ion-text>
         </ion-content>
         <ion-footer class="ion-no-border ion-padding">
