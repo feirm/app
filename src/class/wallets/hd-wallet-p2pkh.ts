@@ -5,6 +5,9 @@ import { store } from "@/store";
 import { mnemonicToSeedSync } from "bip39";
 import { fromBase58, fromSeed } from "bip32";
 import { Wallet } from "@/models/wallet";
+import axios from "axios";
+import { Transaction } from "@/models/transaction";
+import { DateTime } from "luxon";
 
 /**
  * HD Wallet (BIP44)
@@ -14,6 +17,7 @@ import { Wallet } from "@/models/wallet";
  */
 class HDWalletP2PKH extends AbstractWallet {
     public coins: Coin[] = [];
+    public transactions: Transaction[] = [];
 
     // Add a new coin
     public addCoin(ticker: string): Coin {
@@ -137,6 +141,51 @@ class HDWalletP2PKH extends AbstractWallet {
         })
         
         return address;
+    }
+
+    // Get UTXOs for a coin
+
+    // Get transactions for a coin
+
+    // Get transactions for ALL coins
+    async getAllTransactions() {
+        const coins = this.getAllCoins();
+
+        for (let i = 0; i < coins.length; i++) {
+            // Individual coin and Blockbook
+            const coin = coins[i];
+            const blockbookUrl = this.getBlockbook(coin.ticker);
+            
+            await axios.get(
+                `https://cors-anywhere.feirm.com/${blockbookUrl}/api/v2/xpub/${coin.extendedPublicKey}?details=txs&tokens=used`
+            ).then(res => {
+                // Iterate through all the transactions
+                const txs = res.data.transactions;
+
+                for (let j = 0; j < txs.length; j++) {
+                    // Isolate transaction
+                    const isolatedTx = res.data.transactions[j];
+
+                    // Create instance of new transaction we are going to work with
+                    const tx = {} as Transaction;
+
+                    // Set the transaction properties
+                    tx.txid = isolatedTx.txid;
+
+                    // Format the Date
+                    tx.blockTime = DateTime.fromSeconds(parseInt(isolatedTx.blockTime)).toRelative();
+
+                    tx.value = isolatedTx.value // In satoshis
+                    tx.ticker = coin.ticker.toLocaleLowerCase();
+
+                    // Push the transaction to the array
+                    this.transactions.push(tx);
+
+                    // Update the state
+                    store.commit("setAllTransactions", this.transactions);
+                }
+            })
+        }
     }
 
     /*
