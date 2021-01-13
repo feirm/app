@@ -32,7 +32,14 @@ class HDWalletP2PKH extends AbstractWallet {
         const seed = mnemonicToSeedSync(this.getSecret());
 
         // Derive the HD wallet data
-        const path = "m/44'/" + coinData.hdIndex + "'/0'";
+        let index;
+        if (coinData.bip44) {
+            index = coinData.bip44;
+        } else {
+            index = coinData.hdIndex;
+        }
+
+        const path = "m/44'/" + index + "'/0'";
         const rootKey = fromSeed(seed, networks.p2pkh);
         coin.rootKey = rootKey.toBase58();
 
@@ -123,7 +130,15 @@ class HDWalletP2PKH extends AbstractWallet {
         const seed = mnemonicToSeedSync(mnemonic);
         const root = fromSeed(seed, networks.p2pkh);
 
-        const path = "m/44'/" + coinData.hdIndex + "'/0'";
+        // Correct indexes
+        let index;
+        if (coinData.bip44) {
+            index = coinData.bip44;
+        } else {
+            index = coinData.hdIndex;
+        }
+
+        const path = "m/44'/" + index + "'/0'";
         const child = root.derivePath(path).neutered();
 
         return child.toBase58();
