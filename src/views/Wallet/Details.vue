@@ -32,7 +32,7 @@
     
     <ion-content :fullscreen="true" class="ion-padding">
       <ion-grid>
-        <ion-button v-show="coin.ticker.toLowerCase() === 'xfe'" expand="block" color="primary" href="https://trade.birake.com">Buy Feirm</ion-button>
+        <ion-button v-show="ticker.toLowerCase() === 'xfe'" expand="block" color="primary" href="https://trade.birake.com">Buy Feirm</ion-button>
 
         <!-- Recent transactions -->
         <ion-row>

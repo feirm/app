@@ -50,7 +50,8 @@
           <ion-row>
             <ion-col>
               <ion-text class="ion-text-center" color="medium">
-                <p>Your transactions will appear here once you create your wallet.</p>
+                <p v-show="!store.getters.walletExists">Your transactions will appear here once you create your wallet.</p>
+                <p v-show="store.getters.walletExists">Any transactions you make throughout your wallet will appear here.</p>
               </ion-text>
             </ion-col>
           </ion-row>
