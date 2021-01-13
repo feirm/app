@@ -62,7 +62,7 @@
 
               <!-- Transactions -->
               <ion-item-group>
-                <ion-item v-for="tx in store.getters.allTransactions.splice(0, 7)" v-bind:key="tx.txid">
+                <ion-item v-for="tx in store.getters.allTransactions.slice(0, 7)" v-bind:key="tx.txid">
                   {{ tx.blockTime }}
                   {{ tx.value / 100000000 }}
                   {{ tx.ticker.toUpperCase() }}
