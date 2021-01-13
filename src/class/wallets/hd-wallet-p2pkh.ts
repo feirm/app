@@ -3,7 +3,7 @@ import bitcoin from "bitcoinjs-lib";
 import { AbstractWallet } from "./abstract-wallet";
 import { store } from "@/store";
 import { mnemonicToSeedSync } from "bip39";
-import { fromSeed } from "bip32";
+import { fromBase58, fromSeed } from "bip32";
 import { Wallet } from "@/models/wallet";
 
 /**
@@ -105,15 +105,7 @@ class HDWalletP2PKH extends AbstractWallet {
 
     // Return all coin networks
     public getNetwork(ticker: string) {
-        const networks = store.getters.getCoin(ticker).networks;
-
-        // Format the networks
-        // P2PKH
-        networks.p2pkh.pubKeyHash = networks.p2pkh.pubKeyHash[0];
-        networks.p2pkh.scriptHash = networks.p2pkh.scriptHash[0];
-        networks.p2pkh.wif = networks.p2pkh.wif[0];
-
-        return networks;
+        return store.getters.getCoin(ticker).networks;
     }
 
     // Get xpub for coin
@@ -141,7 +133,7 @@ class HDWalletP2PKH extends AbstractWallet {
         
         const xpub = this.getXpub(ticker);
         const { address } = bitcoin.payments.p2pkh({
-            pubkey: bitcoin.bip32.fromBase58(xpub).derive(node).derive(index).publicKey,
+            pubkey: fromBase58(xpub).derive(node).derive(index).publicKey,
             network: networks.p2pkh
         })
         
@@ -185,8 +177,6 @@ class HDWalletP2PKH extends AbstractWallet {
         
         const id = await this.getId();
         this.setId(id);
-
-        console.log("loaded coins:", wallet.coins);
 
         this.coins = wallet.coins;
 
