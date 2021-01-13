@@ -14,6 +14,9 @@ export const wallet = {
     },
     setAllTransactions(state, transactions) {
       state.transactions = transactions;
+    },
+    clearAllTransactions(state) {
+      state.transactions = [];
     }
   },
   actions: {
