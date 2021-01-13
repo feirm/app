@@ -74,6 +74,7 @@ import {
 import { FindWallet, DeriveAddress } from "@/lib/wallet";
 import QRCode from "qrcode";
 import bip21 from "bip21";
+import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 
 export default defineComponent({
   name: "ReceivingAddress",
@@ -96,48 +97,44 @@ export default defineComponent({
       .then((a) => {
         a.present().then(async () => {
           // Derive an address for the coin based on the values we've got in this component.
-          // Iterate and find the wallet for this coin
-          await FindWallet(this.$props.ticker as string)
-            .then(async (coin) => {
-              // Derive a new address
-              const address = await DeriveAddress(
-                coin.extendedPublicKey,
-                coin.ticker
-              );
+          // Find the wallet for this coin
+          const wallet = hdWalletP2pkh;
+          const coin = hdWalletP2pkh.getCoin(this.$props.ticker!);
 
-              // BIP21 compliant payment request
-              const payment = bip21.encode(address, {}, this.$props.coin)
+          // Derive an address
+          const address = wallet.getNodeAddressByIndex(coin.ticker, 0, 0)!;
+          this.address = address;
 
-              // Generate a QR code of the address
-              await QRCode.toDataURL(payment, { width: 200, margin: 1 }).then((qr) => {
-                this.qrCode = qr;
-              });
+          // BIP21 compliant payment request
+          const payment = bip21.encode(address, {}, this.$props.coin)
+              
+          // Generate a QR code of the address
+          await QRCode.toDataURL(payment, { width: 200, margin: 1 }).then((qr) => {
+            this.qrCode = qr;
+          });
 
-              this.address = address;
+          // Dismiss modal
+          a.dismiss();
+        })
+        .catch(async e => {
+          // Dismiss modal
+          a.dismiss();
 
-              // Dismiss the loading controller
-              a.dismiss();
-            })
-            .catch(async (err) => {
-              // If we've got an error, dismiss the loading controller and show a popup error
-              a.dismiss();
+          const error = await alertController.create({
+            header: "Error!",
+            message: e,
+            buttons: ["Close"]
+          });
 
-              const errorAlert = await alertController.create({
-                header: "Error!",
-                message: err,
-                buttons: ["Close"],
-              });
-
-              return errorAlert.present();
-            });
-        });
+          return error.present();
+        })
       });
   },
   methods: {
     share() {
       navigator.share({
         title: `${this.$props.coin as string} Address`,
-        text: this.address,
+        text: this.address
       });
     },
     async copyToClipboard() {
@@ -163,16 +160,6 @@ export default defineComponent({
     },
     async closeModal() {
       await modalController.dismiss();
-    },
-    async help() {
-      const alert = await alertController.create({
-        header: "Seeing a new address?",
-        message:
-          "Feirm makes use of BIP32/44 to derive a new address each time a previous one has been used as an attempt to prevent you from being tracked.",
-        buttons: ["Okay!"],
-      });
-
-      return alert.present();
     },
   },
   setup() {
