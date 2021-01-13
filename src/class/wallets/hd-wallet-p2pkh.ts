@@ -11,7 +11,7 @@ import { fromSeed } from "bip32";
  * Using BIP44 with P2PKH addresses
  * Going to be used for majority of coins except BTC
  */
-export class HDWalletP2PKH extends AbstractWallet {
+class HDWalletP2PKH extends AbstractWallet {
     public coins: Coin[] = [];
 
     // Add a new coin
@@ -138,3 +138,5 @@ export class HDWalletP2PKH extends AbstractWallet {
         return JSON.parse(wallet!);
     }
 }
+
+export default new HDWalletP2PKH();
