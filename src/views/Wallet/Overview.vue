@@ -11,6 +11,11 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
+        <!-- Refresher element -->
+        <ion-refresher slot="fixed" @ionRefresh="doRefresh($event)">
+          <ion-refresher-content></ion-refresher-content>
+        </ion-refresher>
+
         <!-- Hint if no wallet is present -->
         <ion-card button @click="addCoin" v-show="!store.getters.walletExists">
           <ion-card-header class="ion-text-left">
@@ -87,7 +92,9 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonFooter
+  IonFooter,
+  IonRefresher,
+  IonRefresherContent
 } from "@ionic/vue";
 import { walletOutline, addCircleOutline, scanOutline } from "ionicons/icons";
 import { Wallet } from "@/lib/wallet";
@@ -112,7 +119,9 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    IonFooter
+    IonFooter,
+    IonRefresher,
+    IonRefresherContent
   },
   data() {
     return {
@@ -141,12 +150,24 @@ export default defineComponent({
       await preload();
     })
 
+    // Transaction and balance refresh
+    const doRefresh = (event: any) => {
+      console.log("Attempting to refresh balances and transactions...")
+
+      // 2 second delay
+      setTimeout(() => {
+        console.log("Refresh complete...");
+        event.target.complete();
+      }, 2000);
+    }
+
     return {
       router,
       store,
       walletOutline,
       addCircleOutline,
-      scanOutline
+      scanOutline,
+      doRefresh
     };
   },
 });
