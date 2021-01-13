@@ -66,6 +66,16 @@ class HDWalletP2PKH extends AbstractWallet {
         return {} as Coin;
     }
 
+    // Get blockbook instance by ticker
+    public getBlockbook(ticker: string) {
+        ticker = ticker.toLocaleLowerCase();
+
+        // Coin data (by ticker)
+        const data = this.getCoinData(ticker);
+
+        return data.blockbook;
+    }
+
     // Return all coins
     public getAllCoins() {
         return this.coins;
@@ -86,6 +96,11 @@ class HDWalletP2PKH extends AbstractWallet {
         // Fetch the coin data
         const coinData = this.getCoinData(ticker);
         const networks = this.getNetwork(ticker);
+
+        // Format the network data
+        networks.p2pkh.pubKeyHash = networks.p2pkh.pubKeyHash[0];
+        networks.p2pkh.scriptHash = networks.p2pkh.scriptHash[0];
+        networks.p2pkh.wif = networks.p2pkh.wif[0];
 
         // Derive it otherwise
         const mnemonic = this.secret;
