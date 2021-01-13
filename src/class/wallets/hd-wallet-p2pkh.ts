@@ -1,5 +1,5 @@
 import { Coin } from "@/models/coin";
-import bitcoin from "bitcoinjs-lib";
+import { payments } from "bitcoinjs-lib";
 import { AbstractWallet } from "./abstract-wallet";
 import { store } from "@/store";
 import { mnemonicToSeedSync } from "bip39";
@@ -132,7 +132,7 @@ class HDWalletP2PKH extends AbstractWallet {
         const networks = this.getNetwork(ticker);
         
         const xpub = this.getXpub(ticker);
-        const { address } = bitcoin.payments.p2pkh({
+        const { address } = payments.p2pkh({
             pubkey: fromBase58(xpub).derive(node).derive(index).publicKey,
             network: networks.p2pkh
         })
