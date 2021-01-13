@@ -44,13 +44,35 @@ class HDWalletP2PKH extends AbstractWallet {
         // Set the remainder of the properties
         coin.name = coinData.name;
         coin.ticker = coinData.ticker;
-        coin.balance = 0;
-        coin.unconfirmedBalance = 0;
+        coin.balance = "0";
+        coin.unconfirmedBalance = "0";
 
         // Add to the existing coins
         this.coins.push(coin);
 
         return coin;
+    }
+
+    // Set confirmed balance
+    public setBalance(ticker: string, amount: string) {
+        // Update coins array
+        for (let i = 0; i < this.coins.length; i++) {
+            if (ticker.toLocaleLowerCase() === this.coins[i].ticker.toLocaleLowerCase()) {
+                // Update the balance
+                this.coins[i].balance = amount;
+            }
+        }
+    }
+
+    // Set unconfirmed balance
+    public setUnconfirmedBalance(ticker: string, amount: string) {
+        // Update coins array
+        for (let i = 0; i < this.coins.length; i++) {
+            if (ticker.toLocaleLowerCase() === this.coins[i].ticker.toLocaleLowerCase()) {
+                // Update the balance
+                this.coins[i].unconfirmedBalance = amount;
+            }
+        }
     }
 
     // Return a wallet by ticker
