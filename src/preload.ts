@@ -100,7 +100,7 @@ export async function preload() {
           const wallet = hdWalletP2pkh;
           const ourCoins = wallet.getAllCoins();
 
-          // Fetch transaction data and balances
+          // Fetch balances
           for (let i = 0; i < ourCoins.length; i++) {
             // Make our coin easily accessible
             const coin = ourCoins[i];
@@ -108,7 +108,7 @@ export async function preload() {
             // Get the blockbook instance for our coin
             const blockbookUrl = wallet.getBlockbook(coin.ticker);
               
-            // Get all the transaction using the XPUB
+            // Get the balances using the XPUB
             const xpub = wallet.getXpub(coin.ticker);
 
             await axios.get(`https://cors-anywhere.feirm.com/${blockbookUrl}/api/v2/xpub/${xpub}`).then(res => {
@@ -119,6 +119,13 @@ export async function preload() {
               wallet.saveToDisk();
               wallet.saveToCache();
             })
+          }
+
+          // Fetch transaction data
+          try {
+            await wallet.getAllTransactions();
+          } catch (e) {
+            console.log("Error fetching all transactions...", e);
           }
 
           // Fetch and decrypt contacts
