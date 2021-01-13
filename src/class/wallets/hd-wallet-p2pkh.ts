@@ -180,11 +180,11 @@ class HDWalletP2PKH extends AbstractWallet {
 
                     // Push the transaction to the array
                     this.transactions.push(tx);
-
-                    // Update the state
-                    store.commit("setAllTransactions", this.transactions);
                 }
-            })
+            });
+
+            // Update the state
+            store.commit("setAllTransactions", this.transactions);
         }
     }
 
