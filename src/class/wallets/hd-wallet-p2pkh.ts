@@ -56,7 +56,14 @@ class HDWalletP2PKH extends AbstractWallet {
     // Return a wallet by ticker
     public getCoin(ticker: string): Coin {
         ticker = ticker.toLocaleLowerCase();
-        return this.coins[ticker];
+
+        for (let i = 0; i < this.getAllCoins().length; i++) {
+            if (this.getAllCoins()[i].ticker.toLocaleLowerCase() === ticker.toLocaleLowerCase()) {
+                return this.coins[i];
+            }
+        }
+
+        return {} as Coin;
     }
 
     // Return all coins
@@ -143,6 +150,8 @@ class HDWalletP2PKH extends AbstractWallet {
         
         const id = await this.getId();
         this.setId(id);
+
+        console.log("loaded coins:", wallet.coins);
 
         this.coins = wallet.coins;
 
