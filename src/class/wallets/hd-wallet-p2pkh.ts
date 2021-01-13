@@ -24,11 +24,6 @@ class HDWalletP2PKH extends AbstractWallet {
         const coinData = this.getCoinData(ticker);
         const networks = this.getNetwork(ticker);
 
-        // Format the network data
-        networks.p2pkh.pubKeyHash = networks.p2pkh.pubKeyHash[0];
-        networks.p2pkh.scriptHash = networks.p2pkh.scriptHash[0];
-        networks.p2pkh.wif = networks.p2pkh.wif[0];
-
         // Convert mnemonic secret into seed
         const seed = mnemonicToSeedSync(this.getSecret());
 
@@ -110,7 +105,15 @@ class HDWalletP2PKH extends AbstractWallet {
 
     // Return all coin networks
     public getNetwork(ticker: string) {
-        return store.getters.getCoin(ticker).networks;
+        const networks = store.getters.getCoin(ticker).networks;
+
+        // Format the networks
+        // P2PKH
+        networks.p2pkh.pubKeyHash = networks.p2pkh.pubKeyHash[0];
+        networks.p2pkh.scriptHash = networks.p2pkh.scriptHash[0];
+        networks.p2pkh.wif = networks.p2pkh.wif[0];
+
+        return networks;
     }
 
     // Get xpub for coin
@@ -118,11 +121,6 @@ class HDWalletP2PKH extends AbstractWallet {
         // Fetch the coin data
         const coinData = this.getCoinData(ticker);
         const networks = this.getNetwork(ticker);
-
-        // Format the network data
-        networks.p2pkh.pubKeyHash = networks.p2pkh.pubKeyHash[0];
-        networks.p2pkh.scriptHash = networks.p2pkh.scriptHash[0];
-        networks.p2pkh.wif = networks.p2pkh.wif[0];
 
         // Derive it otherwise
         const mnemonic = this.secret;
