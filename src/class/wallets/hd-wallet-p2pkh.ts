@@ -133,9 +133,16 @@ class HDWalletP2PKH extends AbstractWallet {
     }
 
     // TODO Load wallet from disk
-    loadFromDisk() {
-        const wallet = localStorage.getItem("wallet");
-        return JSON.parse(wallet!);
+    async loadFromDisk() {
+        const wallet = JSON.parse(localStorage.getItem("wallet")!);
+        
+        // Set the appropriate fields
+        this.setSecret(wallet.secret);
+        
+        const id = await this.getId();
+        this.setId(id);
+
+        this.coins = wallet.coins;
     }
 }
 
