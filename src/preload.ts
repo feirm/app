@@ -134,6 +134,9 @@ export async function preload() {
             await tatsuyaService.fetchContacts().then(async (res) => {
               // Set the encrypted contacts array
               const contacts = res.data as EncryptedContact[];
+              if (!contacts) {
+                return;
+              }
 
               // Attempt to decrypt contacts array
               await DecryptContacts(contacts)
