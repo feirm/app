@@ -231,8 +231,3 @@ http://ionicframework.com/docs/theming/ */
     --ion-card-background: #1e1e1e;
   }
 }
-
-/* Header gradient */
-.header-gradient {
-  --background: linear-gradient(#242424, #1c1c1c);
-}

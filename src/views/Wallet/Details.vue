@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-header class="ion-no-border">
-      <ion-toolbar class="ion-text-left header-gradient">
+      <ion-toolbar class="ion-text-left">
         <ion-grid>
           <ion-row class="ion-no-padding">
             <ion-col>
@@ -196,7 +196,7 @@ ion-footer {
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
-ion-header {
-  background-image: linear-gradient(#242424, #1c1c1c);
+ion-toolbar {
+  --background: url("../../assets/img/covers/feirm.png") no-repeat bottom right, linear-gradient(#242424, #1c1c1c);
 }
 </style>
