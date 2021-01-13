@@ -4,6 +4,7 @@ import { AbstractWallet } from "./abstract-wallet";
 import { store } from "@/store";
 import { mnemonicToSeedSync } from "bip39";
 import { fromSeed } from "bip32";
+import { Wallet } from "@/models/wallet";
 
 /**
  * HD Wallet (BIP44)
@@ -114,7 +115,7 @@ class HDWalletP2PKH extends AbstractWallet {
             id: await this.getId(),
             secret: this.getSecret(),
             coins: this.getAllCoins()
-        }
+        } as Wallet;
 
         localStorage.setItem("wallet", JSON.stringify(wallet));
     }
@@ -126,7 +127,7 @@ class HDWalletP2PKH extends AbstractWallet {
             id: await this.getId(),
             secret: this.getSecret(),
             coins: this.getAllCoins()
-        }
+        } as Wallet;
 
         store.commit("setWalletState", wallet)
         // TODO: Refactor ^^^^
@@ -134,7 +135,7 @@ class HDWalletP2PKH extends AbstractWallet {
 
     // TODO Load wallet from disk
     async loadFromDisk() {
-        const wallet = JSON.parse(localStorage.getItem("wallet")!);
+        const wallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
         
         // Set the appropriate fields
         this.setSecret(wallet.secret);
