@@ -105,7 +105,8 @@ import {
   IonRefresher,
   IonRefresherContent,
   IonItemGroup,
-  IonItem
+  IonItem,
+  alertController
 } from "@ionic/vue";
 import { walletOutline, addCircleOutline, scanOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
@@ -145,11 +146,15 @@ export default defineComponent({
     detailedWallet(id: string, coin: string) {
       this.router.push("/tabs/wallet/" + id + "/" + coin.toLowerCase());
     },
-    addCoin() {
+    async addCoin() {
       if (this.store.getters.walletExists) {
-        console.log("Wallet does exist, so go to coins page...")
-        // this.router.push("/wallet/addCoin");
-        return;
+        const alert = await alertController.create({
+          header: "Sorry!",
+          message: "At this moment in time, you are unable to add a new coin to your wallet.",
+          buttons: ["Close"]
+        })
+        
+        return alert.present();
       }
 
       this.router.push({ path: "/wallet/getStarted" });
