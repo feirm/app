@@ -27,7 +27,7 @@
           v-for="coin in store.getters.walletState.coins"
           v-bind:key="coin"
           button="true"
-          @click="detailedWallet(store.getters.getWalletId, coin.ticker)"
+          @click="detailedWallet(store.getters.walletState.id, coin.ticker)"
         >
           <ion-card-header class="ion-text-left">
             <ion-text style="color: white">
@@ -119,7 +119,7 @@ export default defineComponent({
   },
   methods: {
     detailedWallet(id: string, coin: string) {
-      this.router.push("/tabs/wallet/" + id + "/" + coin);
+      this.router.push("/tabs/wallet/" + id + "/" + coin.toLowerCase());
     },
     addCoin() {
       if (this.store.getters.walletExists) {

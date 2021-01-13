@@ -6,12 +6,12 @@
           <ion-row class="ion-no-padding">
             <ion-col>
               <ion-buttons class="ion-float-left">
-                <ion-back-button color="white"></ion-back-button>
+                <ion-back-button color="light"></ion-back-button>
               </ion-buttons>
 
               <ion-buttons class="ion-float-right">
-                <ion-button @click="removeCoin" color="danger">
-                  <ion-icon :icon="trashOutline" slot="icon-only"></ion-icon>
+                <ion-button @click="coinSettings" color="light">
+                  <ion-icon :icon="ellipsisHorizontal" slot="icon-only"></ion-icon>
                 </ion-button>
               </ion-buttons>
             </ion-col>
@@ -20,7 +20,7 @@
           <!-- Balance -->
           <ion-row class="ion-padding">
             <ion-col>
-              <ion-text color="white">
+              <ion-text color="light">
                 <h4><b>{{ coin.name }}</b></h4>
                 <h1>{{ (coin.balance / 100000000).toFixed(3) }} {{ ticker.toUpperCase() }}</h1>
               </ion-text>
@@ -32,7 +32,7 @@
     
     <ion-content :fullscreen="true" class="ion-padding">
       <ion-grid>
-        <ion-button v-show="coin.ticker === 'xfe'" expand="block" color="primary" href="https://trade.birake.com">Buy Feirm</ion-button>
+        <ion-button v-show="coin.ticker.toLowerCase() === 'xfe'" expand="block" color="primary" href="https://trade.birake.com">Buy Feirm</ion-button>
 
         <!-- Recent transactions -->
         <ion-row>
@@ -94,10 +94,9 @@ import {
 import {
   chevronUpCircleOutline,
   chevronDownCircleOutline,
-  trashOutline
+  ellipsisHorizontal
 } from "ionicons/icons";
 import { useStore } from "vuex";
-import { Coin, FindWallet, Wallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
 import axios from "axios";
 
@@ -105,6 +104,8 @@ import axios from "axios";
 import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
 import SendCoins from "@/components/Wallet/SendCoins.vue";
 import BigNumber from "bignumber.js";
+import { Coin } from "@/models/coin";
+import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 
 export default defineComponent({
   name: "Details",
@@ -130,22 +131,15 @@ export default defineComponent({
     };
   },
   async ionViewWillEnter() {
-    // Fetch coin information from blockbook
+    // Extract the coin ticker
     const ticker = this.$route.params.coin as string;
 
-    await FindWallet(ticker).then((coin) => {
-      this.coin = coin;
-      this.ticker = coin.ticker;
-    });
+    // Fetch the coin data
+    const coin = hdWalletP2pkh.getCoin(ticker);
 
-    // Temporary, update balance (hardcoded for Feirm)
-    await axios
-    .get(`https://cors-anywhere.feirm.com/${this.coin.blockbook}/api/v2/xpub/${this.coin.extendedPublicKey}`)
-    .then((res) => {
-      const balance = new BigNumber(res.data.balance).plus(res.data.unconfirmedBalance).toNumber(); 
-      this.coin.balance = res.data.balance ? balance : 0;
-    });
-
+    // Set the coin data for this view
+    this.coin = coin;
+    this.ticker = coin.ticker;
   },
   methods: {
     async receiveModal() {
@@ -172,53 +166,6 @@ export default defineComponent({
 
       return modal.present();
     },
-    async removeCoin() {
-      // Remove individual coin function
-      const alert = await alertController.create({
-        header: `Remove ${this.coin.name} wallet?`,
-        message: `Don't worry, your ${this.coin.ticker.toUpperCase()}  won't be lost. They are just hidden from you. The ${
-          this.coin.name
-        } wallet can be added back at any time!`,
-        buttons: [
-          {
-            text: "Cancel",
-          },
-          {
-            text: "Confirm",
-            handler: () => {
-              // Fetch entire encrypted wallet from localStorage
-              const encryptedWallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
-              const decryptedWallet = this.store.getters.getWallet;
-
-              // Fetch the index of the coin based on its ticker in the decrypted wallet
-              const index = decryptedWallet.coins.map((coin) => coin.ticker).indexOf(this.coin.ticker);
-
-              // Remove the coin from decrypted wallet in Vuex
-              decryptedWallet.coins.splice(index, 1);
-              this.store.commit("setWalletState", decryptedWallet);
-
-              // Do the same, but on the encrypted one for localStorage
-              // Fetch the index of the coin based on its ticker in the encrypted
-              const eIndex = encryptedWallet.coins.map((coin) => coin.ticker).indexOf(this.coin.ticker);
-
-              // Remove the coin from encrypted wallet found in localStorage
-              encryptedWallet.coins.splice(eIndex, 1);
-              localStorage.setItem("wallet", JSON.stringify(encryptedWallet));
-
-              // Push to overall view page
-              this.router.push("/tabs/wallet");
-            },
-          },
-        ],
-      });
-
-      return alert.present();
-    },
-    transactionHistory() {
-      this.router.push({
-        path: `/tabs/wallet/${this.store.getters.getWalletId}/${this.ticker}/transactions`,
-      });
-    },
   },
   setup() {
     const store = useStore();
@@ -229,7 +176,7 @@ export default defineComponent({
       router,
       chevronUpCircleOutline,
       chevronDownCircleOutline,
-      trashOutline
+      ellipsisHorizontal
     };
   },
 });
