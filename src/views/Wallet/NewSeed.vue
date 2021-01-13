@@ -72,7 +72,7 @@ import {
 } from "@ionic/vue";
 
 import BackupMnemonic from "@/components/Wallet/Setup/BackupMnemonic.vue";
-import { HDWalletP2PKH } from "@/class/wallets/hd-wallet-p2pkh";
+import HDWalletP2PKH from "@/class/wallets/hd-wallet-p2pkh";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
@@ -96,8 +96,6 @@ export default defineComponent({
         return {
             mnemonic: "",
             splitMnemonic: [] as string[],
-
-            wallet: new HDWalletP2PKH()
         }
     },
     methods: {
@@ -119,44 +117,42 @@ export default defineComponent({
                     message: "Please wait..."
                 }).then(a => {
                     a.present().then(async () => {
-                        // Generate a Feirm wallet
-                        this.wallet.addCoin("xfe");
-
-                        // Save wallet to disk
-                        this.wallet.saveToDisk();
-
-                        // Set wallet state in Vuex
-                        this.wallet.saveToCache();
-
                         // Return to index
                         this.router.push({ path: "/" })
 
+                        // Generate a Feirm wallet
+                        HDWalletP2PKH.addCoin("xfe");
+
+                        // Save wallet to disk
+                        HDWalletP2PKH.saveToDisk();
+
+                        // Set wallet state in Vuex
+                        HDWalletP2PKH.saveToCache();
+
                         // Dismiss loading prompt
                         a.dismiss();
+                    }).catch(async e => {
+                        // Close loading controller and show an error
+                        a.dismiss()
+
+                        const error = await alertController.create({
+                            header: "Error!",
+                            message: e,
+                            buttons: ["Close"]
+                        })
+
+                        error.present();
                     })
                 })
             })
         }
     },
     async created() {
-        // Generate a new wallet
-        const wallet = new HDWalletP2PKH();
+        // Fetch the wallet instance
+        const wallet = HDWalletP2PKH;
 
-        // Check if a wallet already exists
-        const loadedWallet = wallet.loadFromDisk();
-        if (loadedWallet) {
-            const alert = await alertController.create({
-                header: "Error!",
-                message: "A wallet already exists! If you wish to create a new wallet, please delete the existing one.",
-                buttons: ["Close"]
-            })
-
-            return alert.present();
-        }
-
-        // Create a new mnemonic and store wallet
+        // Create a new mnemonic
         wallet.generateSecret();
-        this.wallet = wallet;
 
         // Set and split mnemonic
         this.mnemonic = wallet.getSecret();
