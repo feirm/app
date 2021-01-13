@@ -113,6 +113,7 @@ import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { preload } from "@/preload";
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
+import axios from "axios";
 
 export default defineComponent({
   name: "WalletOverview",
@@ -172,10 +173,30 @@ export default defineComponent({
     const doRefresh = async (event: any) => {
       console.log("Attempting to refresh balances and transactions...")
 
-      // 2 second delay
+      // Subsequently, get all transactions
       await hdWalletP2pkh.getAllTransactions().then(() => {
         event.target.complete();
       })
+
+      // Update balances for all coins
+      const allCoins = hdWalletP2pkh.getAllCoins();
+
+      for (let i = 0; i < allCoins.length; i++) {
+        // Get the blockbook instance for our coin
+        const blockbookUrl = hdWalletP2pkh.getBlockbook(allCoins[i].ticker);
+              
+        // Get the balances using the XPUB
+        const xpub = hdWalletP2pkh.getXpub(allCoins[i].ticker);
+        await axios.get(`https://cors-anywhere.feirm.com/${blockbookUrl}/api/v2/xpub/${xpub}`).then(res => {
+          // Set balances
+          hdWalletP2pkh.setBalance(allCoins[i].ticker, res.data.balance); // Confirmed balance
+          hdWalletP2pkh.setUnconfirmedBalance(allCoins[i].ticker, res.data.unconfirmedBalance) // Unconfirmed balance
+
+          // Save balances
+          hdWalletP2pkh.saveToDisk();
+          hdWalletP2pkh.saveToCache();
+        });
+      }
     }
 
     return {
