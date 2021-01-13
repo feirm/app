@@ -67,11 +67,14 @@ import {
     IonRow,
     IonCol,
     modalController,
-    alertController
+    alertController,
+    loadingController
 } from "@ionic/vue";
 
 import BackupMnemonic from "@/components/Wallet/Setup/BackupMnemonic.vue";
 import { HDWalletP2PKH } from "@/class/wallets/hd-wallet-p2pkh";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
     name: "NewSeed",
@@ -108,18 +111,30 @@ export default defineComponent({
             })
 
             // Show the backup modal
-            await backupModal.present();
+            backupModal.present();
 
             // Capture on dismiss
-            backupModal.onDidDismiss().then(() => {
-                // Generate a Feirm wallet
-                this.wallet.addCoin("xfe");
+            await backupModal.onDidDismiss().then(async() => {
+                await loadingController.create({
+                    message: "Please wait..."
+                }).then(a => {
+                    a.present().then(async () => {
+                        // Generate a Feirm wallet
+                        this.wallet.addCoin("xfe");
 
-                // Save wallet to disk
-                this.wallet.saveToDisk();
+                        // Save wallet to disk
+                        this.wallet.saveToDisk();
 
-                // Set wallet state in Vuex
-                this.wallet.saveToCache();
+                        // Set wallet state in Vuex
+                        this.wallet.saveToCache();
+
+                        // Return to index
+                        this.router.push({ path: "/" })
+
+                        // Dismiss loading prompt
+                        a.dismiss();
+                    })
+                })
             })
         }
     },
@@ -146,6 +161,15 @@ export default defineComponent({
         // Set and split mnemonic
         this.mnemonic = wallet.getSecret();
         this.splitMnemonic = this.mnemonic.split(" ");
+    },
+    setup() {
+        const store = useStore();
+        const router = useRouter();
+
+        return {
+            store,
+            router
+        }
     }
 })
 </script>
