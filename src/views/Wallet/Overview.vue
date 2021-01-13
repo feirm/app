@@ -32,6 +32,7 @@
           <ion-card-header class="ion-text-left">
             <ion-text style="color: white">
               <h5>{{ coin.name }}</h5>
+              <h7 v-show="coin.unconfirmedBalance">Unconfirmed: {{ (coin.unconfirmedBalance / 100000000).toFixed(3) }} {{ coin.ticker.toUpperCase() }}</h7>
               <h1>
                 {{ (coin.balance / 100000000).toFixed(3) }}
                 {{ coin.ticker.toUpperCase() }}
