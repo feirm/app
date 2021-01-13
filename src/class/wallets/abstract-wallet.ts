@@ -4,7 +4,7 @@ Each wallet should be able to derive multiple coins using the same BIP39 private
 */
 
 import bufferToHex from "@/lib/bufferToHex";
-import { entropyToMnemonic } from "bip39";
+import { entropyToMnemonic, validateMnemonic } from "bip39";
 
 export abstract class AbstractWallet {
     secret: string; // Going to be a private key or mnemonic
@@ -27,5 +27,15 @@ export abstract class AbstractWallet {
     // Return wallet secret
     getSecret() {
         return this.secret;
+    }
+
+    // Set wallet secret
+    setSecret(secret: string) {
+        const valid = validateMnemonic(secret);
+        if (!valid) {
+            throw new Error("The mnemonic is not valid!");
+        }
+
+        this.secret = secret;
     }
 }
