@@ -11,6 +11,7 @@ import { decryptWallet } from "./lib/encryptWallet";
 import { Wallet } from "./lib/wallet";
 import axios from "axios";
 import LoadingMessages from "./class/loadingMessages";
+import hdWalletP2pkh from "./class/wallets/hd-wallet-p2pkh";
 
 export async function preload() {
   // Random loading message
@@ -95,38 +96,26 @@ export async function preload() {
           // Fetch coin data from Azure microservice
           await store.dispatch("setCoins");
 
-          // TODO Fetch transaction data
+          // Get the entire coins wallet and available coins
+          const wallet = hdWalletP2pkh;
+          const ourCoins = wallet.getAllCoins();
 
-          // Fetch wallet balance data for each coin we have.
-          const walletCoins = store.getters.getCoins;
+          // Fetch transaction data and balances
+          for (let i = 0; i < ourCoins.length; i++) {
+            // Make our coin easily accessible
+            const coin = ourCoins[i];
 
-          if (walletCoins) {
-            for (let i = 0; i < walletCoins.length; i++) {
-              const coin = walletCoins[i];
+            // Get the blockbook instance for our coin
+            const blockbookUrl = wallet.getBlockbook(coin.ticker);
+              
+            // Get all the transaction using the XPUB
+            const xpub = wallet.getXpub(coin.ticker);
 
-              console.log("Fetching balance for:", coin.name);
-
-              try {
-                await axios
-                  .get(
-                    `https://cors-anywhere.feirm.com/${coin.blockbook}/api/v2/xpub/${coin.extendedPublicKey}`
-                  )
-                  .then((res) => {
-                    coin.balance = res.data.balance ? res.data.balance : 0;
-
-                    // Update state
-                    store.commit("setWalletBalance", {
-                      ticker: coin.ticker,
-                      balance: coin.balance,
-                    });
-                  });
-              } catch (e) {
-                console.log("Error fetching coin balances...");
-              }
-
-              // TODO Attempt to establish a WebSocket connection to the coins Blockbook explorer
-              // const wss = new WebSocket(coin.blockbook + "/websocket");
-            }
+            await axios.get(`https://cors-anywhere.feirm.com/${blockbookUrl}/api/v2/xpub/${xpub}`).then(res => {
+              // Save balances
+              wallet.setBalance(coin.ticker, res.data.balance); // Confirmed balance
+              //wallet.setUnconfirmedBalance(coin.ticker, res.data.unconfirmedBalance) // Unconfirmed balance
+            })
           }
 
           // Fetch and decrypt contacts
@@ -157,6 +146,8 @@ export async function preload() {
         .catch(async (e) => {
           // Dismiss current loading controller
           a.dismiss();
+
+          console.log(e);
 
           // Show error alert
           const alert = await alertController.create({
