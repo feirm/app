@@ -119,8 +119,7 @@ class HDWalletP2PKH extends AbstractWallet {
         const seed = mnemonicToSeedSync(mnemonic);
         const root = fromSeed(seed, networks.p2pkh);
 
-        const path = "m/44'/" + coinData.hdIndex || coinData.bip44 + "'/0'";
-        // TODO: Fix potential client issue with API changes ^^^
+        const path = "m/44'/" + coinData.hdIndex + "'/0'";
         const child = root.derivePath(path).neutered();
 
         return child.toBase58();
