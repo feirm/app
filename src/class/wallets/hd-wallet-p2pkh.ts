@@ -180,6 +180,9 @@ class HDWalletP2PKH extends AbstractWallet {
 
                     // Push the transaction to the array
                     this.transactions.push(tx);
+
+                    // Sort the array
+                    this.transactions.sort((a, b) => new DateTime(b.blockTime) - new DateTime(a.blockTime))
                 }
             });
 
