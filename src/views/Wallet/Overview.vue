@@ -37,7 +37,7 @@
           <ion-card-header class="ion-text-left">
             <ion-text style="color: white">
               <h5>{{ coin.name }}</h5>
-              <h7 v-show="coin.unconfirmedBalance">Unconfirmed: {{ (coin.unconfirmedBalance / 100000000).toFixed(3) }} {{ coin.ticker.toUpperCase() }}</h7>
+              <h7 v-show="coin.unconfirmedBalance !== '0'">Unconfirmed: {{ (coin.unconfirmedBalance / 100000000).toFixed(3) }} {{ coin.ticker.toUpperCase() }}</h7>
               <h1>
                 {{ (coin.balance / 100000000).toFixed(3) }}
                 {{ coin.ticker.toUpperCase() }}
@@ -57,8 +57,17 @@
             <ion-col>
               <ion-text class="ion-text-center" color="medium">
                 <p v-show="!store.getters.walletExists">Your transactions will appear here once you create your wallet.</p>
-                <p v-show="store.getters.walletExists">Any transactions you make throughout your wallet will appear here.</p>
+                <p v-show="store.getters.allTransactions.length === 0">Any transactions you make throughout your wallet will appear here.</p>
               </ion-text>
+
+              <!-- Transactions -->
+              <ion-item-group>
+                <ion-item v-for="tx in store.getters.allTransactions.splice(0, 7)" v-bind:key="tx.txid">
+                  {{ tx.blockTime }}
+                  {{ tx.value / 100000000 }}
+                  {{ tx.ticker.toUpperCase() }}
+                </ion-item>
+              </ion-item-group>
             </ion-col>
           </ion-row>
         </ion-grid>
@@ -94,13 +103,15 @@ import {
   IonCol,
   IonFooter,
   IonRefresher,
-  IonRefresherContent
+  IonRefresherContent,
+  IonItemGroup,
+  IonItem
 } from "@ionic/vue";
 import { walletOutline, addCircleOutline, scanOutline } from "ionicons/icons";
-import { Wallet } from "@/lib/wallet";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { preload } from "@/preload";
+import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 
 export default defineComponent({
   name: "WalletOverview",
@@ -121,11 +132,13 @@ export default defineComponent({
     IonCol,
     IonFooter,
     IonRefresher,
-    IonRefresherContent
+    IonRefresherContent,
+    IonItemGroup,
+    IonItem
   },
   data() {
     return {
-      wallet: {} as Wallet,
+      wallet: hdWalletP2pkh,
     };
   },
   methods: {
@@ -151,14 +164,13 @@ export default defineComponent({
     })
 
     // Transaction and balance refresh
-    const doRefresh = (event: any) => {
+    const doRefresh = async (event: any) => {
       console.log("Attempting to refresh balances and transactions...")
 
       // 2 second delay
-      setTimeout(() => {
-        console.log("Refresh complete...");
+      await hdWalletP2pkh.getAllTransactions().then(() => {
         event.target.complete();
-      }, 2000);
+      })
     }
 
     return {
