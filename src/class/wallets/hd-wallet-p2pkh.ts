@@ -1,13 +1,8 @@
 import { Coin } from "@/models/coin";
 import { payments } from "bitcoinjs-lib";
 import { AbstractWallet } from "./abstract-wallet";
-import { store } from "@/store";
 import { mnemonicToSeedSync } from "bip39";
 import { fromBase58, fromSeed } from "bip32";
-import { Wallet } from "@/models/wallet";
-import axios from "axios";
-import { Transaction } from "@/models/transaction";
-import { DateTime } from "luxon";
 
 /**
  * HD Wallet (BIP44)
@@ -16,9 +11,6 @@ import { DateTime } from "luxon";
  * Going to be used for majority of coins except BTC
  */
 class HDWalletP2PKH extends AbstractWallet {
-    public coins: Coin[] = [];
-    public transactions: Transaction[] = [];
-
     // Add a new coin
     public addCoin(ticker: string): Coin {
         // New instance of the coin object
@@ -81,44 +73,6 @@ class HDWalletP2PKH extends AbstractWallet {
         }
     }
 
-    // Return a wallet by ticker
-    public getCoin(ticker: string): Coin {
-        ticker = ticker.toLocaleLowerCase();
-
-        for (let i = 0; i < this.getAllCoins().length; i++) {
-            if (this.getAllCoins()[i].ticker.toLocaleLowerCase() === ticker.toLocaleLowerCase()) {
-                return this.coins[i];
-            }
-        }
-
-        return {} as Coin;
-    }
-
-    // Get blockbook instance by ticker
-    public getBlockbook(ticker: string) {
-        ticker = ticker.toLocaleLowerCase();
-
-        // Coin data (by ticker)
-        const data = this.getCoinData(ticker);
-
-        return data.blockbook;
-    }
-
-    // Return all coins
-    public getAllCoins() {
-        return this.coins;
-    }
-
-    // Return all coin data
-    public getCoinData(ticker: string) {
-        return store.getters.getCoin(ticker);
-    }
-
-    // Return all coin networks
-    public getNetwork(ticker: string) {
-        return store.getters.getCoin(ticker).networks;
-    }
-
     // Get xpub for coin
     public getXpub(ticker: string) {
         // Fetch the coin data
@@ -161,93 +115,6 @@ class HDWalletP2PKH extends AbstractWallet {
     // Get UTXOs for a coin
 
     // Get transactions for a coin
-
-    // Get transactions for ALL coins
-    async getAllTransactions() {
-        const coins = this.getAllCoins();
-
-        for (let i = 0; i < coins.length; i++) {
-            // Individual coin and Blockbook
-            const coin = coins[i];
-            const blockbookUrl = this.getBlockbook(coin.ticker);
-            
-            await axios.get(
-                `https://cors-anywhere.feirm.com/${blockbookUrl}/api/v2/xpub/${coin.extendedPublicKey}?details=txs&tokens=used`
-            ).then(res => {
-                // Iterate through all the transactions
-                const txs = res.data.transactions;
-
-                for (let j = 0; j < txs.length; j++) {
-                    // Isolate transaction
-                    const isolatedTx = res.data.transactions[j];
-
-                    // Create instance of new transaction we are going to work with
-                    const tx = {} as Transaction;
-
-                    // Set the transaction properties
-                    tx.txid = isolatedTx.txid;
-
-                    // Format the Date
-                    tx.blockTime = DateTime.fromSeconds(parseInt(isolatedTx.blockTime)).toRelative();
-
-                    tx.value = isolatedTx.value // In satoshis
-                    tx.ticker = coin.ticker.toLocaleLowerCase();
-
-                    // Push the transaction to the array
-                    this.transactions.push(tx);
-
-                    // Sort the array
-                    this.transactions.sort((a, b) => new DateTime(b.blockTime) - new DateTime(a.blockTime))
-                }
-            });
-
-            // Update the state
-            store.commit("setAllTransactions", this.transactions);
-        }
-    }
-
-    /*
-      * Persistance = need to save mnemonic and wallet ID
-    */
-    // Save to disk (localStorage)
-    async saveToDisk() {
-        // Construct an object which resembles a wallet
-        const wallet = {
-            id: await this.getId(),
-            secret: this.getSecret(),
-            coins: this.getAllCoins()
-        } as Wallet;
-
-        localStorage.setItem("wallet", JSON.stringify(wallet));
-    }
-
-    // TODO Save to cache (vuex)
-    async saveToCache() {
-        // Construct an object which resembles a wallet
-        const wallet = {
-            id: await this.getId(),
-            secret: this.getSecret(),
-            coins: this.getAllCoins()
-        } as Wallet;
-
-        store.commit("setWalletState", wallet)
-        // TODO: Refactor ^^^^
-    }
-
-    // TODO Load wallet from disk
-    async loadFromDisk(): Promise<Wallet> {
-        const wallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
-        
-        // Set the appropriate fields
-        this.setSecret(wallet.secret);
-        
-        const id = await this.getId();
-        this.setId(id);
-
-        this.coins = wallet.coins;
-
-        return wallet;
-    }
 }
 
 export default new HDWalletP2PKH();
