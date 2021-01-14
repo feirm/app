@@ -14,4 +14,5 @@ export interface Utxo {
     hex: string;
     vout: number;
     value: string;
+    path: string;
 }
