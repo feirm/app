@@ -187,7 +187,6 @@ export default defineComponent({
     // Sliders
     const slideOpts = {
       initialSlide: 0,
-      loop: true,
       centeredSlides: true
     };
 
@@ -243,10 +242,6 @@ ion-card {
   background-image: url("../../assets/img/covers/feirm.png"), linear-gradient(#242424, #1c1c1c);
   background-repeat: no-repeat;
   background-position: bottom right;
-}
-
-/* Slides */
-ion-slide >:first-child {
-    width: 100%;
+  width: 100%;
 }
 </style>
