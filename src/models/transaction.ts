@@ -12,5 +12,6 @@ export interface Transaction {
 export interface Utxo {
     txid: string;
     hex: string;
+    vout: number;
     value: string;
 }
