@@ -6,11 +6,11 @@
           <ion-row class="ion-no-padding">
             <ion-col>
               <ion-buttons class="ion-float-left">
-                <ion-back-button color="light"></ion-back-button>
+                <ion-back-button style="color: white"></ion-back-button>
               </ion-buttons>
 
               <ion-buttons class="ion-float-right">
-                <ion-button @click="coinSettings" color="light">
+                <ion-button @click="coinSettings" style="color: white">
                   <ion-icon :icon="ellipsisHorizontal" slot="icon-only"></ion-icon>
                 </ion-button>
               </ion-buttons>
@@ -20,7 +20,7 @@
           <!-- Balance -->
           <ion-row class="ion-padding">
             <ion-col>
-              <ion-text color="light">
+              <ion-text style="color: white">
                 <h4><b>{{ coin.name }}</b></h4>
                 <h1>{{ (coin.balance / 100000000).toFixed(3) }} {{ ticker.toUpperCase() }}</h1>
               </ion-text>
@@ -38,7 +38,7 @@
         <ion-row>
           <ion-col>
             <h4 class="ion-text-bold">
-              <b>Transactions</b>
+              Transactions
             </h4>
           </ion-col>
         </ion-row>
