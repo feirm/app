@@ -98,6 +98,9 @@ export abstract class AbstractWallet {
 
     // Get transactions for ALL coins
     async getAllTransactions() {
+        // Clear all existing transactions
+        store.commit("clearAllTransactions")
+
         const coins = this.getAllCoins();
 
         for (let i = 0; i < coins.length; i++) {
@@ -134,10 +137,10 @@ export abstract class AbstractWallet {
                     this.transactions.sort((a, b) => new DateTime(b.blockTime) - new DateTime(a.blockTime))
                 }
             });
-
-            // Update the state
-            store.commit("setAllTransactions", this.transactions);
         }
+
+        // Update the state
+        store.commit("setAllTransactions", this.transactions);
     }
 
     // Save to disk (localStorage)
