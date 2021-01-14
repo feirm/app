@@ -32,8 +32,6 @@
     
     <ion-content :fullscreen="true" class="ion-padding">
       <ion-grid>
-        <ion-button v-show="ticker.toLowerCase() === 'xfe'" expand="block" color="primary" href="https://trade.birake.com">Buy Feirm</ion-button>
-
         <!-- Recent transactions -->
         <ion-row>
           <ion-col>
@@ -88,8 +86,7 @@ import {
   IonCol,
   IonFooter,
   IonText,
-  modalController,
-  alertController,
+  modalController
 } from "@ionic/vue";
 import {
   chevronUpCircleOutline,
@@ -98,12 +95,12 @@ import {
 } from "ionicons/icons";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
-import axios from "axios";
 
 // Components
 import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
 import SendCoins from "@/components/Wallet/SendCoins.vue";
-import BigNumber from "bignumber.js";
+
+// Wallet
 import { Coin } from "@/models/coin";
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 
@@ -142,6 +139,10 @@ export default defineComponent({
     this.ticker = coin.ticker;
   },
   methods: {
+    coinSettings() {
+      const id = this.$route.params.id as string;
+      this.router.push({ path: "/tabs/wallet/" + id + "/" + this.ticker.toLowerCase() + "/settings"})
+    },
     async receiveModal() {
       const modal = await modalController.create({
         component: ReceivingAddress,

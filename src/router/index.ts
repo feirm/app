@@ -25,6 +25,8 @@ import WalletGetStarted from "@/views/Wallet/GetStarted.vue";
 import WalletNewSeed from "@/views/Wallet/NewSeed.vue";
 import WalletAddCoin from "@/views/Wallet/AddCoin.vue";
 
+import WalletSettingsOverview from "@/views/Wallet/Settings/Overview.vue";
+
 // Update
 import Update from "@/views/Update.vue";
 
@@ -77,6 +79,10 @@ const routes: Array<RouteRecordRaw> = [
       {
         path: "wallet/:id/:coin",
         component: TabWalletDetails,
+      },
+      {
+        path: "wallet/:id/:coin/settings",
+        component: WalletSettingsOverview
       },
       {
         path: "wallet/:id/:coin/transactions",
