@@ -195,8 +195,18 @@ export abstract class AbstractWallet {
                                     const value = new BigNumber(vout.value).dividedBy(100000000).toString();
                                     walletTx.value = value;
                                     walletTx.isMine = true;
+                                }
+                            }
 
-                                    return;
+                            // It is a change address, so the transaction might be outgoing
+                            // so find the output, and deduct it from the original amount + fees
+                            if (index === 1) {
+                                if (vout.addresses.includes(address)) {
+                                    const txValue = new BigNumber(tx.value).dividedBy(100000000);
+                                    const changeOutput = new BigNumber(vout.value).dividedBy(100000000);
+                                    const amount = txValue.minus(changeOutput);
+                                    
+                                    walletTx.value = amount.toString();
                                 }
                             }
                         });
