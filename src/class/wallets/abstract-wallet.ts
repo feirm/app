@@ -96,10 +96,28 @@ export abstract class AbstractWallet {
         return store.getters.getCoin(ticker).networks;
     }
 
+    // Fetch the UTXOs for a coin
+    async getUtxos(ticker: string) {
+        // Get coin data from ticker
+        const coin = this.getCoin(ticker);
+        const blockbookUrl = this.getBlockbook(ticker);
+
+        // Empty UTXO array
+        const utxos = [];
+        
+        // Get the confirmed UTXOs
+        await axios.get(
+            "https://cors-anywhere.feirm.com/" +
+            blockbookUrl +
+            "/api/v2/utxo/" +
+            coin.extendedPublicKey
+        ).then(res => {
+            console.log(res.data);
+        })
+    }
+
     // Get transactions for ALL coins
     async getAllTransactions() {
-        // Clear all existing transactions
-        store.commit("clearAllTransactions")
         this.transactions = [];
 
         const coins = this.getAllCoins();
