@@ -188,6 +188,8 @@ export default defineComponent({
     const slideOpts = {
       initialSlide: 0,
       speed: 400,
+      loop: false,
+      centeredSlides: true
     };
 
     // Transaction and balance refresh
