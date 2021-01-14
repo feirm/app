@@ -19,7 +19,7 @@
         <ion-slides :options="slideOpts">
           <ion-slide v-for="coin in store.getters.walletState.coins" v-bind:key="coin">
             <!-- Show existing coins -->
-            <ion-card>
+            <ion-card @click="detailedWallet(store.getters.walletState.id, coin.ticker)">
               <ion-card-header class="ion-text-left">
                 <ion-text style="color: white">
                   <h5>{{ coin.name }}</h5>
@@ -187,8 +187,6 @@ export default defineComponent({
     // Sliders
     const slideOpts = {
       initialSlide: 0,
-      speed: 400,
-      loop: false,
       centeredSlides: true
     };
 
