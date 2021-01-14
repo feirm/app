@@ -55,6 +55,7 @@ import ScanQR from "@/components/Wallet/ScanQR.vue";
 import { sendSharp, qrCodeOutline, closeOutline, scanOutline } from "ionicons/icons";
 import bip21 from "bip21";
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
+import BigNumber from "bignumber.js";
 
 export default defineComponent({
   name: "SendCoins",
@@ -72,10 +73,6 @@ export default defineComponent({
       sendDisabled: true,
     };
   },
-  async mounted() {
-    const utxos = await hdWalletP2pkh.getUtxos(this.$props.ticker!, "200000000");
-    console.log(utxos);
-  },
   methods: {
     async validateAddress(address: string) {
       // Check that something is present
@@ -89,7 +86,18 @@ export default defineComponent({
       await modalController.dismiss();
     },
     async sendCoins() {
-      console.log("Send coins....")
+      // Convert amounts into Satoshis
+      const amount = new BigNumber(this.amount).multipliedBy(100000000).toString();
+      const fee = new BigNumber("0.0001").multipliedBy(100000000).toString(); // TODO dynamic fees
+
+      // Fetch UTXOs
+      const utxos = await hdWalletP2pkh.getUtxos(this.$props.ticker!);
+
+      // Create and return a signed psbt
+      const tx = hdWalletP2pkh.createSignedTransaction(this.$props.ticker!, this.toAddress, amount, fee, utxos);
+
+      // Submit to Blockbook
+      await hdWalletP2pkh.submitTx(this.$props.ticker!, tx.extractTransaction(true).toHex())
     },
     async scanQr() {
       const modal = await modalController.create({
