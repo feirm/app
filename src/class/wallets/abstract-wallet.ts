@@ -5,7 +5,7 @@ Each wallet should be able to derive multiple coins using the same BIP39 private
 
 import bufferToHex from "@/lib/bufferToHex";
 import { Coin } from "@/models/coin";
-import { Transaction } from "@/models/transaction";
+import { Transaction, Utxo } from "@/models/transaction";
 import { Wallet } from "@/models/wallet";
 import { store } from "@/store";
 import { entropyToMnemonic, validateMnemonic } from "bip39";
@@ -96,14 +96,15 @@ export abstract class AbstractWallet {
         return store.getters.getCoin(ticker).networks;
     }
 
-    // Fetch the UTXOs for a coin
-    async getUtxos(ticker: string) {
+    // Fetch the UTXOs for a coin up to a maximum value
+    // maxValue is in Satoshis
+    async getUtxos(ticker: string, maxValue: string) {
         // Get coin data from ticker
         const coin = this.getCoin(ticker);
         const blockbookUrl = this.getBlockbook(ticker);
 
         // Empty UTXO array
-        const utxos = [];
+        const utxos: Utxo[] = [];
         
         // Get the confirmed UTXOs
         await axios.get(
@@ -111,9 +112,40 @@ export abstract class AbstractWallet {
             blockbookUrl +
             "/api/v2/utxo/" +
             coin.extendedPublicKey
-        ).then(res => {
-            console.log(res.data);
+        ).then(async res => {
+            const txs = res.data;
+            let value = new BigNumber(0);
+
+            // Iterate through all the UTXOs until value > maxValue
+            for (let i = 0; i < txs.length; i++) {
+                const tx = txs[i];
+
+                // Check if we have max our max value in UTXOs
+                if (value.toString() > maxValue) {
+                    return;
+                }
+
+                // Otherwise, increment the value so far
+                value = value.plus(tx.value);
+
+                // New Utxo object
+                const utxo = {} as Utxo;
+
+                // We need to fetch the full transaction hex
+                await axios.get("https://cors-anywhere.feirm.com/" + blockbookUrl + "/api/v2/tx-specific/" + tx.txid).then(res => {
+                    utxo.hex = res.data.hex;
+                })
+
+                // Assemble the rest of the transaction data we need
+                utxo.txid = tx.txid;
+                utxo.value = tx.value;
+                utxo.vout = tx.vout;
+
+                utxos.push(utxo);
+            }
         })
+
+        return utxos;
     }
 
     // Get transactions for ALL coins
