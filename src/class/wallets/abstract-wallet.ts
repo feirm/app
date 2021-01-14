@@ -10,6 +10,7 @@ import { Wallet } from "@/models/wallet";
 import { store } from "@/store";
 import { entropyToMnemonic, validateMnemonic } from "bip39";
 import axios from "axios";
+import BigNumber from "bignumber.js";
 
 export abstract class AbstractWallet {
     id: string; // Wallet ID derived from secret mnemonic
@@ -122,7 +123,6 @@ export abstract class AbstractWallet {
                     walletTx.txid = tx.txid;
                     walletTx.blockTime = tx.blockTime;
                     walletTx.confirmations = tx.confirmations;
-                    walletTx.value = tx.value;
 
                     // Iterate through the transaction outputs and determine if the TX belongs to us
                     tx.vout.forEach(vout => {
@@ -139,7 +139,11 @@ export abstract class AbstractWallet {
                             if (index === 0) {
                                 // If the output includes our address, it means it is targeted to us - making it incoming
                                 if (vout.addresses.includes(address)) {
+                                    const value = new BigNumber(vout.value).dividedBy(100000000).toString();
+                                    walletTx.value = value;
                                     walletTx.isMine = true;
+
+                                    return;
                                 }
                             }
                         });
