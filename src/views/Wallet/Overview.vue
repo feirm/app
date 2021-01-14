@@ -62,7 +62,7 @@
 
               <!-- Transactions -->
               <ion-item-group>
-                <ion-item class="ion-no-padding" color="transparent" v-for="tx in store.getters.allTransactions.slice(0, 7)" v-bind:key="tx.txid">
+                <ion-item lines="none" class="ion-no-padding" color="transparent" v-for="tx in store.getters.allTransactions.slice(0, 7)" v-bind:key="tx.txid">
                   <!-- Icons: incoming, outgoing or pending -->
                   <ion-icon v-if="tx.confirmations > 0" slot="start" :color="!tx.isMine ? 'danger' : 'success'" :icon="!tx.isMine ? arrowUpCircleOutline : arrowDownCircleOutline"></ion-icon>
                   <ion-icon v-if="tx.confirmations === 0" slot="start" color="warning" :icon="timeOutline"></ion-icon>
@@ -227,6 +227,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
+/* Card header */
 ion-card {
   background-image: url("../../assets/img/covers/feirm.png"), linear-gradient(#242424, #1c1c1c);
   background-repeat: no-repeat;
