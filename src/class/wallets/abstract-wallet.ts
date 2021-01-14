@@ -100,6 +100,7 @@ export abstract class AbstractWallet {
     async getAllTransactions() {
         // Clear all existing transactions
         store.commit("clearAllTransactions")
+        this.transactions = [];
 
         const coins = this.getAllCoins();
 
