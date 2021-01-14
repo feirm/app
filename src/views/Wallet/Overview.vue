@@ -50,7 +50,7 @@
         <ion-grid>
           <ion-row>
             <ion-col>
-              <h4>Transactions</h4>
+              <h4>Recent Transactions</h4>
             </ion-col>
           </ion-row>
           <ion-row>
@@ -63,19 +63,15 @@
               <!-- Transactions -->
               <ion-item-group>
                 <ion-item v-for="tx in store.getters.allTransactions.slice(0, 7)" v-bind:key="tx.txid">
-                  <!-- Icon depending on tx state -->
-                  <ion-icon
-                    v-if="tx.confirmations > 0"
-                    slot="start"
-                    :color="!tx.isMine ? 'danger' : 'success'"
-                    :icon="!tx.isMine ? arrowUpCircleOutline : arrowDownCircleOutline"
-                  ></ion-icon>
-
+                  <!-- Icons: incoming, outgoing or pending -->
+                  <ion-icon v-if="tx.confirmations > 0" slot="start" :color="!tx.isMine ? 'danger' : 'success'" :icon="!tx.isMine ? arrowUpCircleOutline : arrowDownCircleOutline"></ion-icon>
                   <ion-icon v-if="tx.confirmations === 0" slot="start" color="warning" :icon="timeOutline"></ion-icon>
 
-                  {{ tx.blockTime }}
-                  {{ tx.value / 100000000 }}
-                  {{ tx.ticker.toUpperCase() }}
+                  <!-- Time received -->
+                  <ion-label>{{ formatDate(tx.blockTime) }}</ion-label>
+
+                  <!-- Value -->
+                  <ion-label slot="end" class="ion-text-right">{{ tx.value }} <b>{{ tx.ticker.toUpperCase() }}</b></ion-label>
                 </ion-item>
               </ion-item-group>
             </ion-col>
@@ -122,6 +118,8 @@ import { walletOutline,addCircleOutline, scanOutline, arrowUpCircleOutline, arro
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { preload } from "@/preload";
+import { DateTime } from "luxon";
+
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 import axios from "axios";
 
@@ -169,6 +167,10 @@ export default defineComponent({
       }
 
       this.router.push({ path: "/wallet/getStarted" });
+    },
+    formatDate(date: string) {
+      const time = DateTime.fromSeconds(parseInt(date)).toRelative();
+      return time;
     }
   },
   setup() {
