@@ -40,6 +40,18 @@ export const wallet = {
     },
 
     // Transaction getters
-    allTransactions: state => state.transactions // Txs for all coins
+    allTransactions: state => state.transactions, // Txs for all coins
+    // Get Txs for an individual coin
+    getTransactions: state => ticker => {
+      const txs: Transaction[] = [];
+
+      state.transactions.forEach(tx => {
+        if (tx.ticker.toLowerCase() === ticker.toLowerCase()) {
+          txs.push(tx);
+        }
+      });
+      
+      return txs;
+    }
   }
 };
