@@ -9,7 +9,6 @@ import { Transaction } from "@/models/transaction";
 import { Wallet } from "@/models/wallet";
 import { store } from "@/store";
 import { entropyToMnemonic, validateMnemonic } from "bip39";
-import { DateTime } from "luxon";
 import axios from "axios";
 
 export abstract class AbstractWallet {
@@ -112,31 +111,43 @@ export abstract class AbstractWallet {
             await axios.get(
                 `https://cors-anywhere.feirm.com/${blockbookUrl}/api/v2/xpub/${coin.extendedPublicKey}?details=txs&tokens=used`
             ).then(res => {
-                // Iterate through all the transactions
+                // Iterate through all transactions, and match them up with our tokens
                 const txs = res.data.transactions;
+                const tokens = res.data.tokens;
+                
+                txs.forEach(tx => {
+                    // Set basic transaction properties
+                    const walletTx = {} as Transaction;
+                    walletTx.ticker = coin.ticker.toLocaleLowerCase();
+                    walletTx.txid = tx.txid;
+                    walletTx.blockTime = tx.blockTime;
+                    walletTx.confirmations = tx.confirmations;
+                    walletTx.value = tx.value;
 
-                for (let j = 0; j < txs.length; j++) {
-                    // Isolate transaction
-                    const isolatedTx = res.data.transactions[j];
+                    // Iterate through the transaction outputs and determine if the TX belongs to us
+                    tx.vout.forEach(vout => {
+                        // Exclude change addresses from this process
+                        tokens.forEach(token => {
+                            // Split the token so we can get the account (0 or 1);
+                            const splitToken = token.path.split("/");
+                            const index = parseInt(splitToken[4]);
 
-                    // Create instance of new transaction we are going to work with
-                    const tx = {} as Transaction;
+                            // Get the address (name) from token
+                            const address = token.name;
 
-                    // Set the transaction properties
-                    tx.txid = isolatedTx.txid;
+                            // Not a change address, so continue
+                            if (index === 0) {
+                                // If the output includes our address, it means it is targeted to us - making it incoming
+                                if (vout.addresses.includes(address)) {
+                                    walletTx.isMine = true;
+                                }
+                            }
+                        });
+                    })
 
-                    // Format the Date
-                    tx.blockTime = DateTime.fromSeconds(parseInt(isolatedTx.blockTime)).toRelative();
-
-                    tx.value = isolatedTx.value // In satoshis
-                    tx.ticker = coin.ticker.toLocaleLowerCase();
-
-                    // Push the transaction to the array
-                    this.transactions.push(tx);
-
-                    // Sort the array
-                    this.transactions.sort((a, b) => new DateTime(b.blockTime) - new DateTime(a.blockTime))
-                }
+                    // Lastly, push the transaction to our TXs array
+                    this.transactions.push(walletTx);
+                })
             });
         }
 

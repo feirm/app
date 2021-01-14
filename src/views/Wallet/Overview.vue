@@ -63,6 +63,16 @@
               <!-- Transactions -->
               <ion-item-group>
                 <ion-item v-for="tx in store.getters.allTransactions.slice(0, 7)" v-bind:key="tx.txid">
+                  <!-- Icon depending on tx state -->
+                  <ion-icon
+                    v-if="tx.confirmations > 0"
+                    slot="start"
+                    :color="!tx.isMine ? 'danger' : 'success'"
+                    :icon="!tx.isMine ? arrowUpCircleOutline : arrowDownCircleOutline"
+                  ></ion-icon>
+
+                  <ion-icon v-if="tx.confirmations === 0" slot="start" color="warning" :icon="timeOutline"></ion-icon>
+
                   {{ tx.blockTime }}
                   {{ tx.value / 100000000 }}
                   {{ tx.ticker.toUpperCase() }}
@@ -108,7 +118,7 @@ import {
   IonItem,
   alertController
 } from "@ionic/vue";
-import { walletOutline, addCircleOutline, scanOutline } from "ionicons/icons";
+import { walletOutline,addCircleOutline, scanOutline, arrowUpCircleOutline, arrowDownCircleOutline, timeOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { preload } from "@/preload";
@@ -205,6 +215,9 @@ export default defineComponent({
       walletOutline,
       addCircleOutline,
       scanOutline,
+      arrowUpCircleOutline,
+      arrowDownCircleOutline,
+      timeOutline,
       doRefresh
     };
   },
