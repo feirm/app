@@ -42,7 +42,22 @@
         </ion-row>
         <ion-row>
           <ion-col>
-            <p>It appears that you do not have any transactions yet...</p>
+            <p v-show="store.getters.getTransactions(ticker).length === 0">It appears that you do not have any transactions yet...</p>
+
+            <!-- Transactions -->
+            <ion-item-group>
+              <ion-item lines="none" class="ion-no-padding" color="transparent" v-for="tx in store.getters.getTransactions(ticker)" v-bind:key="tx.txid">
+                <!-- Icons: incoming, outgoing or pending -->
+                <ion-icon v-if="tx.confirmations > 0" slot="start" :color="!tx.isMine ? 'danger' : 'success'" :icon="!tx.isMine ? arrowUpCircleOutline : arrowDownCircleOutline"></ion-icon>
+                <ion-icon v-if="tx.confirmations === 0" slot="start" color="warning" :icon="timeOutline"></ion-icon>
+
+                <!-- Time received -->
+                <ion-label>{{ formatDate(tx.blockTime) }}</ion-label>
+
+                <!-- Value -->
+                <ion-label slot="end" class="ion-text-right">{{ tx.value }} <b>{{ tx.ticker.toUpperCase() }}</b></ion-label>
+              </ion-item>
+            </ion-item-group>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -91,10 +106,14 @@ import {
 import {
   chevronUpCircleOutline,
   chevronDownCircleOutline,
-  ellipsisHorizontal
+  ellipsisHorizontal,
+  arrowDownCircleOutline,
+  arrowUpCircleOutline,
+  timeOutline
 } from "ionicons/icons";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
+import { DateTime } from "luxon";
 
 // Components
 import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
@@ -167,6 +186,10 @@ export default defineComponent({
 
       return modal.present();
     },
+    formatDate(date: string) {
+      const time = DateTime.fromSeconds(parseInt(date)).toRelative();
+      return time;
+    }
   },
   setup() {
     const store = useStore();
@@ -177,7 +200,10 @@ export default defineComponent({
       router,
       chevronUpCircleOutline,
       chevronDownCircleOutline,
-      ellipsisHorizontal
+      ellipsisHorizontal,
+      arrowDownCircleOutline,
+      arrowUpCircleOutline,
+      timeOutline
     };
   },
 });
