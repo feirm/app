@@ -187,6 +187,7 @@ export default defineComponent({
     // Sliders
     const slideOpts = {
       initialSlide: 0,
+      loop: true,
       centeredSlides: true
     };
 
