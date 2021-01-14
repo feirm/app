@@ -16,6 +16,24 @@
           <ion-refresher-content></ion-refresher-content>
         </ion-refresher>
 
+        <ion-slides :options="slideOpts">
+          <ion-slide v-for="coin in store.getters.walletState.coins" v-bind:key="coin">
+            <!-- Show existing coins -->
+            <ion-card>
+              <ion-card-header class="ion-text-left">
+                <ion-text style="color: white">
+                  <h5>{{ coin.name }}</h5>
+                  <h7 v-show="coin.unconfirmedBalance !== '0'">Unconfirmed: {{ (coin.unconfirmedBalance / 100000000).toFixed(3) }} {{ coin.ticker.toUpperCase() }}</h7>
+                  <h1>
+                    {{ (coin.balance / 100000000).toFixed(3) }}
+                    {{ coin.ticker.toUpperCase() }}
+                  </h1>
+                </ion-text>
+              </ion-card-header>
+            </ion-card>
+          </ion-slide>
+        </ion-slides>
+
         <!-- Hint if no wallet is present -->
         <ion-card button @click="addCoin" v-show="!store.getters.walletExists">
           <ion-card-header class="ion-text-left">
@@ -24,25 +42,6 @@
               <p>It's free and we support multiple assets!</p>
             </ion-text>
             <ion-button @click="addCoin">Add now</ion-button>
-          </ion-card-header>
-        </ion-card>
-
-        <!-- Showcase coins -->
-        <ion-card
-          v-for="coin in store.getters.walletState.coins"
-          v-bind:key="coin"
-          button="true"
-          @click="detailedWallet(store.getters.walletState.id, coin.ticker)"
-        >
-          <ion-card-header class="ion-text-left">
-            <ion-text style="color: white">
-              <h5>{{ coin.name }}</h5>
-              <h7 v-show="coin.unconfirmedBalance !== '0'">Unconfirmed: {{ (coin.unconfirmedBalance / 100000000).toFixed(3) }} {{ coin.ticker.toUpperCase() }}</h7>
-              <h1>
-                {{ (coin.balance / 100000000).toFixed(3) }}
-                {{ coin.ticker.toUpperCase() }}
-              </h1>
-            </ion-text>
           </ion-card-header>
         </ion-card>
 
@@ -112,6 +111,8 @@ import {
   IonRefresherContent,
   IonItemGroup,
   IonItem,
+  IonSlides,
+  IonSlide,
   alertController
 } from "@ionic/vue";
 import { walletOutline,addCircleOutline, scanOutline, arrowUpCircleOutline, arrowDownCircleOutline, timeOutline } from "ionicons/icons";
@@ -144,7 +145,9 @@ export default defineComponent({
     IonRefresher,
     IonRefresherContent,
     IonItemGroup,
-    IonItem
+    IonItem,
+    IonSlides,
+    IonSlide
   },
   data() {
     return {
@@ -180,6 +183,12 @@ export default defineComponent({
     onMounted(async () => {
       await preload();
     })
+
+    // Sliders
+    const slideOpts = {
+      initialSlide: 0,
+      speed: 400,
+    };
 
     // Transaction and balance refresh
     const doRefresh = async (event: any) => {
@@ -220,7 +229,8 @@ export default defineComponent({
       arrowUpCircleOutline,
       arrowDownCircleOutline,
       timeOutline,
-      doRefresh
+      doRefresh,
+      slideOpts
     };
   },
 });
@@ -232,5 +242,10 @@ ion-card {
   background-image: url("../../assets/img/covers/feirm.png"), linear-gradient(#242424, #1c1c1c);
   background-repeat: no-repeat;
   background-position: bottom right;
+}
+
+/* Slides */
+ion-slide >:first-child {
+    width: 100%;
 }
 </style>
