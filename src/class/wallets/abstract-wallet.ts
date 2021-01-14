@@ -96,9 +96,8 @@ export abstract class AbstractWallet {
         return store.getters.getCoin(ticker).networks;
     }
 
-    // Fetch the UTXOs for a coin up to a maximum value
-    // maxValue is in Satoshis
-    async getUtxos(ticker: string, maxValue: string) {
+    // Fetch the UTXOs for a coin
+    async getUtxos(ticker: string) {
         // Get coin data from ticker
         const coin = this.getCoin(ticker);
         const blockbookUrl = this.getBlockbook(ticker);
@@ -114,19 +113,10 @@ export abstract class AbstractWallet {
             coin.extendedPublicKey
         ).then(async res => {
             const txs = res.data;
-            let value = new BigNumber(0);
 
             // Iterate through all the UTXOs until value > maxValue
             for (let i = 0; i < txs.length; i++) {
                 const tx = txs[i];
-
-                // Check if we have max our max value in UTXOs
-                if (value.toString() > maxValue) {
-                    return;
-                }
-
-                // Otherwise, increment the value so far
-                value = value.plus(tx.value);
 
                 // New Utxo object
                 const utxo = {} as Utxo;
@@ -140,12 +130,25 @@ export abstract class AbstractWallet {
                 utxo.txid = tx.txid;
                 utxo.value = tx.value;
                 utxo.vout = tx.vout;
+                utxo.path = tx.path;
 
                 utxos.push(utxo);
             }
         })
 
         return utxos;
+    }
+
+    // Broadcast signed raw TX to network
+    async submitTx(ticker: string, hex: string) {
+        const blockbookUrl = this.getBlockbook(ticker); 
+
+        await axios.get(
+            "https://cors-anywhere.feirm.com/" +
+            blockbookUrl +
+            "/api/v2/sendtx/" +
+            hex
+        )
     }
 
     // Get transactions for ALL coins
