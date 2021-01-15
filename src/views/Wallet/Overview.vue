@@ -194,7 +194,8 @@ export default defineComponent({
     // Sliders
     const slideOpts = {
       initialSlide: 0,
-      centeredSlides: true
+      centeredSlides: true,
+      loop: true
     };
 
     // Transaction and balance refresh
