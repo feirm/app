@@ -14,11 +14,11 @@
             </ion-text>
 
             <!-- Mnemonic text area -->
-            <ion-textarea class="import-area" auto-grow="true"></ion-textarea>
+            <ion-textarea class="import-area" auto-grow="true" inputmode="text" v-model="mnemonic"></ion-textarea>
 
             <!-- Import button -->
             <br>
-            <ion-button expand="block">Import</ion-button>
+            <ion-button expand="block" @click="importWallet(mnemonic)">Import</ion-button>
         </ion-content>
     </ion-page>
 </template>
@@ -37,6 +37,8 @@ import {
     IonButton
 } from "@ionic/vue";
 import { closeOutline } from "ionicons/icons";
+import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
     name: "WalletRecovery",
@@ -51,8 +53,35 @@ export default defineComponent({
         IonTextarea,
         IonButton
     },
-    setup() {
+    data() {
         return {
+            mnemonic: ""
+        }
+    },
+    methods: {
+        importWallet(secret: string) {
+            const wallet = hdWalletP2pkh;
+
+            // Set mnemonic
+            wallet.setSecret(secret);
+
+            // Create Feirm wallet
+            wallet.addCoin("xfe");
+
+            // Save wallet to disk + cache
+            wallet.saveToDisk()
+            wallet.saveToCache()
+
+            // Route to index
+            this.router.push({ path: "/" })
+        }
+    },
+    setup() {
+        const router = useRouter();
+
+        return {
+            router,
+
             closeOutline
         }
     }
