@@ -30,6 +30,16 @@ export const coins = {
               // Update the original data
               coins.data[i].networks.p2pkh = coin.networks.p2pkh;
             }
+
+            // P2WPKH
+            if (coin.networks.P2WPKH) {
+              coin.networks.P2WPKH.pubKeyHash = coin.networks.P2WPKH.pubKeyHash[0];
+              coin.networks.P2WPKH.scriptHash = coin.networks.P2WPKH.scriptHash[0];
+              coin.networks.P2WPKH.wif = coin.networks.P2WPKH.wif[0];
+
+              // Update the original data
+              coins.data[i].networks.P2WPKH = coin.networks.P2WPKH;
+            }
           }
 
           context.commit('setCoins', coins.data);
