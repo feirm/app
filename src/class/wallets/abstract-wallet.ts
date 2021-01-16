@@ -149,8 +149,6 @@ export abstract class AbstractWallet {
             coin.extendedPublicKey = node.neutered().toBase58();
             coin.extendedPrivateKey = node.toBase58();
 
-            console.log("BIP84:", coin);
-
             // Push and return
             this.coins.push(coin);
             return coin;
