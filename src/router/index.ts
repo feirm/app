@@ -23,6 +23,7 @@ import TabProfileOverview from "@/views/Profile/Overview.vue";
 // Wallet
 import WalletGetStarted from "@/views/Wallet/GetStarted.vue";
 import WalletNewSeed from "@/views/Wallet/NewSeed.vue";
+import WalletRecovery from "@/views/Wallet/Setup/Recovery.vue";
 import WalletAddCoin from "@/views/Wallet/AddCoin.vue";
 
 import WalletSettingsOverview from "@/views/Wallet/Settings/Overview.vue";
@@ -114,6 +115,10 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/wallet/newSeed",
     component: WalletNewSeed,
+  },
+  {
+    path: "/wallet/recovery",
+    component: WalletRecovery
   },
   {
     path: "/wallet/addCoin",
