@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-header class="ion-no-border">
-      <ion-toolbar class="ion-text-left" color="transparent">
+      <ion-toolbar class="ion-text-left">
         <ion-title color="dark">Wallet</ion-title>
         <ion-buttons slot="secondary">
           <ion-button color="primary" @click="addCoin">
@@ -16,7 +16,7 @@
           <ion-refresher-content></ion-refresher-content>
         </ion-refresher>
 
-        <ion-slides :options="slideOpts">
+        <ion-slides>
           <ion-slide v-for="coin in store.getters.walletState.coins" v-bind:key="coin">
             <!-- Show existing coins -->
             <ion-card @click="detailedWallet(store.getters.walletState.id, coin.ticker)">
@@ -32,18 +32,20 @@
               </ion-card-header>
             </ion-card>
           </ion-slide>
-        </ion-slides>
 
-        <!-- Hint if no wallet is present -->
-        <ion-card button @click="addCoin" v-show="!store.getters.walletExists">
-          <ion-card-header class="ion-text-left">
-            <ion-text style="color: white">
-              <h3>Add a wallet</h3>
-              <p>It's free and we support multiple assets!</p>
-            </ion-text>
-            <ion-button @click="addCoin">Add now</ion-button>
-          </ion-card-header>
-        </ion-card>
+          <!-- Show add a wallet card if no wallet is present -->
+          <ion-slide v-show="!store.getters.walletExists">
+            <ion-card button @click="addCoin">
+              <ion-card-header class="ion-text-left">
+                <ion-text style="color: white">
+                  <h3>Add a wallet</h3>
+                  <p>It's free and we support multiple assets!</p>
+                </ion-text>
+                <ion-button @click="addCoin">Add now</ion-button>
+              </ion-card-header>
+            </ion-card>
+          </ion-slide>
+        </ion-slides>
 
         <!-- Showcase recent transactions -->
         <ion-grid>
@@ -56,7 +58,7 @@
             <ion-col>
               <ion-text class="ion-text-center" color="medium">
                 <p v-show="!store.getters.walletExists">Your transactions will appear here once you create your wallet.</p>
-                <p v-show="store.getters.allTransactions.length === 0">Any transactions you make throughout your wallet will appear here.</p>
+                <p v-show="store.getters.walletExists && store.getters.allTransactions.length === 0">Any transactions you make throughout your wallet will appear here.</p>
               </ion-text>
 
               <!-- Transactions -->
@@ -113,7 +115,6 @@ import {
   IonItem,
   IonSlides,
   IonSlide,
-  alertController
 } from "@ionic/vue";
 import { walletOutline,addCircleOutline, scanOutline, arrowUpCircleOutline, arrowDownCircleOutline, timeOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
@@ -156,27 +157,17 @@ export default defineComponent({
   },
   methods: {
     detailedWallet(id: string, coin: string) {
-      this.router.push("/tabs/wallet/" + id + "/" + coin.toLowerCase());
+      return this.router.push("/tabs/wallet/" + id + "/" + coin.toLowerCase());
     },
     async addCoin() {
       if (this.store.getters.walletExists) {
-        /*
-        const alert = await alertController.create({
-          header: "Sorry!",
-          message: "At this moment in time, you are unable to add a new coin to your wallet.",
-          buttons: ["Close"]
-        })
-        
-        return alert.present();
-        */
        return this.router.push({ path: "/wallet/addCoin" });
       }
 
       this.router.push({ path: "/wallet/getStarted" });
     },
     formatDate(date: string) {
-      const time = DateTime.fromSeconds(parseInt(date)).toRelative();
-      return time;
+      return DateTime.fromSeconds(parseInt(date)).toRelative();
     },
     openBlockbook(ticker: string, txid: string) {
       const blockbookUrl = hdWalletP2pkh.getBlockbook(ticker);
@@ -190,13 +181,6 @@ export default defineComponent({
     onMounted(async () => {
       await preload();
     })
-
-    // Sliders
-    const slideOpts = {
-      initialSlide: 0,
-      centeredSlides: true,
-      loop: true
-    };
 
     // Transaction and balance refresh
     const doRefresh = async (event: any) => {
@@ -238,7 +222,6 @@ export default defineComponent({
       arrowDownCircleOutline,
       timeOutline,
       doRefresh,
-      slideOpts
     };
   },
 });
