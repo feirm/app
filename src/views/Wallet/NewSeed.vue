@@ -119,15 +119,15 @@ export default defineComponent({
                     a.present().then(async () => {
                         // Return to index
                         this.router.push({ path: "/" })
-
+                        
                         // Generate a Feirm wallet
                         HDWalletP2PKH.addCoin("xfe");
 
                         // Save wallet to disk
-                        HDWalletP2PKH.saveToDisk();
+                        await HDWalletP2PKH.saveToDisk();
 
                         // Set wallet state in Vuex
-                        HDWalletP2PKH.saveToCache();
+                        await HDWalletP2PKH.saveToCache();
 
                         // Dismiss loading prompt
                         a.dismiss();
