@@ -2,7 +2,7 @@
   <ion-page>
     <ion-header class="ion-no-border">
       <ion-toolbar class="ion-text-left">
-        <ion-title>Add Coin</ion-title>
+        <ion-title color="dark">Add Coin</ion-title>
         <ion-buttons slot="end">
           <ion-back-button :icon="closeOutline"></ion-back-button>
         </ion-buttons>
