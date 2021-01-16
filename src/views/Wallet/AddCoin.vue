@@ -100,7 +100,7 @@ export default defineComponent({
       const coinData = hdWalletP2pkh.getCoinData(ticker);
 
       // Check if Segwit is available
-      // TODO Format network data
+      // TODO Change p2pkh wallet to p2wpkh class if Segwit
       if (coinData.segwit) {
         // Check if native segwit is available
         if (coinData.networks.P2WPKH) {
@@ -108,6 +108,13 @@ export default defineComponent({
 
           // Add coin
           const coin = hdWalletP2pkh.addCoin(coinData.ticker);
+
+          // Save wallet to disk + cache
+          hdWalletP2pkh.saveToDisk()
+          hdWalletP2pkh.saveToCache()
+
+          // Route to index
+          this.router.push({ path: "/" }) 
         }
       }
 
