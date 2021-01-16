@@ -8,9 +8,10 @@ import { Coin } from "@/models/coin";
 import { Transaction, Utxo } from "@/models/transaction";
 import { Wallet } from "@/models/wallet";
 import { store } from "@/store";
-import { entropyToMnemonic, validateMnemonic } from "bip39";
+import { entropyToMnemonic, mnemonicToSeedSync, validateMnemonic } from "bip39";
 import axios from "axios";
 import BigNumber from "bignumber.js";
+import { fromSeed } from "bip32";
 
 export abstract class AbstractWallet {
     id: string; // Wallet ID derived from secret mnemonic
@@ -94,6 +95,68 @@ export abstract class AbstractWallet {
     // Return all coin networks
     getNetwork(ticker: string) {
         return store.getters.getCoin(ticker).networks;
+    }
+
+    // Add a new coin
+    addCoin(ticker: string): Coin {
+        // New instance of the coin object
+        const coin = {} as Coin;
+
+        // Fetch coin network data based on ticker
+        const coinData = this.getCoinData(ticker);
+        const networks = this.getNetwork(ticker);
+
+        // Convert mnemonic secret into seed
+        const seed = mnemonicToSeedSync(this.getSecret());
+
+        // Derive the HD wallet data
+        let index;
+        if (coinData.bip44) {
+            index = coinData.bip44;
+        } else {
+            index = coinData.hdIndex;
+        }
+
+        const path = "m/44'/" + index + "'/0'";
+        const rootKey = fromSeed(seed, networks.p2pkh);
+        coin.rootKey = rootKey.toBase58();
+
+        const node = rootKey.derivePath(path);
+        coin.extendedPublicKey = node.neutered().toBase58();
+        coin.extendedPrivateKey = node.toBase58();
+
+        // Set the remainder of the properties
+        coin.name = coinData.name;
+        coin.ticker = coinData.ticker;
+        coin.balance = "0";
+        coin.unconfirmedBalance = "0";
+
+        // Add to the existing coins
+        this.coins.push(coin);
+
+        return coin;
+    }
+
+    // Set confirmed balance
+    setBalance(ticker: string, amount: string) {
+        // Update coins array
+        for (let i = 0; i < this.coins.length; i++) {
+            if (ticker.toLocaleLowerCase() === this.coins[i].ticker.toLocaleLowerCase()) {
+                // Update the balance
+                this.coins[i].balance = amount;
+            }
+        }
+    }
+
+    // Set unconfirmed balance
+    setUnconfirmedBalance(ticker: string, amount: string) {
+        // Update coins array
+        for (let i = 0; i < this.coins.length; i++) {
+            if (ticker.toLocaleLowerCase() === this.coins[i].ticker.toLocaleLowerCase()) {
+                // Update the balance
+                this.coins[i].unconfirmedBalance = amount;
+            }
+        }
     }
 
     // Fetch the UTXOs for a coin
