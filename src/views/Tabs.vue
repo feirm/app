@@ -7,12 +7,10 @@
           <ion-label>Wallet</ion-label>
         </ion-tab-button>
 
-        <!--
         <ion-tab-button tab="marketplace" href="/tabs/marketplace">
           <ion-icon :icon="cartOutline" />
           <ion-label>Marketplace</ion-label>
         </ion-tab-button>
-        -->
 
         <ion-tab-button tab="contacts" href="/tabs/contacts">
           <ion-icon :icon="peopleOutline" />
@@ -42,7 +40,7 @@ import {
   peopleOutline,
   walletOutline,
   compassOutline,
-  //cartOutline
+  cartOutline
 } from "ionicons/icons";
 
 export default {
@@ -61,7 +59,7 @@ export default {
       peopleOutline,
       walletOutline,
       compassOutline,
-      //cartOutline
+      cartOutline
     };
   },
 };
