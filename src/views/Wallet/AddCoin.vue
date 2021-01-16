@@ -1,18 +1,10 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar class="ion-text-center">
-        <ion-buttons slot="start">
-          <ion-back-button></ion-back-button>
-        </ion-buttons>
+    <ion-header class="ion-no-border">
+      <ion-toolbar class="ion-text-left">
         <ion-title>Add Coin</ion-title>
-        <ion-buttons slot="secondary">
-          <ion-button @click="presentAlert">
-            <ion-icon
-              slot="icon-only"
-              :icon="informationCircleOutline"
-            ></ion-icon>
-          </ion-button>
+        <ion-buttons slot="end">
+          <ion-back-button :icon="closeOutline"></ion-back-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -25,7 +17,7 @@
           v-for="coin in coins"
           v-bind:key="coin.name"
           button="true"
-          @click="createCoinWallet(store.getters.getWallet.mnemonic, coin.name, coin.ticker)"
+          @click="createCoinWallet(coin.ticker)"
         >
           <ion-avatar slot="start">
             <img :src="coin.icon" />
@@ -51,22 +43,17 @@ import {
   IonToolbar,
   IonButtons,
   IonTitle,
-  IonButton,
   IonBackButton,
-  IonIcon,
   IonContent,
   IonList,
   IonItem,
   IonAvatar,
   IonLabel,
-  alertController,
 } from "@ionic/vue";
-import { informationCircleOutline } from "ionicons/icons";
-import azureService from "@/apiService/azureService";
-import { Coin, DeriveWallet, Wallet } from "@/lib/wallet";
+import { closeOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { decryptWallet } from "@/lib/encryptWallet";
+import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 
 export default defineComponent({
   name: "AddCoin",
@@ -76,9 +63,7 @@ export default defineComponent({
     IonToolbar,
     IonButtons,
     IonTitle,
-    IonButton,
     IonBackButton,
-    IonIcon,
     IonContent,
     IonList,
     IonItem,
@@ -87,18 +72,15 @@ export default defineComponent({
   },
   data() {
     return {
-      coins: [] as Coin[],
+      coins: [],
     };
   },
   ionViewWillEnter() {
     // Get available coins list and current wallet
-    const availableCoins = this.store.getters.getAllCoins as Coin[];
-    const wallet = this.store.getters.getWallet as Wallet;
-
-    console.log(availableCoins);
+    const availableCoins = this.store.getters.getAllCoins;
 
     // Iterate over each coin we have in our wallet, and remove any duplicates from the available coins list
-    wallet.coins.forEach(coin => {
+    availableCoins.forEach(coin => {
       for (let i = 0; i < availableCoins.length; i++) {
         const availableCoin = availableCoins[i];
 
@@ -113,55 +95,11 @@ export default defineComponent({
     this.coins = availableCoins;
   },
   methods: {
-    async presentAlert() {
-      const alert = await alertController.create({
-        header: "Information",
-        message:
-          "Collecting some coins? You can store supported coins within your Feirm wallet! Take a look at the list on this page.",
-        buttons: ["Okay"],
-      });
+    async createCoinWallet(ticker: string) {
+      // Fetch coin data
+      const coinData = hdWalletP2pkh.getCoinData(ticker);
 
-      return alert.present();
-    },
-    async createCoinWallet(mnemonic: string, coin: string, ticker: string) {
-      // Create a confirmation alert asking the user if they want to add a new coin
-      const confirmAlert = await alertController.create({
-        header: "Add new coin?",
-        message: `Do you want to add ${coin} (${ticker}) to your wallet?`,
-        buttons: [
-          {
-            text: "No",
-          },
-          {
-            text: "Yes",
-            handler: async () => {
-              // Add coin to wallet
-              const wallet = await DeriveWallet(mnemonic, ticker);
-
-              // Update localStorage wallet
-              localStorage.setItem("wallet", JSON.stringify(wallet));
-
-              // Check whether or not wallet is encrypted
-              const walletEncrypted = this.store.getters.isWalletEncrypted;
-              if (walletEncrypted) {
-                // Get PIN
-                const pin = this.store.getters.getWalletPin;
-
-                // Decrypt the wallet and update Vuex state
-                const decryptedWallet = await decryptWallet(pin, wallet);
-                this.store.commit("setWalletState", decryptedWallet)
-              } else {
-                // Otherwise just update Vuex state for decrypted wallet
-                this.store.commit("setWalletState", wallet);
-              }
-
-              this.router.push({ path: "/tabs/wallet" });
-            },
-          },
-        ],
-      });
-
-      return confirmAlert.present();
+      console.log(coinData);
     },
   },
   setup() {
@@ -171,7 +109,7 @@ export default defineComponent({
     return {
       router,
       store,
-      informationCircleOutline,
+      closeOutline,
     };
   },
 });
