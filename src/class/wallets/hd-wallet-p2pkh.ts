@@ -13,7 +13,7 @@ import BigNumber from "bignumber.js";
  */
 class HDWalletP2PKH extends AbstractWallet {
     // Get xpub for coin
-    public getXpub(ticker: string) {
+    getXpub(ticker: string) {
         // Fetch the coin data
         const coinData = this.getCoinData(ticker);
         const networks = this.getNetwork(ticker);
@@ -38,7 +38,7 @@ class HDWalletP2PKH extends AbstractWallet {
     }
 
     // Fetch an address by its node and index
-    public getNodeAddressByIndex(ticker: string, node: number, index: number) {
+    getNodeAddressByIndex(ticker: string, node: number, index: number) {
         // Fetch coin network
         const networks = this.getNetwork(ticker);
         
@@ -52,7 +52,7 @@ class HDWalletP2PKH extends AbstractWallet {
     }
 
     // Create a signed transaction
-    public createSignedTransaction(ticker: string, address: string, amount: string, fee: string, utxos: Utxo[]): Psbt {
+    createSignedTransaction(ticker: string, address: string, amount: string, fee: string, utxos: Utxo[]): Psbt {
         /*
          * Expect the amount and fee to be in Satoshi format.
         */
