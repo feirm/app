@@ -168,6 +168,11 @@ export abstract class AbstractWallet {
                 // Iterate through all transactions, and match them up with our tokens
                 const txs = res.data.transactions;
                 const tokens = res.data.tokens;
+
+                // If transactions are empty, return
+                if (!txs) {
+                    return;
+                }
                 
                 txs.forEach(tx => {
                     // Set basic transaction properties
