@@ -117,23 +117,46 @@ export abstract class AbstractWallet {
             index = coinData.hdIndex;
         }
 
-        const path = "m/44'/" + index + "'/0'";
-        const rootKey = fromSeed(seed, networks.p2pkh);
-        coin.rootKey = rootKey.toBase58();
-
-        const node = rootKey.derivePath(path);
-        coin.extendedPublicKey = node.neutered().toBase58();
-        coin.extendedPrivateKey = node.toBase58();
-
         // Set the remainder of the properties
         coin.name = coinData.name;
         coin.ticker = coinData.ticker;
         coin.balance = "0";
         coin.unconfirmedBalance = "0";
 
-        // Add to the existing coins
-        this.coins.push(coin);
+        // Derive according to network
+        // P2PKH (legacy address)
+        if (coinData.networks.p2pkh) {
+            const path = "m/44'/" + index + "'/0'";
+            const rootKey = fromSeed(seed, networks.p2pkh);
+            coin.rootKey = rootKey.toBase58();
 
+            const node = rootKey.derivePath(path);
+            coin.extendedPublicKey = node.neutered().toBase58();
+            coin.extendedPrivateKey = node.toBase58();
+
+            // Push and return
+            this.coins.push(coin);
+            return coin;
+        }
+
+        // P2WPKH (native segwit)
+        if (coinData.networks.P2WPKH) {
+            const path = "m/84'/" + index + "'/0'"; // BIP84
+            const rootKey = fromSeed(seed, networks.P2WPKH);
+            coin.rootKey = rootKey.toBase58();
+
+            const node = rootKey.derivePath(path);
+            coin.extendedPublicKey = node.neutered().toBase58();
+            coin.extendedPrivateKey = node.toBase58();
+
+            console.log("BIP84:", coin);
+
+            // Push and return
+            this.coins.push(coin);
+            return coin;
+        }
+
+        // Regardless just return the coin
         return coin;
     }
 

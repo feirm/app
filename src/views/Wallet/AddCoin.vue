@@ -99,6 +99,18 @@ export default defineComponent({
       // Fetch coin data
       const coinData = hdWalletP2pkh.getCoinData(ticker);
 
+      // Check if Segwit is available
+      // TODO Format network data
+      if (coinData.segwit) {
+        // Check if native segwit is available
+        if (coinData.networks.P2WPKH) {
+          console.log("Native segwit available!");
+
+          // Add coin
+          const coin = hdWalletP2pkh.addCoin(coinData.ticker);
+        }
+      }
+
       console.log(coinData);
     },
   },
