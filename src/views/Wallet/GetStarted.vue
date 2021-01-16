@@ -30,7 +30,7 @@
       <ion-button
         expand="block"
         color="light"
-        @click="restorePrompt"
+        @click="router.push({ path: '/wallet/recovery' })"
         >Restore from Backup</ion-button
       >
     </ion-footer>
