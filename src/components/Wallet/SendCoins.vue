@@ -120,11 +120,13 @@ export default defineComponent({
 
         const decodedPayment = bip21.decode(
           modalResponse.data,
-          this.coinObj.name.toLowerCase()
+          this.$props.coin!.toLowerCase()
         );
+
         // Update the address and amount fields to match one on payment
         this.toAddress = decodedPayment.address;
         this.amount = decodedPayment.options.amount;
+        
       } catch (e) {
         const alert = await alertController.create({
           header: "Error decoding payment request!",
