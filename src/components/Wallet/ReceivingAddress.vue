@@ -75,6 +75,7 @@ import { FindWallet, DeriveAddress } from "@/lib/wallet";
 import QRCode from "qrcode";
 import bip21 from "bip21";
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
+import axios from "axios";
 
 export default defineComponent({
   name: "ReceivingAddress",
@@ -101,8 +102,44 @@ export default defineComponent({
           const wallet = hdWalletP2pkh;
           const coin = hdWalletP2pkh.getCoin(this.$props.ticker!);
 
+          // Find next available address index
+          // Fetch xpub data
+          const xpubData = await axios.get(
+            "https://cors-anywhere.feirm.com/" +
+            hdWalletP2pkh.getBlockbook(coin.ticker) +
+            "/api/v2/xpub/" +
+            hdWalletP2pkh.getXpub(coin.ticker) +
+            "?tokens=used"
+          );
+
+        // Find the lowest index missing index
+        let missingIndex = 0;
+
+        if (xpubData.data.tokens) {
+          for (let i = 0; i < xpubData.data.tokens.length; i++) {
+            // Get the path
+            const path: string = xpubData.data.tokens[i].path;
+
+            // Split the path to extract index
+            const splitPath = path.split("/");
+            const index = splitPath[5];
+
+            // Only continue if the account level is 0 (receiving account)
+            if (parseInt(splitPath[4]) === 0) {
+              // Increment the index until we reach one that doesnt exist
+              if (i + 1 != parseInt(index) + 1) {
+                // console.log("Missing path:", i);
+                missingIndex = i;
+                break;
+              }
+
+              missingIndex = i + 1;
+            }
+          }
+        }
+
           // Derive an address
-          const address = wallet.getNodeAddressByIndex(coin.ticker, 0, 0)!;
+          const address = wallet.getNodeAddressByIndex(coin.ticker, 0, missingIndex)!; // Receiving account (node), missing index
           this.address = address;
 
           // BIP21 compliant payment request
