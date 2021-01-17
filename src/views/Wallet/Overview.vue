@@ -34,8 +34,8 @@
           </ion-slide>
 
           <!-- Show add a wallet card if no wallet is present -->
-          <ion-slide v-show="!store.getters.walletExists">
-            <ion-card button @click="addCoin">
+          <ion-slide v-show="!store.getters.walletState.coins">
+            <ion-card @click="addCoin">
               <ion-card-header class="ion-text-left">
                 <ion-text style="color: white">
                   <h3>Add a wallet</h3>
@@ -115,6 +115,7 @@ import {
   IonItem,
   IonSlides,
   IonSlide,
+  alertController,
 } from "@ionic/vue";
 import { walletOutline,addCircleOutline, scanOutline, arrowUpCircleOutline, arrowDownCircleOutline, timeOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
@@ -161,7 +162,16 @@ export default defineComponent({
     },
     async addCoin() {
       if (this.store.getters.walletExists) {
-       return this.router.push({ path: "/wallet/addCoin" });
+        // Show an error as there is an issue with new coins right now
+        const error = await alertController.create({
+          header: "Error!",
+          message: "This functionality is currently unavailable!",
+          buttons: ["Close"]
+        });
+
+        return error.present();
+
+        // return this.router.push({ path: "/wallet/addCoin" });
       }
 
       this.router.push({ path: "/wallet/getStarted" });
