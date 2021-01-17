@@ -58,6 +58,11 @@ export abstract class AbstractWallet {
 
         this.secret = secret;
     }
+    
+    // Set all coins in our wallet
+    setCoins(coins: Coin[]) {
+        this.coins = coins;
+    }
 
     // Return all coins in our wallet
     getAllCoins() {
@@ -99,15 +104,15 @@ export abstract class AbstractWallet {
 
     // Add a new coin
     addCoin(ticker: string): Coin {
-        // New instance of the coin object
-        const coin = {} as Coin;
-
         // Fetch coin network data based on ticker
         const coinData = this.getCoinData(ticker);
         const networks = this.getNetwork(ticker);
 
         // Convert mnemonic secret into seed
-        const seed = mnemonicToSeedSync(this.getSecret());
+        const mnemonic = this.getSecret();
+        const seed = mnemonicToSeedSync(mnemonic);
+
+        console.log("add coin mnemonic:", mnemonic);
 
         // Derive the HD wallet data
         let index;
@@ -117,6 +122,9 @@ export abstract class AbstractWallet {
             index = coinData.hdIndex;
         }
 
+        // New instance of the coin object
+        const coin = {} as Coin;
+
         // Set the remainder of the properties
         coin.name = coinData.name;
         coin.ticker = coinData.ticker;
@@ -125,7 +133,7 @@ export abstract class AbstractWallet {
 
         // Derive according to network
         // P2PKH (legacy address)
-        if (coinData.networks.p2pkh) {
+        if (networks.p2pkh) {
             const path = "m/44'/" + index + "'/0'";
             const rootKey = fromSeed(seed, networks.p2pkh);
             coin.rootKey = rootKey.toBase58();
@@ -133,14 +141,10 @@ export abstract class AbstractWallet {
             const node = rootKey.derivePath(path);
             coin.extendedPublicKey = node.neutered().toBase58();
             coin.extendedPrivateKey = node.toBase58();
-
-            // Push and return
-            this.coins.push(coin);
-            return coin;
         }
 
         // P2WPKH (native segwit)
-        if (coinData.networks.P2WPKH) {
+        if (networks.P2WPKH) {
             const path = "m/84'/" + index + "'/0'"; // BIP84
             const rootKey = fromSeed(seed, networks.P2WPKH);
             coin.rootKey = rootKey.toBase58();
@@ -148,13 +152,9 @@ export abstract class AbstractWallet {
             const node = rootKey.derivePath(path);
             coin.extendedPublicKey = node.neutered().toBase58();
             coin.extendedPrivateKey = node.toBase58();
-
-            // Push and return
-            this.coins.push(coin);
-            return coin;
         }
 
-        // Regardless just return the coin
+        this.coins.push(coin);
         return coin;
     }
 
@@ -313,9 +313,11 @@ export abstract class AbstractWallet {
 
     // Save to disk (localStorage)
     async saveToDisk() {
+        const id = await this.getId();
+
         // Construct an object which resembles a wallet
         const wallet = {
-            id: await this.getId(),
+            id: id,
             secret: this.getSecret(),
             coins: this.getAllCoins()
         } as Wallet;
@@ -325,9 +327,11 @@ export abstract class AbstractWallet {
 
     // Save to cache (vuex)
     async saveToCache() {
+        const id = await this.getId();
+
         // Construct an object which resembles a wallet
         const wallet = {
-            id: await this.getId(),
+            id: id,
             secret: this.getSecret(),
             coins: this.getAllCoins()
         } as Wallet;
@@ -339,14 +343,11 @@ export abstract class AbstractWallet {
     // Load wallet from disk
     async loadFromDisk(): Promise<Wallet> {
         const wallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
-        
+
         // Set the appropriate fields
         this.setSecret(wallet.secret);
-        
-        const id = await this.getId();
-        this.setId(id);
-
-        this.coins = wallet.coins;
+        this.setId(await this.getId());
+        this.setCoins(wallet.coins);
 
         return wallet;
     }
