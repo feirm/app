@@ -5,7 +5,7 @@ import { AbstractWallet } from "./abstract-wallet";
 
 export class HDWalletP2WPKH extends AbstractWallet {
     // Get zpub (native segwit) for coin
-    getXpub(ticker: string) {
+    getZpub(ticker: string) {
         // Fetch the coin data
         const coinData = this.getCoinData(ticker);
         const networks = this.getNetwork(ticker);
@@ -34,10 +34,10 @@ export class HDWalletP2WPKH extends AbstractWallet {
         // Fetch coin network
         const networks = this.getNetwork(ticker);
         
-        const xpub = this.getXpub(ticker);
+        const zpub = this.getZpub(ticker);
 
         const { address } = payments.p2wpkh({
-            pubkey: fromBase58(xpub).derive(node).derive(index).publicKey,
+            pubkey: fromBase58(zpub).derive(node).derive(index).publicKey,
             network: networks.P2WPKH
         })
         
