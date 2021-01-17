@@ -231,3 +231,8 @@ http://ionicframework.com/docs/theming/ */
     --ion-card-background: #1e1e1e;
   }
 }
+
+/* Recieving Address Clipboard Copy */
+.copied {
+  text-align: center;
+}

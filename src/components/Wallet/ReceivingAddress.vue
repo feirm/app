@@ -181,6 +181,7 @@ export default defineComponent({
           const toast = await toastController.create({
             message: "Address was copied to your clipboard! ✅",
             duration: 2000,
+            cssClass: "copied"
           });
 
           toast.present();
