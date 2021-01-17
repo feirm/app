@@ -28,9 +28,6 @@ import WalletAddCoin from "@/views/Wallet/AddCoin.vue";
 
 import WalletSettingsOverview from "@/views/Wallet/Settings/Overview.vue";
 
-// Update
-import Update from "@/views/Update.vue";
-
 const routes: Array<RouteRecordRaw> = [
   // Redirect index page to Discover route
   {
@@ -123,16 +120,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: "/wallet/addCoin",
     component: WalletAddCoin,
-  },
-
-  // New PWA Version
-  {
-    path: "/update",
-    component: Update,
-    meta: {
-      requiresAuth: false,
-    },
-  },
+  }
 ];
 
 const router = createRouter({

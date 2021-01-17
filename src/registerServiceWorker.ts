@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 
 import { register } from 'register-service-worker'
-import router  from "@/router";
 
 if (process.env.NODE_ENV === 'production') {
   register(`${process.env.BASE_URL}service-worker.js`, {
@@ -21,7 +20,7 @@ if (process.env.NODE_ENV === 'production') {
       console.log('New content is downloading.')
     },
     updated () {
-      router.push({path: '/update'})
+      console.log('Updated PWA');
     },
     offline () {
       console.log('No internet connection found. App is running in offline mode.')
