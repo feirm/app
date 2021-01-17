@@ -46,7 +46,7 @@
 
             <!-- Transactions -->
             <ion-item-group>
-              <ion-item lines="none" class="ion-no-padding" color="transparent" v-for="tx in store.getters.getTransactions(ticker)" v-bind:key="tx.txid">
+              <ion-item lines="none" class="ion-no-padding" color="transparent" v-for="tx in store.getters.getTransactions(ticker)" v-bind:key="tx.txid" @click="openBlockbook(ticker, tx.txid)">
                 <!-- Icons: incoming, outgoing or pending -->
                 <ion-icon v-if="tx.confirmations > 0" slot="start" :color="!tx.isMine ? 'danger' : 'success'" :icon="!tx.isMine ? arrowUpCircleOutline : arrowDownCircleOutline"></ion-icon>
                 <ion-icon v-if="tx.confirmations === 0" slot="start" color="warning" :icon="timeOutline"></ion-icon>
@@ -189,6 +189,10 @@ export default defineComponent({
     formatDate(date: string) {
       const time = DateTime.fromSeconds(parseInt(date)).toRelative();
       return time;
+    },
+    openBlockbook(ticker: string, txid: string) {
+      const blockbookUrl = hdWalletP2pkh.getBlockbook(ticker);
+      window.open(blockbookUrl + "/tx/" + txid); 
     }
   },
   setup() {
