@@ -77,6 +77,7 @@ import bip21 from "bip21";
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 import axios from "axios";
 import ReceivePopup from "@/components/Wallet/Receive/Popup.vue";
+import BigNumber from "bignumber.js";
 
 export default defineComponent({
   name: "ReceivingAddress",
@@ -174,10 +175,17 @@ export default defineComponent({
               // Iterate over outputs and determine if it is ours
               data.tx.vout.forEach(async output => {
                 if (output.addresses.includes(address)) {
+                  // Calculate amount from Satoshis
+                  const amount = new BigNumber(output.value).dividedBy(100000000).toString();
+
                   // Show a screen
                   // console.log("Incoming TXID:", data.tx.txid);
                   const modal = await modalController.create({
-                    component: ReceivePopup
+                    component: ReceivePopup,
+                    componentProps: {
+                      amount: amount,
+                      ticker: coin.ticker
+                    }
                   });
 
                   return modal.present();
