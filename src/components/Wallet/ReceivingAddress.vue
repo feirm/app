@@ -150,6 +150,38 @@ export default defineComponent({
             this.qrCode = qr;
           });
 
+          // Create a WebSocket connection and monitor the address for anything incoming
+          const wssUrl = hdWalletP2pkh.getBlockbook(coin.ticker).replace(/(^\w+:|^)\/\//, ''); // Remove HTTP(s)
+          const socket = new WebSocket("wss://" + wssUrl + "/websocket");
+
+          // Subscribe to the address channel
+          socket.onopen = function() {
+            const payload = {
+              method: "subscribeAddresses",
+              params: {
+                addresses: [ address ]
+              }
+            }
+
+            socket.send(JSON.stringify(payload));
+          }
+
+          // Handle messages
+          socket.onmessage = function(msg) {
+            const data = JSON.parse(msg.data).data;
+            if (data) {
+              // Iterate over outputs and determine if it is ours
+              data.tx.vout.forEach(output => {
+                if (output.addresses.includes(address)) {
+                  // Show a screen
+                  console.log("Incoming TXID:", data.tx.txid);
+
+                  return;
+                }
+              });
+            }
+          }
+
           // Dismiss modal
           a.dismiss();
         })
