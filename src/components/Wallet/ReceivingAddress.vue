@@ -76,6 +76,7 @@ import QRCode from "qrcode";
 import bip21 from "bip21";
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 import axios from "axios";
+import ReceivePopup from "@/components/Wallet/Receive/Popup.vue";
 
 export default defineComponent({
   name: "ReceivingAddress",
@@ -171,12 +172,15 @@ export default defineComponent({
             const data = JSON.parse(msg.data).data;
             if (data) {
               // Iterate over outputs and determine if it is ours
-              data.tx.vout.forEach(output => {
+              data.tx.vout.forEach(async output => {
                 if (output.addresses.includes(address)) {
                   // Show a screen
-                  console.log("Incoming TXID:", data.tx.txid);
+                  // console.log("Incoming TXID:", data.tx.txid);
+                  const modal = await modalController.create({
+                    component: ReceivePopup
+                  });
 
-                  return;
+                  return modal.present();
                 }
               });
             }
