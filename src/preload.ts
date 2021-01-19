@@ -41,6 +41,9 @@ export async function preload() {
             // Get the balances using the XPUB
             const xpub = wallet.getXpub(coin.ticker);
 
+            // TESTING WebSocket
+            wallet.establishWss(coin.ticker);
+
             await axios.get(`https://cors-anywhere.feirm.com/${blockbookUrl}/api/v2/xpub/${xpub}`).then(res => {
               // Save balances
               wallet.setBalance(coin.ticker, res.data.balance); // Confirmed balance
