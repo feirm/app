@@ -1,31 +1,22 @@
 <template>
-  <ion-header class="ion-no-border">
-    <ion-toolbar class="ion-text-left" color="transparent">
-      <ion-buttons slot="secondary">
-        <ion-button color="light" @click="closeModal">
-          <ion-icon slot="icon-only" :icon="close"></ion-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-toolbar>
-  </ion-header>
   <ion-content
     :fullscreen="true"
     class="ion-padding ion-text-center"
-    color="success"
+    @click="closeModal"
   >
     <ion-grid>
       <ion-row>
         <ion-col>
-          <ion-icon class="full-icon" :icon="checkmarkCircleOutline"></ion-icon>
+          <ion-icon class="full-icon" :icon="checkmarkCircleOutline" color="primary" ></ion-icon>
           <p>You received <b>{{ $props.amount }} {{ $props.ticker }}</b></p>
         </ion-col>
       </ion-row>
     </ion-grid>
   </ion-content>
-  <ion-footer class="ion-no-border ion-padding">
-    <ion-button @click="closeModal" expand="block" color="dark"
-      >Close</ion-button
-    >
+  <ion-footer class="ion-no-border ion-padding ion-text-center">
+      <ion-text>
+          <p class="small-text">Tap anywhere to exit</p>
+      </ion-text>
   </ion-footer>
 </template>
 
@@ -33,10 +24,6 @@
 import { defineComponent } from "vue";
 import {
   IonContent,
-  IonHeader,
-  IonToolbar,
-  IonButtons,
-  IonButton,
   IonIcon,
   IonGrid,
   IonRow,
@@ -50,10 +37,6 @@ export default defineComponent({
   name: "ReceivePopup",
   components: {
     IonContent,
-    IonHeader,
-    IonToolbar,
-    IonButtons,
-    IonButton,
     IonIcon,
     IonGrid,
     IonRow,
@@ -84,6 +67,11 @@ export default defineComponent({
 /* Custom icon size */
 .full-icon {
   font-size: 128px;
+}
+
+/* Small text */
+.small-text {
+    font-size: 14px;
 }
 
 /* Vertical center grid */
