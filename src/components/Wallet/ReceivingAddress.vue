@@ -152,21 +152,18 @@ export default defineComponent({
             this.qrCode = qr;
           });
 
-          // Create a WebSocket connection and monitor the address for anything incoming
-          const wssUrl = hdWalletP2pkh.getBlockbook(coin.ticker).replace(/(^\w+:|^)\/\//, ''); // Remove HTTP(s)
-          const socket = new WebSocket("wss://" + wssUrl + "/websocket");
+          // Fetch existing WSS connection
+          const socket = hdWalletP2pkh.getWss(coin.ticker);
 
           // Subscribe to the address channel
-          socket.onopen = function() {
-            const payload = {
-              method: "subscribeAddresses",
-              params: {
-                addresses: [ address ]
-              }
+          const subscription = {
+            method: "subscribeAddresses",
+            params: {
+              addresses: [ address ]
             }
+          };
 
-            socket.send(JSON.stringify(payload));
-          }
+          socket.send(JSON.stringify(subscription));
 
           // Handle messages
           socket.onmessage = function(msg) {
@@ -175,6 +172,13 @@ export default defineComponent({
               // Iterate over outputs and determine if it is ours
               data.tx.vout.forEach(async output => {
                 if (output.addresses.includes(address)) {
+                  // Unsubscribe from address
+                  const unsubscribe = {
+                    method: "unsubscribeAddresses"
+                  }
+
+                  socket.send(JSON.stringify(unsubscribe));
+
                   // Calculate amount from Satoshis
                   const amount = new BigNumber(output.value).dividedBy(100000000).toString();
 
