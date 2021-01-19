@@ -49,6 +49,7 @@ import {
   IonIcon,
   modalController,
   alertController,
+  loadingController,
 } from "@ionic/vue";
 import { Coin, CreateSignedTransaction } from "@/lib/wallet";
 import ScanQR from "@/components/Wallet/ScanQR.vue";
@@ -56,6 +57,7 @@ import { sendSharp, qrCodeOutline, closeOutline, scanOutline } from "ionicons/ic
 import bip21 from "bip21";
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 import BigNumber from "bignumber.js";
+import SendSuccess from "@/components/Wallet/Send/Success.vue";
 
 export default defineComponent({
   name: "SendCoins",
@@ -90,14 +92,52 @@ export default defineComponent({
       const amount = new BigNumber(this.amount).multipliedBy(100000000).toString();
       const fee = new BigNumber("0.0001").multipliedBy(100000000).toString(); // TODO dynamic fees
 
-      // Fetch UTXOs
-      const utxos = await hdWalletP2pkh.getUtxos(this.$props.ticker!);
+      // TODO: Ask user to confirm
 
-      // Create and return a signed psbt
-      const tx = hdWalletP2pkh.createSignedTransaction(this.$props.ticker!, this.toAddress, amount, fee, utxos);
+      // Wrap in a loading controller
+      await loadingController.create({
+        message: "Creating & broadcasting transaction..."
+      }).then(a => {
+        a.present().then(async () => {
+          // Fetch UTXOs
+          const utxos = await hdWalletP2pkh.getUtxos(this.$props.ticker!);
 
-      // Submit to Blockbook
-      await hdWalletP2pkh.submitTx(this.$props.ticker!, tx.extractTransaction(true).toHex())
+          // Create and return a signed psbt
+          const tx = hdWalletP2pkh.createSignedTransaction(this.$props.ticker!, this.toAddress, amount, fee, utxos);
+
+          // Submit to Blockbook
+          await hdWalletP2pkh.submitTx(this.$props.ticker!, tx.extractTransaction(true).toHex())
+
+          // Dismiss modal
+          a.dismiss();
+
+          // Create success popup
+          const success = await modalController.create({
+            component: SendSuccess,
+            componentProps: {
+              amount: this.amount,
+              ticker: this.$props.ticker!,
+              address: this.toAddress
+            }
+          })
+
+          return success.present();
+        })
+        // Error time!
+        .catch(async e => {
+          // Dismiss modal
+          a.dismiss();
+
+          // Create error alert
+          const error = await alertController.create({
+            header: "Error!",
+            message: e,
+            buttons: ["Close"]
+          })
+
+          return error.present();
+        })
+      })
     },
     async scanQr() {
       const modal = await modalController.create({
