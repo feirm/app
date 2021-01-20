@@ -18,6 +18,12 @@
           <ion-label slot="end" class="ion-text-right">{{ store.getters.getUsername }}</ion-label>
         </ion-item>
 
+        <ion-item>
+          <ion-icon slot="start" color="dark" :icon="moonOutline"></ion-icon>
+          <ion-label>Dark Mode</ion-label>
+          <ion-toggle :checked="true"></ion-toggle>
+        </ion-item>
+
         <!--
         <ion-item>
           <ion-icon slot="start" color="primary" :icon="keyOutline"></ion-icon>
@@ -88,6 +94,7 @@ import {
   IonNote,
   IonList,
   IonIcon,
+  IonToggle,
   alertController,
   modalController,
   loadingController,
@@ -98,7 +105,8 @@ import {
   trashOutline,
   lockClosedOutline,
   arrowDownOutline,
-  documentLockOutline
+  documentLockOutline,
+  moonOutline
 } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
@@ -120,6 +128,7 @@ export default defineComponent({
     IonNote,
     IonList,
     IonIcon,
+    IonToggle
   },
   data() {
     return {
@@ -294,7 +303,8 @@ export default defineComponent({
       trashOutline,
       lockClosedOutline,
       arrowDownOutline,
-      documentLockOutline
+      documentLockOutline,
+      moonOutline
     };
   },
 });
