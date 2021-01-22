@@ -1,8 +1,8 @@
 <template>
   <ion-page>
-    <ion-header>
-      <ion-toolbar class="ion-text-center">
-        <ion-title>Marketplace</ion-title>
+    <ion-header class="ion-no-border">
+      <ion-toolbar class="ion-text-left">
+        <ion-title color="dark">Marketplace</ion-title>
       </ion-toolbar>
     </ion-header>
 
