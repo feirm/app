@@ -75,7 +75,7 @@
                 </ion-text>
               </ion-card-header>
               <ion-card-content>
-                  <p style="color: white">Storage Containers</p>
+                  <p>Storage Containers</p>
                   <p style="font-size: 12px">Sold by: sscontainersUk</p>
               </ion-card-content>
             </ion-card>
