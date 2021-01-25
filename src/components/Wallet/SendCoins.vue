@@ -10,25 +10,35 @@
     </ion-toolbar>
   </ion-header>
   <ion-content class="ion-padding ion-text-center">
-    <!-- Amount input -->
-    <ion-item>
-      <ion-label position="stacked">Amount</ion-label>
-      <ion-input v-model="amount" type="number" step="0.001"></ion-input>
-    </ion-item>
-
     <!-- Address input -->
-    <ion-item>
+    <ion-item lines="full" color="transparent">
+      <ion-label position="stacked">Address</ion-label>
       <ion-input
-        placeholder="Address"
         v-model="toAddress"
+        type="text"
         v-on:ionChange="validateAddress($event.target.value)"
       ></ion-input>
-
-      <ion-button color="light" @click="scanQr">
-        <ion-icon slot="start" :icon="scanOutline"></ion-icon>
-        Scan
-      </ion-button>
     </ion-item>
+
+    <!-- Amount input -->
+    <ion-item lines="full" color="transparent">
+      <ion-label position="stacked">Amount ({{ this.$props.ticker.toUpperCase() }})</ion-label>
+      <ion-input v-model="amount" type="number"></ion-input>
+    </ion-item>
+
+    <!-- Transaction fee -->
+    <ion-item lines="full" color="transparent">
+      <ion-label position="stacked">Transaction Fee</ion-label>
+      <ion-input v-model="amount" disabled></ion-input>
+    </ion-item>
+
+    <!-- Total amount inc. fee -->
+    <ion-item lines="full" color="transparent">
+      <ion-label position="stacked">Amount including fee ({{ this.$props.ticker.toUpperCase() }})</ion-label>
+      <ion-input v-model="amount" disabled></ion-input>
+    </ion-item>
+
+    <br>
 
     <!-- Send buttons -->
     <ion-button expand="block" @click="sendCoins" :disabled="sendDisabled">
@@ -58,6 +68,7 @@ import bip21 from "bip21";
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 import BigNumber from "bignumber.js";
 import SendSuccess from "@/components/Wallet/Send/Success.vue";
+import { toOutputScript } from "bitcoinjs-lib/src/address";
 
 export default defineComponent({
   name: "SendCoins",
@@ -76,13 +87,18 @@ export default defineComponent({
     };
   },
   methods: {
-    async validateAddress(address: string) {
-      // Check that something is present
-      if (address) {
-        this.sendDisabled = false;
-      } else {
-        this.sendDisabled = true;
+    validateAddress(addressInput: string) {
+      // Get network from ticker
+      const network = hdWalletP2pkh.getNetwork(this.$props.ticker!);
+
+      // Check address is valid
+      try {
+        toOutputScript(addressInput, network.p2pkh);
+      } catch (e) {
+        return this.sendDisabled = true;
       }
+
+      this.sendDisabled = false;
     },
     async closeModal() {
       await modalController.dismiss();
