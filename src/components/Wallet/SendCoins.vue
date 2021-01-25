@@ -23,19 +23,19 @@
     <!-- Amount input -->
     <ion-item lines="full" color="transparent">
       <ion-label position="stacked">Amount ({{ this.$props.ticker.toUpperCase() }})</ion-label>
-      <ion-input v-model="amount" type="number"></ion-input>
+      <ion-input v-model="amount" v-on:ionChange="calculateTotal()" type="number"></ion-input>
     </ion-item>
 
     <!-- Transaction fee -->
     <ion-item lines="full" color="transparent">
-      <ion-label position="stacked">Transaction Fee</ion-label>
-      <ion-input v-model="amount" disabled></ion-input>
+      <ion-label position="stacked">Transaction Fee ({{ this.$props.ticker.toUpperCase() }})</ion-label>
+      <ion-input v-model="fee" disabled></ion-input>
     </ion-item>
 
     <!-- Total amount inc. fee -->
     <ion-item lines="full" color="transparent">
       <ion-label position="stacked">Amount including fee ({{ this.$props.ticker.toUpperCase() }})</ion-label>
-      <ion-input v-model="amount" disabled></ion-input>
+      <ion-input v-model="total" disabled></ion-input>
     </ion-item>
 
     <br>
@@ -69,6 +69,7 @@ import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 import BigNumber from "bignumber.js";
 import SendSuccess from "@/components/Wallet/Send/Success.vue";
 import { toOutputScript } from "bitcoinjs-lib/src/address";
+import axios from "axios";
 
 export default defineComponent({
   name: "SendCoins",
@@ -81,7 +82,8 @@ export default defineComponent({
       coinObj: {} as Coin,
       toAddress: "",
       amount: 0,
-      fee: 0,
+      fee: "",
+      total: "",
       max: 0,
       sendDisabled: true,
     };
@@ -100,15 +102,20 @@ export default defineComponent({
 
       this.sendDisabled = false;
     },
+    // TODO Update correctly
+    calculateTotal() {
+      const fee = new BigNumber(this.fee);
+      const amount = new BigNumber(this.amount);
+
+      this.total = fee.plus(amount).toString()
+    },
     async closeModal() {
       await modalController.dismiss();
     },
     async sendCoins() {
       // Convert amounts into Satoshis
       const amount = new BigNumber(this.amount).multipliedBy(100000000).toString();
-      const fee = new BigNumber("0.0001").multipliedBy(100000000).toString(); // TODO dynamic fees
-
-      // TODO: Ask user to confirm
+      const fee = new BigNumber(this.fee).multipliedBy(100000000).toString();
 
       // Wrap in a loading controller
       await loadingController.create({
@@ -193,6 +200,19 @@ export default defineComponent({
         return alert.present();
       }
     },
+  },
+  async created() {
+    // Fetch a reasonable TX fee
+    const blockbookUrl = hdWalletP2pkh.getBlockbook(this.$props.ticker!);
+
+    // Set fee for 10 blocks confirmation
+    const txFee = await axios.get(
+      'https://cors-anywhere.feirm.com/'
+      + blockbookUrl + 
+      '/api/v2/estimatefee/10'
+    )
+
+    this.fee = txFee.data.result; 
   },
   setup() {
     return {
