@@ -131,7 +131,7 @@ export abstract class AbstractWallet {
     }
 
     // Add a new coin
-    addCoin(ticker: string): Coin {
+    addCoin(ticker: string) {
         // Fetch coin network data based on ticker
         const coinData = this.getCoinData(ticker);
         const networks = this.getNetwork(ticker);
@@ -169,6 +169,9 @@ export abstract class AbstractWallet {
             const node = rootKey.derivePath(path);
             coin.extendedPublicKey = node.neutered().toBase58();
             coin.extendedPrivateKey = node.toBase58();
+
+            this.coins.push(coin);
+            return coin;
         }
 
         // P2WPKH (native segwit)
@@ -180,10 +183,10 @@ export abstract class AbstractWallet {
             const node = rootKey.derivePath(path);
             coin.extendedPublicKey = node.neutered().toBase58();
             coin.extendedPrivateKey = node.toBase58();
-        }
 
-        this.coins.push(coin);
-        return coin;
+            this.coins.push(coin);
+            return coin;
+        }
     }
 
     // Set confirmed balance
