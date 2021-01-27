@@ -23,7 +23,7 @@
     <!-- Amount input -->
     <ion-item lines="full" color="transparent">
       <ion-label position="stacked">Amount ({{ this.$props.ticker.toUpperCase() }})</ion-label>
-      <ion-input v-model="amount" v-on:ionChange="calculateTotal()" type="number"></ion-input>
+      <ion-input v-model="amount" v-on:ionChange="calculateTotal($event.target.value)" type="number"></ion-input>
     </ion-item>
 
     <!-- Transaction fee -->
@@ -102,12 +102,12 @@ export default defineComponent({
 
       this.sendDisabled = false;
     },
-    // TODO Update correctly
-    calculateTotal() {
+    // Calculate total including fees
+    calculateTotal(amount: number) {
       const fee = new BigNumber(this.fee);
-      const amount = new BigNumber(this.amount);
+      const newAmount = new BigNumber(amount);
 
-      this.total = fee.plus(amount).toString()
+      this.total = fee.plus(newAmount).toString()
     },
     async closeModal() {
       await modalController.dismiss();
