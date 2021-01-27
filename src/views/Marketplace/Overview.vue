@@ -66,17 +66,20 @@
         <ion-row>
           <ion-col>
             <ion-card>
+              <!--
               <img
                 src="https://scontent-lht6-1.xx.fbcdn.net/v/t1.0-0/p180x540/56764508_2455886691110958_2158473021906485248_o.jpg?_nc_cat=108&ccb=2&_nc_sid=3b2858&_nc_ohc=xkW6Qq8YAL8AX-bu93a&_nc_ht=scontent-lht6-1.xx&tp=6&oh=94b8fad152ef09bf88c571798bbcd44f&oe=60188D98"
               />
-              <ion-card-header>
+              -->
+              <!-- <ion-card-header>
                 <ion-text class="ion-text-left" color="dark">
                   <b>£210</b>
                 </ion-text>
-              </ion-card-header>
-              <ion-card-content>
-                  <p>Storage Containers</p>
-                  <p style="font-size: 12px">Sold by: sscontainersUk</p>
+              </ion-card-header> -->
+              <ion-card-content class="ion-text-center">
+                  <h2>Coming soon to Feirm...</h2>
+                  <!-- <p>Storage Containers</p>
+                  <p style="font-size: 12px">Sold by: sscontainersUk</p> -->
               </ion-card-content>
             </ion-card>
           </ion-col>
@@ -101,7 +104,7 @@ import {
   IonToolbar,
   IonTitle,
   IonCard,
-  IonCardHeader,
+  // IonCardHeader,
   IonCardContent,
   IonText,
   IonSearchbar,
@@ -130,7 +133,7 @@ export default defineComponent({
     IonToolbar,
     IonTitle,
     IonCard,
-    IonCardHeader,
+    // IonCardHeader,
     IonCardContent,
     IonText,
     IonSearchbar,
