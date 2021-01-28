@@ -11,7 +11,7 @@
   </ion-header>
   <ion-content class="ion-padding ion-text-center">
     <!-- Address input -->
-    <ion-item lines="full" color="transparent">
+    <ion-item lines="none" color="transparent">
       <ion-label position="stacked">Address</ion-label>
       <ion-input
         v-model="toAddress"
@@ -21,30 +21,31 @@
     </ion-item>
 
     <!-- Amount input -->
-    <ion-item lines="full" color="transparent">
+    <ion-item lines="none" color="transparent">
       <ion-label position="stacked">Amount ({{ this.$props.ticker.toUpperCase() }})</ion-label>
-      <ion-input v-model="amount" v-on:ionChange="calculateTotal($event.target.value)" type="number"></ion-input>
+      <ion-input v-model="amount" v-on:ionChange="calculateTotal($event.target.value)" type="number" min="0"></ion-input>
     </ion-item>
 
+    <hr>
+
     <!-- Transaction fee -->
-    <ion-item lines="full" color="transparent">
+    <ion-item lines="none" color="transparent">
       <ion-label position="stacked">Transaction Fee ({{ this.$props.ticker.toUpperCase() }})</ion-label>
       <ion-input v-model="fee" disabled></ion-input>
     </ion-item>
 
     <!-- Total amount inc. fee -->
-    <ion-item lines="full" color="transparent">
+    <ion-item lines="none" color="transparent">
       <ion-label position="stacked">Amount including fee ({{ this.$props.ticker.toUpperCase() }})</ion-label>
       <ion-input v-model="total" disabled></ion-input>
     </ion-item>
 
-    <br>
-
-    <!-- Send buttons -->
-    <ion-button expand="block" @click="sendCoins" :disabled="sendDisabled">
-      Send
-      <ion-icon slot="end" :icon="sendSharp"></ion-icon>
-    </ion-button>
+    <!-- Floating send button -->
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+      <ion-fab-button @click="sendCoins" :disabled="sendDisabled">
+        <ion-icon :icon="sendSharp"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
   </ion-content>
 </template>
 
@@ -57,6 +58,8 @@ import {
   IonInput,
   IonButton,
   IonIcon,
+  IonFab,
+  IonFabButton,
   modalController,
   alertController,
   loadingController,
@@ -105,7 +108,7 @@ export default defineComponent({
     // Calculate total including fees
     calculateTotal(amount: number) {
       const fee = new BigNumber(this.fee);
-      const newAmount = new BigNumber(amount);
+      const newAmount = new BigNumber(amount || 0);
 
       this.total = fee.plus(newAmount).toString()
     },
@@ -230,6 +233,8 @@ export default defineComponent({
     IonInput,
     IonButton,
     IonIcon,
+    IonFab,
+    IonFabButton
   },
 });
 </script>

@@ -117,7 +117,7 @@ import { DateTime } from "luxon";
 
 // Components
 import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
-import SendCoins from "@/components/Wallet/SendCoins.vue";
+import SendCoins from "@/components/Wallet/Send/Send.vue";
 
 // Wallet
 import { Coin } from "@/models/coin";
