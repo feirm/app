@@ -31,6 +31,11 @@
     </ion-header>
     
     <ion-content :fullscreen="true" class="ion-padding">
+      <!-- Refresher element -->
+      <ion-refresher slot="fixed" @ionRefresh="doRefresh($event)">
+        <ion-refresher-content></ion-refresher-content>
+      </ion-refresher>
+
       <ion-grid>
         <!-- Recent transactions -->
         <ion-row>
@@ -101,6 +106,8 @@ import {
   IonCol,
   IonFooter,
   IonText,
+  IonRefresher,
+  IonRefresherContent,
   modalController
 } from "@ionic/vue";
 import {
@@ -114,6 +121,7 @@ import {
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import { DateTime } from "luxon";
+import axios from "axios";
 
 // Components
 import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
@@ -138,7 +146,9 @@ export default defineComponent({
     IonRow,
     IonCol,
     IonFooter,
-    IonText
+    IonText,
+    IonRefresher,
+    IonRefresherContent,
   },
   data() {
     return {
@@ -199,6 +209,37 @@ export default defineComponent({
     const store = useStore();
     const router = useRouter();
 
+    // Transaction and balance refresh
+    // TODO: ^^^ Refactor into its own global method
+    const doRefresh = async (event: any) => {
+      console.log("Attempting to refresh balances and transactions...")
+
+      // Subsequently, get all transactions
+      await hdWalletP2pkh.getAllTransactions().then(() => {
+        event.target.complete();
+      })
+
+      // Update balances for all coins
+      const allCoins = hdWalletP2pkh.getAllCoins();
+
+      for (let i = 0; i < allCoins.length; i++) {
+        // Get the blockbook instance for our coin
+        const blockbookUrl = hdWalletP2pkh.getBlockbook(allCoins[i].ticker);
+              
+        // Get the balances using the XPUB
+        const xpub = hdWalletP2pkh.getXpub(allCoins[i].ticker);
+        await axios.get(`https://cors-anywhere.feirm.com/${blockbookUrl}/api/v2/xpub/${xpub}`).then(res => {
+          // Set balances
+          hdWalletP2pkh.setBalance(allCoins[i].ticker, res.data.balance); // Confirmed balance
+          hdWalletP2pkh.setUnconfirmedBalance(allCoins[i].ticker, res.data.unconfirmedBalance) // Unconfirmed balance
+
+          // Save balances
+          hdWalletP2pkh.saveToDisk();
+          hdWalletP2pkh.saveToCache();
+        });
+      }
+    }
+
     return {
       store,
       router,
@@ -207,7 +248,8 @@ export default defineComponent({
       ellipsisHorizontal,
       arrowDownCircleOutline,
       arrowUpCircleOutline,
-      timeOutline
+      timeOutline,
+      doRefresh
     };
   },
 });
