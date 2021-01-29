@@ -30,6 +30,7 @@
     "bitcoinjs-lib": "^5.2.0",
     "coininfo": "github:feirm/coininfo#master",
     "core-js": "^3.6.5",
+    "idb": "^6.0.0",
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.20",
     "luxon": "^1.25.0",
