@@ -53,7 +53,6 @@ import {
 import { closeOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import hdWalletP2wpkh from "@/class/wallets/hd-wallet-p2wpkh";
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 
 export default defineComponent({
@@ -99,25 +98,6 @@ export default defineComponent({
     async createCoinWallet(ticker: string) {
       // Fetch the coin data
       const coinData = hdWalletP2pkh.getCoinData(ticker);
-
-      // Check if Segwit is available
-      // TODO Change p2pkh wallet to p2wpkh class if Segwit
-      if (coinData.segwit) {
-        // Check if native segwit is available
-        if (coinData.networks.P2WPKH) {
-          const wallet = hdWalletP2wpkh;
-
-          // Add coin
-          wallet.addCoin(coinData.ticker);
-
-          // Save wallet to disk + cache
-          wallet.saveToDisk()
-          wallet.saveToCache()
-
-          // Route to index
-          this.router.push({ path: "/" }) 
-        }
-      }
 
       // TODO Standard P2PKH
     },
