@@ -42,11 +42,11 @@
       <br />
 
       <ion-list lines="none">
-        <ion-item button="true" @click="encryptWalletPopup" :disabled="!walletPresent || store.getters.isWalletEncrypted">
+        <ion-item button="true" @click="encryptWalletPopup" :disabled="true">
           <ion-icon slot="start" color="primary" :icon="lockClosedOutline"></ion-icon>
           <ion-label>Encrypt Wallet</ion-label>
         </ion-item>
-        <ion-item button="true" @click="deleteWallet" :disabled="!walletPresent">
+        <ion-item button="true" @click="deleteWallet" :disabled="!store.getters.walletExists">
           <ion-icon slot="start" color="danger" :icon="trashOutline"></ion-icon>
           <ion-label>Remove Wallet</ion-label>
         </ion-item>
@@ -129,11 +129,6 @@ export default defineComponent({
     IonList,
     IonIcon,
     IonToggle
-  },
-  data() {
-    return {
-      walletPresent: true,
-    };
   },
   methods: {
     async encryptWalletPopup() {
@@ -268,8 +263,7 @@ export default defineComponent({
           {
             text: "Yes",
             handler: async () => {
-              this.walletPresent = false;
-              this.store.commit("deleteWalletState");
+              this.store.dispatch("clearWallet");
 
               const alert = await alertController.create({
                 header: "Operation successful!",
@@ -285,10 +279,6 @@ export default defineComponent({
 
       return alert.present();
     },
-  },
-  ionViewWillEnter() {
-    // Check if wallet is present
-    this.walletPresent = this.store.getters.isWalletPresent;
   },
   setup() {
     const router = useRouter();

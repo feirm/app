@@ -17,6 +17,11 @@ export const wallet = {
     },
     clearAllTransactions(state) {
       state.transactions = [];
+    },
+    clearWallet(state) {
+      state.wallet = {};
+      state.transactions = [];
+      state.mnemonic = "";
     }
   },
   actions: {
@@ -26,6 +31,15 @@ export const wallet = {
       if (wallet) {
         commit("setWalletState", wallet);
       }
+    },
+    clearWallet({ commit }) {
+      const wallet = hdWalletP2pkh;
+      wallet.deleteWallet();
+
+      commit("clearWallet");
+
+      // Remove from localStorage
+      localStorage.removeItem("wallet");
     }
   },
   getters: {

@@ -83,6 +83,13 @@ export abstract class AbstractWallet {
         return {} as Coin;
     }
 
+    // Delete an entire wallet and all of its state
+    deleteWallet() {
+        this.coins = [];
+        this.secret = "";
+        this.id = "";
+    }
+
     // Get blockbook instance by ticker
     getBlockbook(ticker: string) {
         ticker = ticker.toLowerCase();
