@@ -2,6 +2,31 @@
 
 All notable changes to the Feirm PWA will be documented in this file.
 
+## Unreleased
+### Changed
+* Re-design of Marketplace overview page.
+* Addition of more options to the quick actions Marketplace menu.
+* Re-design of the wallet overview page.
+* Re-design of the receiving address component.
+* Live monitoring of an address to detect incoming payment.
+* Pre-loading of data (coin network information, transaction UTXOs).
+* Improved transaction history view.
+* Additional coin wallets are showcased on a carousel.
+* Wallet identifier is now based on a SHA-256 hash of the 24-word mnemonic.
+* Confirmed and unconfirmed balances are shown on wallet overview page.
+* Refresher to fetch wallet balances and organise transactions (wallet overview & individual wallet pages).
+* Re-design of the wallet creation and recovery process.
+* Real-time calculation of transaction value (including fees).
+* Success page when a transaction has been sent.
+* Establish WebSocket connection to every coin's Blockbook explorer upon startup.
+* Validate "to address" against coin network parameters before sending.
+* Show transaction fee and total cost on send coins component.
+* Remove wallet and all coins from storage.
+
+### Work in Progress
+* PGP Signed pages
+* Wallet deletion
+
 ## [1.1.4](https://github.com/feirm/app/commits/1.1.4) - 05-01-2020
 ### Changed
 * Fix bug which skipped over BIP32 indexes.
