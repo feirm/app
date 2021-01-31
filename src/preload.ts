@@ -54,13 +54,6 @@ export async function preload() {
             })
           }
 
-          // Fetch transaction data
-          try {
-            await wallet.getAllTransactions();
-          } catch (e) {
-            console.log("Error fetching all transactions...", e);
-          }
-
           // Fetch and decrypt contacts
           try {
             await tatsuyaService.fetchContacts().then(async (res) => {

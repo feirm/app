@@ -46,48 +46,7 @@
             </ion-card>
           </ion-slide>
         </ion-slides>
-
-        <!-- Showcase recent transactions -->
-        <ion-grid>
-          <ion-row>
-            <ion-col>
-              <h4>Recent Transactions</h4>
-            </ion-col>
-          </ion-row>
-          <ion-row>
-            <ion-col>
-              <ion-text class="ion-text-center" color="medium">
-                <p v-show="!store.getters.walletExists">Your transactions will appear here once you create your wallet.</p>
-                <p v-show="store.getters.walletExists && store.getters.allTransactions.length === 0">Any transactions you make throughout your wallet will appear here.</p>
-              </ion-text>
-
-              <!-- Transactions -->
-              <ion-item-group>
-                <ion-item button="true" lines="none" class="ion-no-padding" color="transparent" v-for="tx in store.getters.allTransactions" v-bind:key="tx.txid" @click="openBlockbook(tx.ticker, tx.txid)">
-                  <!-- Icons: incoming, outgoing or pending -->
-                  <ion-icon v-if="tx.confirmations > 0" slot="start" :color="!tx.isMine ? 'danger' : 'success'" :icon="!tx.isMine ? arrowUpCircleOutline : arrowDownCircleOutline"></ion-icon>
-                  <ion-icon v-if="tx.confirmations === 0" slot="start" color="warning" :icon="timeOutline"></ion-icon>
-
-                  <!-- Time received -->
-                  <ion-label>{{ formatDate(tx.blockTime) }}</ion-label>
-
-                  <!-- Value -->
-                  <ion-label slot="end" class="ion-text-right">{{ tx.value }} <b>{{ tx.ticker.toUpperCase() }}</b></ion-label>
-                </ion-item>
-              </ion-item-group>
-            </ion-col>
-          </ion-row>
-        </ion-grid>
     </ion-content>
-
-    <!-- Footer -->
-    <ion-footer class="ion-no-border ion-padding ion-text-center">
-      <ion-button color="light" shape="round">
-        <ion-icon slot="start" :icon="scanOutline"></ion-icon>
-        Scan
-      </ion-button>
-    </ion-footer>
-
   </ion-page>
 </template>
 
@@ -105,14 +64,8 @@ import {
   IonIcon,
   IonButton,
   IonButtons,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonFooter,
   IonRefresher,
   IonRefresherContent,
-  IonItemGroup,
-  IonItem,
   IonSlides,
   IonSlide,
   alertController,
@@ -140,14 +93,8 @@ export default defineComponent({
     IonIcon,
     IonButton,
     IonButtons,
-    IonGrid,
-    IonRow,
-    IonCol,
-    IonFooter,
     IonRefresher,
     IonRefresherContent,
-    IonItemGroup,
-    IonItem,
     IonSlides,
     IonSlide
   },
@@ -194,13 +141,6 @@ export default defineComponent({
 
     // Transaction and balance refresh
     const doRefresh = async (event: any) => {
-      console.log("Attempting to refresh balances and transactions...")
-
-      // Subsequently, get all transactions
-      await hdWalletP2pkh.getAllTransactions().then(() => {
-        event.target.complete();
-      })
-
       // Update balances for all coins
       const allCoins = hdWalletP2pkh.getAllCoins();
 
@@ -220,6 +160,8 @@ export default defineComponent({
           hdWalletP2pkh.saveToCache();
         });
       }
+
+      event.target.complete();
     }
 
     return {
