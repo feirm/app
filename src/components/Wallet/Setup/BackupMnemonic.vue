@@ -1,13 +1,4 @@
 <template>
-    <ion-header class="ion-no-border">
-      <ion-toolbar class="ion-text-center" color="transparent">
-        <ion-buttons slot="secondary">
-          <ion-button slot="icon-only" @click="closeModal">
-            <ion-icon :icon="closeOutline"></ion-icon>
-          </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
     <ion-content class="ion-padding ion-text-left" :fullscreen="true">
       <h3>Verifying your mnemonic backup</h3>
       <ion-text>
@@ -40,13 +31,10 @@
 import { defineComponent } from "vue";
 import {
   IonContent,
-  IonHeader,
-  IonToolbar,
   IonText,
   IonButton,
   IonFooter,
   IonChip,
-  IonIcon,
   modalController,
   alertController
 } from "@ionic/vue";
@@ -61,13 +49,10 @@ export default defineComponent({
   },
   components: {
     IonContent,
-    IonHeader,
-    IonToolbar,
     IonText,
     IonButton,
     IonFooter,
     IonChip,
-    IonIcon
   },
   data() {
     return {
