@@ -23,6 +23,7 @@
         >
           <!-- Show existing coins -->
           <ion-card
+            button="true"
             @click="detailedWallet(store.getters.walletState.id, coin.ticker)"
           >
             <ion-card-header class="ion-text-left">
@@ -165,8 +166,8 @@ export default defineComponent({
       if (this.store.getters.walletExists) {
         // Show an error as there is an issue with new coins right now
         const error = await alertController.create({
-          header: "Error!",
-          message: "This functionality is currently unavailable!",
+          header: "Maintenance mode",
+          message: "This functionality is currently disabled. Please try again later.",
           buttons: ["Close"],
         });
 
