@@ -68,9 +68,8 @@ export default defineComponent({
             // Create Feirm wallet
             wallet.addCoin("xfe");
 
-            // Save wallet to disk + cache
-            wallet.saveToDisk()
-            wallet.saveToCache()
+            // Save wallet
+            wallet.saveWallet();
 
             // Route to index
             this.router.push({ path: "/" })

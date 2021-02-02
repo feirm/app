@@ -19,7 +19,7 @@
       <ion-slides>
         <ion-slide
           v-for="coin in store.getters.walletState.coins"
-          v-bind:key="coin"
+          v-bind:key="coin.ticker"
         >
           <!-- Show existing coins -->
           <ion-card
@@ -283,9 +283,8 @@ export default defineComponent({
         // Fetch and set coin balances
         wallet.setBalances(coin.ticker, coin.extendedPublicKey);
 
-        // Save to disk and Vuex
-        wallet.saveToDisk();
-        wallet.saveToCache();
+        // Save wallet
+        wallet.saveWallet();
       }
     })
 

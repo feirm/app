@@ -46,11 +46,11 @@ export async function preload() {
 
             await axios.get(`https://cors-anywhere.feirm.com/${blockbookUrl}/api/v2/xpub/${xpub}`).then(res => {
               // Save balances
-              wallet.setBalance(coin.ticker, res.data.balance); // Confirmed balance
-              wallet.setUnconfirmedBalance(coin.ticker, res.data.unconfirmedBalance) // Unconfirmed balance
+              // wallet.setBalance(coin.ticker, res.data.balance); // Confirmed balance
+              // wallet.setUnconfirmedBalance(coin.ticker, res.data.unconfirmedBalance) // Unconfirmed balance
 
-              wallet.saveToDisk();
-              wallet.saveToCache();
+              // wallet.saveToDisk();
+              // wallet.saveToCache();
             })
           }
 

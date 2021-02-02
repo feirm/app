@@ -283,22 +283,8 @@ export abstract class AbstractWallet {
         )
     }
 
-    // Save to disk (localStorage)
-    async saveToDisk() {
-        const id = await this.getId();
-
-        // Construct an object which resembles a wallet
-        const wallet = {
-            id: id,
-            secret: this.getSecret(),
-            coins: this.getAllCoins()
-        } as Wallet;
-
-        localStorage.setItem("wallet", JSON.stringify(wallet));
-    }
-
-    // Save to cache (vuex)
-    async saveToCache() {
+    // Save wallet to localStorage and Vuex
+    async saveWallet() {
         // Construct an object which resembles a wallet
         const wallet = {
             id: await this.getId(),
@@ -306,7 +292,8 @@ export abstract class AbstractWallet {
             coins: this.getAllCoins()
         } as Wallet;
 
-        store.commit("setWalletState", wallet)
+        localStorage.setItem("wallet", JSON.stringify(wallet));
+        store.commit("setWalletState", wallet);
     }
 
     // Load wallet from disk

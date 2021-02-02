@@ -123,11 +123,8 @@ export default defineComponent({
                         // Generate a Feirm wallet
                         HDWalletP2PKH.addCoin("xfe");
 
-                        // Save wallet to disk
-                        await HDWalletP2PKH.saveToDisk();
-
-                        // Set wallet state in Vuex
-                        await HDWalletP2PKH.saveToCache();
+                        // Save wallet
+                        await HDWalletP2PKH.saveWallet();
 
                         // Dismiss loading prompt
                         a.dismiss();
