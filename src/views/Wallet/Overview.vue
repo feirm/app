@@ -147,7 +147,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, onMounted } from "vue";
 import {
   IonPage,
   IonContent,
@@ -264,6 +264,30 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const store = useStore();
+
+    // Execute on mount
+    onMounted(async () => {
+      // Fetch and store coin network data
+      await store.dispatch("setCoins");
+
+      // P2PKH wallet
+      const wallet = hdWalletP2pkh;
+
+      // Iterate over all of the coins
+      for (let i = 0; i < wallet.getAllCoins().length; i++) {
+        const coin = wallet.getAllCoins()[i];
+
+        // Establish a WebSocket connection
+        wallet.establishWss(coin.ticker);
+
+        // Fetch and set coin balances
+        wallet.setBalances(coin.ticker, coin.extendedPublicKey);
+
+        // Save to disk and Vuex
+        wallet.saveToDisk();
+        wallet.saveToCache();
+      }
+    })
 
     return {
       router,
