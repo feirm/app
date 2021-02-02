@@ -283,82 +283,6 @@ export abstract class AbstractWallet {
         )
     }
 
-    // Get transactions for ALL coins
-    async getAllTransactions() {
-        this.transactions = [];
-
-        const coins = this.getAllCoins();
-
-        for (let i = 0; i < coins.length; i++) {
-            // Individual coin and Blockbook
-            const coin = coins[i];
-            const blockbookUrl = this.getBlockbook(coin.ticker);
-            
-            await axios.get(
-                `https://cors-anywhere.feirm.com/${blockbookUrl}/api/v2/xpub/${coin.extendedPublicKey}?details=txs&tokens=used`
-            ).then(res => {
-                // Iterate through all transactions, and match them up with our tokens
-                const txs = res.data.transactions;
-                const tokens = res.data.tokens;
-
-                // If transactions are empty, return
-                if (!txs) {
-                    return;
-                }
-                
-                txs.forEach(tx => {
-                    // Set basic transaction properties
-                    const walletTx = {} as Transaction;
-                    walletTx.ticker = coin.ticker.toLocaleLowerCase();
-                    walletTx.txid = tx.txid;
-                    walletTx.blockTime = tx.blockTime;
-                    walletTx.confirmations = tx.confirmations;
-
-                    // Iterate through the transaction outputs and determine if the TX belongs to us
-                    tx.vout.forEach(vout => {
-                        // Exclude change addresses from this process
-                        tokens.forEach(token => {
-                            // Split the token so we can get the account (0 or 1);
-                            const splitToken = token.path.split("/");
-                            const index = parseInt(splitToken[4]);
-
-                            // Get the address (name) from token
-                            const address = token.name;
-
-                            // Not a change address, so continue
-                            if (index === 0) {
-                                // If the output includes our address, it means it is targeted to us - making it incoming
-                                if (vout.addresses.includes(address)) {
-                                    const value = new BigNumber(vout.value).dividedBy(100000000).toString();
-                                    walletTx.value = value;
-                                    walletTx.isMine = true;
-                                }
-                            }
-
-                            // It is a change address, so the transaction might be outgoing
-                            // so find the output, and deduct it from the original amount + fees
-                            if (index === 1) {
-                                if (vout.addresses.includes(address)) {
-                                    const txValue = new BigNumber(tx.value).dividedBy(100000000);
-                                    const changeOutput = new BigNumber(vout.value).dividedBy(100000000);
-                                    const amount = txValue.minus(changeOutput);
-                                    
-                                    walletTx.value = amount.toString();
-                                }
-                            }
-                        });
-                    })
-
-                    // Lastly, push the transaction to our TXs array
-                    this.transactions.push(walletTx);
-                })
-            });
-        }
-
-        // Update the state
-        store.commit("setAllTransactions", this.transactions);
-    }
-
     // Save to disk (localStorage)
     async saveToDisk() {
         const id = await this.getId();
@@ -375,21 +299,18 @@ export abstract class AbstractWallet {
 
     // Save to cache (vuex)
     async saveToCache() {
-        const id = await this.getId();
-
         // Construct an object which resembles a wallet
         const wallet = {
-            id: id,
+            id: await this.getId(),
             secret: this.getSecret(),
             coins: this.getAllCoins()
         } as Wallet;
 
         store.commit("setWalletState", wallet)
-        // TODO: Refactor ^^^^
     }
 
     // Load wallet from disk
-    async loadFromDisk(): Promise<Wallet> {
+    async loadFromDisk() {
         const wallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
 
         // Set the appropriate fields
