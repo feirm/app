@@ -75,7 +75,7 @@
       <ion-grid>
         <!-- 2 of 2 row -->
         <ion-row>
-          <ion-col class="ion-activatable ion-text-center grey-background">
+          <ion-col class="ion-activatable ion-text-center">
             <!-- Exchange -->
             <hr>
             <ion-icon color="success" :icon="swapHorizontalOutline" size="large"></ion-icon>
@@ -100,7 +100,7 @@
             <p>Coin settings</p>
             <ion-ripple-effect></ion-ripple-effect>
           </ion-col>
-          <ion-col class="ion-activatable ion-text-center grey-background">
+          <ion-col class="ion-activatable ion-text-center">
             <!-- Lottery -->
             <hr>
             <ion-icon color="dark" :icon="diceOutline" size="large"></ion-icon>
@@ -111,7 +111,7 @@
 
         <!-- 2 of 2 row -->
         <ion-row>
-          <ion-col class="ion-activatable ion-text-center grey-background">
+          <ion-col class="ion-activatable ion-text-center">
             <!-- Pay a Contact -->
             <hr>
             <ion-icon color="secondary" :icon="personOutline" size="large"></ion-icon>
@@ -299,10 +299,6 @@ ion-tab-button > ion-label {
 /* Column styling and classes */
 ion-col {
   font-size: 12px;
-}
-
-.grey-background {
-  background-color: var(--ion-color-light);
 }
 
 .dark-background {
