@@ -54,11 +54,8 @@
             </ion-tab-button>
           </ion-col>
           <ion-col>
-            <ion-tab-button>
-              <ion-icon
-                color="primary"
-                :icon="walletOutline"
-              ></ion-icon>
+            <ion-tab-button @click="sendModal">
+              <ion-icon color="primary" :icon="walletOutline"></ion-icon>
               <ion-label>Send</ion-label>
             </ion-tab-button>
           </ion-col>
@@ -68,8 +65,17 @@
               <ion-label>Receive</ion-label>
             </ion-tab-button>
           </ion-col>
+          <ion-col>
+            <ion-tab-button>
+              <ion-icon color="tertiary" :icon="timerOutline"></ion-icon>
+              <ion-label>History</ion-label>
+            </ion-tab-button>
+          </ion-col>
         </ion-row>
       </ion-grid>
+
+      <!-- A bit of spacing -->
+      <hr />
 
       <!-- Wallet activities -->
       <ion-grid>
@@ -77,15 +83,23 @@
         <ion-row>
           <ion-col class="ion-activatable ion-text-center">
             <!-- Exchange -->
-            <hr>
-            <ion-icon color="success" :icon="swapHorizontalOutline" size="large"></ion-icon>
+            <hr />
+            <ion-icon
+              color="success"
+              :icon="swapHorizontalOutline"
+              size="large"
+            ></ion-icon>
             <p>Exchange</p>
             <ion-ripple-effect></ion-ripple-effect>
           </ion-col>
           <ion-col class="ion-activatable ion-text-center grey-background">
             <!-- Faucet -->
-            <hr>
-            <ion-icon color="danger" :icon="giftOutline" size="large"></ion-icon>
+            <hr />
+            <ion-icon
+              color="danger"
+              :icon="giftOutline"
+              size="large"
+            ></ion-icon>
             <p>Earn some XFE</p>
             <ion-ripple-effect></ion-ripple-effect>
           </ion-col>
@@ -95,14 +109,18 @@
         <ion-row>
           <ion-col class="ion-activatable ion-text-center grey-background">
             <!-- Coin Settings -->
-            <hr>
-            <ion-icon color="primary" :icon="settingsOutline" size="large"></ion-icon>
+            <hr />
+            <ion-icon
+              color="primary"
+              :icon="settingsOutline"
+              size="large"
+            ></ion-icon>
             <p>Coin settings</p>
             <ion-ripple-effect></ion-ripple-effect>
           </ion-col>
           <ion-col class="ion-activatable ion-text-center">
             <!-- Lottery -->
-            <hr>
+            <hr />
             <ion-icon color="dark" :icon="diceOutline" size="large"></ion-icon>
             <p>Lottery</p>
             <ion-ripple-effect></ion-ripple-effect>
@@ -113,8 +131,12 @@
         <ion-row>
           <ion-col class="ion-activatable ion-text-center">
             <!-- Pay a Contact -->
-            <hr>
-            <ion-icon color="secondary" :icon="personOutline" size="large"></ion-icon>
+            <hr />
+            <ion-icon
+              color="secondary"
+              :icon="personOutline"
+              size="large"
+            ></ion-icon>
             <p>Pay a contact</p>
             <ion-ripple-effect></ion-ripple-effect>
           </ion-col>
@@ -125,7 +147,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from "vue";
+import { defineComponent } from "vue";
 import {
   IonPage,
   IonContent,
@@ -147,6 +169,7 @@ import {
   IonCol,
   IonRippleEffect,
   alertController,
+  modalController,
 } from "@ionic/vue";
 import {
   walletOutline,
@@ -157,14 +180,16 @@ import {
   giftOutline,
   settingsOutline,
   diceOutline,
-  personOutline
+  personOutline,
+  timerOutline
 } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { DateTime } from "luxon";
 
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
-import axios from "axios";
+
+import SendCoins from "@/components/Wallet/Send/Send.vue";
 
 export default defineComponent({
   name: "WalletOverview",
@@ -187,7 +212,7 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    IonRippleEffect
+    IonRippleEffect,
   },
   data() {
     return {
@@ -203,7 +228,8 @@ export default defineComponent({
         // Show an error as there is an issue with new coins right now
         const error = await alertController.create({
           header: "Maintenance mode",
-          message: "This functionality is currently disabled. Please try again later.",
+          message:
+            "This functionality is currently disabled. Please try again later.",
           buttons: ["Close"],
         });
 
@@ -221,6 +247,19 @@ export default defineComponent({
       const blockbookUrl = hdWalletP2pkh.getBlockbook(ticker);
       window.open(blockbookUrl + "/tx/" + txid);
     },
+    // Open modal to send XFE
+    async sendModal() {
+      const modal = await modalController.create({
+        component: SendCoins,
+        cssClass: "sendCoinsModal",
+        componentProps: {
+          coin: "Feirm",
+          ticker: "xfe",
+        },
+      });
+
+      return modal.present();
+    },
   },
   setup() {
     const router = useRouter();
@@ -237,7 +276,8 @@ export default defineComponent({
       giftOutline,
       settingsOutline,
       diceOutline,
-      personOutline
+      personOutline,
+      timerOutline
     };
   },
 });
