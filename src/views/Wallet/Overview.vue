@@ -264,7 +264,6 @@ ion-col {
 }
 
 .grey-background {
-  background-color: var(--ion-color-dark);
-  color: var(--ion-color-light)
+  background-color: var(--ion-color-light);
 }
 </style>
