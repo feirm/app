@@ -82,7 +82,7 @@
             <p>Exchange</p>
             <ion-ripple-effect></ion-ripple-effect>
           </ion-col>
-          <ion-col class="ion-activatable ion-text-center dark-background">
+          <ion-col class="ion-activatable ion-text-center grey-background">
             <!-- Faucet -->
             <hr>
             <ion-icon color="danger" :icon="giftOutline" size="large"></ion-icon>
@@ -93,7 +93,7 @@
 
         <!-- 2 of 2 row -->
         <ion-row>
-          <ion-col class="ion-activatable ion-text-center dark-background">
+          <ion-col class="ion-activatable ion-text-center grey-background">
             <!-- Coin Settings -->
             <hr>
             <ion-icon color="primary" :icon="settingsOutline" size="large"></ion-icon>
@@ -161,7 +161,6 @@ import {
 } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { preload } from "@/preload";
 import { DateTime } from "luxon";
 
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
@@ -227,42 +226,6 @@ export default defineComponent({
     const router = useRouter();
     const store = useStore();
 
-    onMounted(async () => {
-      await preload();
-    });
-
-    // Transaction and balance refresh
-    const doRefresh = async (event: any) => {
-      // Update balances for all coins
-      const allCoins = hdWalletP2pkh.getAllCoins();
-
-      for (let i = 0; i < allCoins.length; i++) {
-        // Get the blockbook instance for our coin
-        const blockbookUrl = hdWalletP2pkh.getBlockbook(allCoins[i].ticker);
-
-        // Get the balances using the XPUB
-        const xpub = hdWalletP2pkh.getXpub(allCoins[i].ticker);
-        await axios
-          .get(
-            `https://cors-anywhere.feirm.com/${blockbookUrl}/api/v2/xpub/${xpub}`
-          )
-          .then((res) => {
-            // Set balances
-            hdWalletP2pkh.setBalance(allCoins[i].ticker, res.data.balance); // Confirmed balance
-            hdWalletP2pkh.setUnconfirmedBalance(
-              allCoins[i].ticker,
-              res.data.unconfirmedBalance
-            ); // Unconfirmed balance
-
-            // Save balances
-            hdWalletP2pkh.saveToDisk();
-            hdWalletP2pkh.saveToCache();
-          });
-      }
-
-      event.target.complete();
-    };
-
     return {
       router,
       store,
@@ -274,8 +237,7 @@ export default defineComponent({
       giftOutline,
       settingsOutline,
       diceOutline,
-      personOutline,
-      doRefresh,
+      personOutline
     };
   },
 });
@@ -301,8 +263,7 @@ ion-col {
   font-size: 12px;
 }
 
-.dark-background {
-  background-color: var(--ion-color-dark);
-  color: var(--ion-color-light);
+.grey-background {
+  background-color: var(--ion-color-light);
 }
 </style>
