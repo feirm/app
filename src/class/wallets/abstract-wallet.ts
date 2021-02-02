@@ -196,24 +196,34 @@ export abstract class AbstractWallet {
         }
     }
 
-    // Set confirmed balance
-    setBalance(ticker: string, amount: string) {
-        // Update coins array
-        for (let i = 0; i < this.coins.length; i++) {
-            if (ticker.toLocaleLowerCase() === this.coins[i].ticker.toLocaleLowerCase()) {
-                // Update the balance
-                this.coins[i].balance = amount;
+    // Fetch and set confirmed + unconfirmed balances
+    setBalances(ticker: string, xpub: string) {
+        // Get WSS connection for coin
+        const ws = this.getWss(ticker);
+
+        // Query for balances
+        // But first, construct a payload
+        const payload = {
+            method: "getAccountInfo",
+            params: {
+                descriptor: xpub
             }
         }
-    }
 
-    // Set unconfirmed balance
-    setUnconfirmedBalance(ticker: string, amount: string) {
-        // Update coins array
-        for (let i = 0; i < this.coins.length; i++) {
-            if (ticker.toLocaleLowerCase() === this.coins[i].ticker.toLocaleLowerCase()) {
-                // Update the balance
-                this.coins[i].unconfirmedBalance = amount;
+        ws.onopen = () => {
+            ws.send(JSON.stringify(payload));
+        }
+
+        // Listen for message and get balance data
+        const self = this; // Hacky work-around
+        ws.onmessage = function(msg) {
+            const data = JSON.parse(msg.data).data;
+
+            // Iterate over coins
+            // Hardcode for XFE
+            for (let i = 0; i < self.coins.length; i++) {
+                self.coins[i].balance = data.balance;
+                self.coins[i].unconfirmedBalance = data.unconfirmedBalance;
             }
         }
     }
