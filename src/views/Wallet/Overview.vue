@@ -42,19 +42,6 @@
             </ion-card-header>
           </ion-card>
         </ion-slide>
-
-        <!-- Show add a wallet card if no wallet is present -->
-        <ion-slide v-show="!store.getters.walletState.coins">
-          <ion-card @click="addCoin">
-            <ion-card-header class="ion-text-left">
-              <ion-text style="color: white">
-                <h3>Add a wallet</h3>
-                <p>It's free and we support multiple assets!</p>
-              </ion-text>
-              <ion-button @click="addCoin">Add now</ion-button>
-            </ion-card-header>
-          </ion-card>
-        </ion-slide>
       </ion-slides>
 
       <!-- Quick actions menu -->
