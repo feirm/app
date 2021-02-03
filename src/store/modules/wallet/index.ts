@@ -46,7 +46,7 @@ export const wallet = {
     // Wallet getters
     walletState: state => state.wallet,
     walletExists: state => {
-      if (state.wallet.coins) {
+      if (state.wallet.coins.length !== 0) {
         return true;
       }
 
