@@ -59,7 +59,7 @@ export default defineComponent({
         }
     },
     methods: {
-        importWallet(secret: string) {
+        async importWallet(secret: string) {
             const wallet = hdWalletP2pkh;
 
             // Set mnemonic
@@ -67,6 +67,10 @@ export default defineComponent({
 
             // Create Feirm wallet
             wallet.addCoin("xfe");
+
+            // Set other wallet properties
+            const id = await wallet.getId();
+            wallet.setId(id);
 
             // Save wallet
             wallet.saveWallet();
