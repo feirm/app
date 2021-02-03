@@ -16,7 +16,7 @@
         <ion-refresher-content></ion-refresher-content>
       </ion-refresher>
 
-      <ion-slides>
+      <ion-slides @ionSLideDidChange="setSlideIndex($event)">
         <ion-slide
           v-for="coin in store.getters.walletState.coins"
           v-bind:key="coin.ticker"
@@ -157,6 +157,7 @@ export default defineComponent({
   },
   data() {
     return {
+      slideIndex: 0,
       wallet: hdWalletP2pkh,
     };
   },
@@ -190,12 +191,15 @@ export default defineComponent({
     },
     // Open modal to send XFE
     async sendModal() {
+      // Fetch coin based on slide index
+      const coin = this.wallet.getAllCoins()[this.slideIndex];
+
       const modal = await modalController.create({
         component: SendCoins,
         cssClass: "sendCoinsModal",
         componentProps: {
-          coin: "Feirm",
-          ticker: "xfe",
+          coin: coin.name,
+          ticker: coin.ticker,
         },
       });
 
@@ -203,17 +207,27 @@ export default defineComponent({
     },
     // Receiving address modal for XFE
     async receiveModal() {
+      // Fetch coin based on slide index
+      const coin = this.wallet.getAllCoins()[this.slideIndex];
+
       const modal = await modalController.create({
         component: ReceivingAddress,
         cssClass: "receivingAddressModal",
         componentProps: {
-          coin: "Feirm",
-          ticker: "xfe",
+          coin: coin.name,
+          ticker: coin.ticker,
         },
       });
 
       return modal.present();
     },
+
+    // Set slide index
+    setSlideIndex(e: any) {
+      e.target.getActiveIndex().then(i => {
+        this.slideIndex = i;
+      })
+    }
   },
   setup() {
     const router = useRouter();
