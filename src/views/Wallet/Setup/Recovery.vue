@@ -34,7 +34,9 @@ import {
     IonBackButton,
     IonText,
     IonTextarea,
-    IonButton
+    IonButton,
+    loadingController,
+    alertController
 } from "@ionic/vue";
 import { closeOutline } from "ionicons/icons";
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
@@ -62,21 +64,41 @@ export default defineComponent({
         async importWallet(secret: string) {
             const wallet = hdWalletP2pkh;
 
-            // Set mnemonic
-            wallet.setSecret(secret);
+            await loadingController.create({
+                message: "Importing..."
+            }).then(a => {
+                a.present().then(async () => {
+                    // Set mnemonic
+                    wallet.setSecret(secret);
 
-            // Create Feirm wallet
-            wallet.addCoin("xfe");
+                    // Create Feirm wallet
+                    wallet.addCoin("xfe");
 
-            // Set other wallet properties
-            const id = await wallet.getId();
-            wallet.setId(id);
+                    // Set other wallet properties
+                    const id = await wallet.getId();
+                    wallet.setId(id);
 
-            // Save wallet
-            wallet.saveWallet();
+                    // Save wallet
+                    wallet.saveWallet();
 
-            // Route to index
-            this.router.push({ path: "/" })
+                    // Dismiss
+                    a.dismiss();
+
+                    // Route to index
+                    this.router.push({ path: "/" })
+                })
+                .catch(async e => {
+                    a.dismiss();
+
+                    const error = await alertController.create({
+                        header: "Recovery error!",
+                        message: e,
+                        buttons: ["Close"]
+                    })
+
+                    return error.present();
+                })
+            })
         }
     },
     setup() {
