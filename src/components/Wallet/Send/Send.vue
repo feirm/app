@@ -22,21 +22,34 @@
 
     <!-- Amount input -->
     <ion-item lines="none" color="transparent">
-      <ion-label position="stacked">Amount ({{ this.$props.ticker.toUpperCase() }})</ion-label>
-      <ion-input v-model="amount" v-on:ionChange="calculateTotal($event.target.value)" type="number" min="0"></ion-input>
+      <ion-label position="stacked"
+        >Amount ({{ this.$props.ticker.toUpperCase() }})</ion-label
+      >
+      <ion-input
+        v-model="amount"
+        v-on:ionChange="calculateTotal($event.target.value)"
+        type="number"
+        min="0"
+      ></ion-input>
     </ion-item>
 
-    <hr>
+    <hr />
 
     <!-- Transaction fee -->
     <ion-item lines="none" color="transparent">
-      <ion-label position="stacked">Transaction Fee ({{ this.$props.ticker.toUpperCase() }})</ion-label>
+      <ion-label position="stacked"
+        >Transaction Fee ({{ this.$props.ticker.toUpperCase() }})</ion-label
+      >
       <ion-input v-model="fee" disabled></ion-input>
     </ion-item>
 
     <!-- Total amount inc. fee -->
     <ion-item lines="none" color="transparent">
-      <ion-label position="stacked">Amount including fee ({{ this.$props.ticker.toUpperCase() }})</ion-label>
+      <ion-label position="stacked"
+        >Amount including fee ({{
+          this.$props.ticker.toUpperCase()
+        }})</ion-label
+      >
       <ion-input v-model="total" disabled></ion-input>
     </ion-item>
 
@@ -66,7 +79,12 @@ import {
 } from "@ionic/vue";
 import { Coin, CreateSignedTransaction } from "@/lib/wallet";
 import ScanQR from "@/components/Wallet/ScanQR.vue";
-import { sendSharp, qrCodeOutline, closeOutline, scanOutline } from "ionicons/icons";
+import {
+  sendSharp,
+  qrCodeOutline,
+  closeOutline,
+  scanOutline,
+} from "ionicons/icons";
 import bip21 from "bip21";
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 import BigNumber from "bignumber.js";
@@ -100,7 +118,7 @@ export default defineComponent({
       try {
         toOutputScript(addressInput, network.p2pkh);
       } catch (e) {
-        return this.sendDisabled = true;
+        return (this.sendDisabled = true);
       }
 
       this.sendDisabled = false;
@@ -110,60 +128,93 @@ export default defineComponent({
       const fee = new BigNumber(this.fee);
       const newAmount = new BigNumber(amount || 0);
 
-      this.total = fee.plus(newAmount).toString()
+      this.total = fee.plus(newAmount).toString();
     },
     async closeModal() {
       await modalController.dismiss();
     },
     async sendCoins() {
       // Convert amounts into Satoshis
-      const amount = new BigNumber(this.amount).multipliedBy(100000000).toString();
+      const amount = new BigNumber(this.amount)
+        .multipliedBy(100000000)
+        .toString();
       const fee = new BigNumber(this.fee).multipliedBy(100000000).toString();
 
-      // Wrap in a loading controller
-      await loadingController.create({
-        message: "Creating & broadcasting transaction..."
-      }).then(a => {
-        a.present().then(async () => {
-          // Fetch UTXOs
-          const utxos = await hdWalletP2pkh.getUtxos(this.$props.ticker!);
+      // Prompt for confirmation
+      const confirm = await alertController.create({
+        header: "Confirmation",
+        message: "Are you sure you want to create this transaction?",
+        buttons: [
+          {
+            text: "Cancel",
+          },
+          {
+            text: "Confirm",
+            handler: async () => {
+              // Wrap in a loading controller
+              await loadingController
+                .create({
+                  message: "Creating & broadcasting transaction...",
+                })
+                .then((a) => {
+                  a.present()
+                    .then(async () => {
+                      // Fetch UTXOs
+                      const utxos = await hdWalletP2pkh.getUtxos(
+                        this.$props.ticker!
+                      );
 
-          // Create and return a signed psbt
-          const tx = hdWalletP2pkh.createSignedTransaction(this.$props.ticker!, this.toAddress, amount, fee, utxos);
+                      // Create and return a signed psbt
+                      const tx = hdWalletP2pkh.createSignedTransaction(
+                        this.$props.ticker!,
+                        this.toAddress,
+                        amount,
+                        fee,
+                        utxos
+                      );
 
-          // Submit to Blockbook
-          await hdWalletP2pkh.submitTx(this.$props.ticker!, tx.extractTransaction(true).toHex())
+                      // Submit to Blockbook
+                      await hdWalletP2pkh.submitTx(
+                        this.$props.ticker!,
+                        tx.extractTransaction(true).toHex()
+                      );
 
-          // Dismiss modal
-          a.dismiss();
+                      // Dismiss modal
+                      a.dismiss();
 
-          // Create success popup
-          const success = await modalController.create({
-            component: SendSuccess,
-            componentProps: {
-              amount: this.amount,
-              ticker: this.$props.ticker!,
-              address: this.toAddress
-            }
-          })
+                      // Create success popup
+                      const success = await modalController.create({
+                        component: SendSuccess,
+                        componentProps: {
+                          amount: this.amount,
+                          ticker: this.$props.ticker!,
+                          address: this.toAddress,
+                        },
+                      });
 
-          return success.present();
-        })
-        // Error time!
-        .catch(async e => {
-          // Dismiss modal
-          a.dismiss();
+                      return success.present();
+                    })
+                    // Error time!
+                    .catch(async (e) => {
+                      // Dismiss modal
+                      a.dismiss();
 
-          // Create error alert
-          const error = await alertController.create({
-            header: "Error!",
-            message: e,
-            buttons: ["Close"]
-          })
+                      // Create error alert
+                      const error = await alertController.create({
+                        header: "Error!",
+                        message: e,
+                        buttons: ["Close"],
+                      });
 
-          return error.present();
-        })
-      })
+                      return error.present();
+                    });
+                });
+            },
+          },
+        ],
+      });
+
+      return confirm.present();
     },
     async scanQr() {
       const modal = await modalController.create({
@@ -192,7 +243,6 @@ export default defineComponent({
         // Update the address and amount fields to match one on payment
         this.toAddress = decodedPayment.address;
         this.amount = decodedPayment.options.amount;
-        
       } catch (e) {
         const alert = await alertController.create({
           header: "Error decoding payment request!",
@@ -210,12 +260,12 @@ export default defineComponent({
 
     // Set fee for 10 blocks confirmation
     const txFee = await axios.get(
-      'https://cors-anywhere.feirm.com/'
-      + blockbookUrl + 
-      '/api/v2/estimatefee/10'
-    )
+      "https://cors-anywhere.feirm.com/" +
+        blockbookUrl +
+        "/api/v2/estimatefee/10"
+    );
 
-    this.fee = txFee.data.result; 
+    this.fee = txFee.data.result;
   },
   setup() {
     return {
@@ -223,7 +273,7 @@ export default defineComponent({
       sendSharp,
       qrCodeOutline,
       closeOutline,
-      scanOutline
+      scanOutline,
     };
   },
   components: {
@@ -234,7 +284,7 @@ export default defineComponent({
     IonButton,
     IonIcon,
     IonFab,
-    IonFabButton
+    IonFabButton,
   },
 });
 </script>
