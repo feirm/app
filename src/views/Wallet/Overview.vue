@@ -86,75 +86,6 @@
           </ion-col>
         </ion-row>
       </ion-grid>
-
-      <!-- A bit of spacing -->
-      <hr />
-
-      <!-- Wallet activities -->
-      <ion-grid>
-        <!-- 2 of 2 row -->
-        <ion-row>
-          <ion-col class="ion-activatable ion-text-center">
-            <!-- Exchange -->
-            <hr />
-            <ion-icon
-              color="success"
-              :icon="swapHorizontalOutline"
-              size="large"
-            ></ion-icon>
-            <p>Exchange</p>
-            <ion-ripple-effect></ion-ripple-effect>
-          </ion-col>
-          <ion-col class="ion-activatable ion-text-center grey-background">
-            <!-- Faucet -->
-            <hr />
-            <ion-icon
-              color="danger"
-              :icon="giftOutline"
-              size="large"
-            ></ion-icon>
-            <p>Earn some XFE</p>
-            <ion-ripple-effect></ion-ripple-effect>
-          </ion-col>
-        </ion-row>
-
-        <!-- 2 of 2 row -->
-        <ion-row>
-          <ion-col class="ion-activatable ion-text-center grey-background">
-            <!-- Coin Settings -->
-            <hr />
-            <ion-icon
-              color="primary"
-              :icon="settingsOutline"
-              size="large"
-            ></ion-icon>
-            <p>Coin settings</p>
-            <ion-ripple-effect></ion-ripple-effect>
-          </ion-col>
-          <ion-col class="ion-activatable ion-text-center">
-            <!-- Lottery -->
-            <hr />
-            <ion-icon color="dark" :icon="diceOutline" size="large"></ion-icon>
-            <p>Lottery</p>
-            <ion-ripple-effect></ion-ripple-effect>
-          </ion-col>
-        </ion-row>
-
-        <!-- 2 of 2 row -->
-        <ion-row>
-          <ion-col class="ion-activatable ion-text-center">
-            <!-- Pay a Contact -->
-            <hr />
-            <ion-icon
-              color="secondary"
-              :icon="personOutline"
-              size="large"
-            ></ion-icon>
-            <p>Pay a contact</p>
-            <ion-ripple-effect></ion-ripple-effect>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
     </ion-content>
   </ion-page>
 </template>
@@ -180,7 +111,6 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonRippleEffect,
   alertController,
   modalController,
   loadingController,
@@ -190,11 +120,6 @@ import {
   addCircleOutline,
   scanOutline,
   qrCodeOutline,
-  swapHorizontalOutline,
-  giftOutline,
-  settingsOutline,
-  diceOutline,
-  personOutline,
   timerOutline,
 } from "ionicons/icons";
 import { useRouter } from "vue-router";
@@ -229,7 +154,6 @@ export default defineComponent({
     IonGrid,
     IonRow,
     IonCol,
-    IonRippleEffect,
   },
   data() {
     return {
@@ -367,11 +291,6 @@ export default defineComponent({
       addCircleOutline,
       scanOutline,
       qrCodeOutline,
-      swapHorizontalOutline,
-      giftOutline,
-      settingsOutline,
-      diceOutline,
-      personOutline,
       timerOutline,
     };
   },
