@@ -10,7 +10,6 @@ import { Wallet } from "@/models/wallet";
 import { store } from "@/store";
 import { entropyToMnemonic, mnemonicToSeedSync, validateMnemonic } from "bip39";
 import axios from "axios";
-import BigNumber from "bignumber.js";
 import { fromSeed } from "bip32";
 
 export abstract class AbstractWallet {
@@ -147,15 +146,8 @@ export abstract class AbstractWallet {
         const mnemonic = this.getSecret();
         const seed = mnemonicToSeedSync(mnemonic);
 
-        console.log("add coin mnemonic:", mnemonic);
-
         // Derive the HD wallet data
-        let index;
-        if (coinData.bip44) {
-            index = coinData.bip44;
-        } else {
-            index = coinData.hdIndex;
-        }
+        const index = coinData.hdIndex;
 
         // New instance of the coin object
         const coin = {} as Coin;
@@ -225,7 +217,21 @@ export abstract class AbstractWallet {
                 self.coins[i].balance = data.balance;
                 self.coins[i].unconfirmedBalance = data.unconfirmedBalance;
             }
+
+            // Update store
+            store.commit("setWalletState", self.getWallet())
         }
+    }
+
+    // Return an object of the entire wallet
+    getWallet(): Wallet {
+        const wallet = {
+            id: this.id,
+            secret: this.secret,
+            coins: this.coins
+        } as Wallet;
+
+        return wallet;
     }
 
     // Fetch the UTXOs for a coin
@@ -283,17 +289,11 @@ export abstract class AbstractWallet {
         )
     }
 
-    // Save wallet to localStorage and Vuex
-    async saveWallet() {
-        // Construct an object which resembles a wallet
-        const wallet = {
-            id: await this.getId(),
-            secret: this.getSecret(),
-            coins: this.getAllCoins()
-        } as Wallet;
-
-        localStorage.setItem("wallet", JSON.stringify(wallet));
+    // Save wallet to Vuex and localStorage
+    saveWallet() {
+        const wallet = this.getWallet();
         store.commit("setWalletState", wallet);
+        localStorage.setItem("wallet", JSON.stringify(wallet));
     }
 
     // Load wallet from disk
