@@ -60,7 +60,7 @@
             </ion-tab-button>
           </ion-col>
           <ion-col>
-            <ion-tab-button>
+            <ion-tab-button @click="receiveModal">
               <ion-icon color="danger" :icon="qrCodeOutline"></ion-icon>
               <ion-label>Receive</ion-label>
             </ion-tab-button>
@@ -190,6 +190,7 @@ import { DateTime } from "luxon";
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 
 import SendCoins from "@/components/Wallet/Send/Send.vue";
+import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
 
 export default defineComponent({
   name: "WalletOverview",
@@ -252,6 +253,19 @@ export default defineComponent({
       const modal = await modalController.create({
         component: SendCoins,
         cssClass: "sendCoinsModal",
+        componentProps: {
+          coin: "Feirm",
+          ticker: "xfe",
+        },
+      });
+
+      return modal.present();
+    },
+    // Receiving address modal for XFE
+    async receiveModal() {
+      const modal = await modalController.create({
+        component: ReceivingAddress,
+        cssClass: "receivingAddressModal",
         componentProps: {
           coin: "Feirm",
           ticker: "xfe",
