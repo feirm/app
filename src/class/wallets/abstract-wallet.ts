@@ -292,6 +292,11 @@ export abstract class AbstractWallet {
     // Save wallet to Vuex and localStorage
     saveWallet() {
         const wallet = this.getWallet();
+
+        if (!Array(wallet.coins) || !wallet.coins.length) {
+            return;
+        }
+
         store.commit("setWalletState", wallet);
         localStorage.setItem("wallet", JSON.stringify(wallet));
     }
