@@ -16,8 +16,8 @@
         <ion-refresher-content></ion-refresher-content>
       </ion-refresher>
 
-      <ion-slides @ionSLideDidChange="setSlideIndex($event)">
-        <ion-slide
+      <swiper @slideChange="setSlideIndex($event)" :options="slideOptions">
+        <swiper-slide
           v-for="coin in store.getters.walletState.coins"
           v-bind:key="coin.ticker"
         >
@@ -41,10 +41,10 @@
               </ion-text>
             </ion-card-header>
           </ion-card>
-        </ion-slide>
+        </swiper-slide>
 
         <!-- Show add a wallet card if no wallet is present -->
-        <ion-slide v-show="!store.getters.walletState.id">
+        <swiper-slide v-show="!store.getters.walletState.id">
           <ion-card @click="addCoin">
             <ion-card-header class="ion-text-left">
               <ion-text style="color: white">
@@ -54,8 +54,8 @@
               <ion-button @click="addCoin">Add now</ion-button>
             </ion-card-header>
           </ion-card>
-        </ion-slide>
-      </ion-slides>
+        </swiper-slide>
+      </swiper>
 
       <!-- Quick actions menu -->
       <ion-grid>
@@ -106,8 +106,6 @@ import {
   IonButtons,
   IonRefresher,
   IonRefresherContent,
-  IonSlides,
-  IonSlide,
   IonGrid,
   IonRow,
   IonCol,
@@ -122,6 +120,9 @@ import {
   qrCodeOutline,
   timerOutline,
 } from "ionicons/icons";
+
+import { Swiper, SwiperSlide } from "swiper/vue";
+
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { DateTime } from "luxon";
@@ -149,11 +150,11 @@ export default defineComponent({
     IonButtons,
     IonRefresher,
     IonRefresherContent,
-    IonSlides,
-    IonSlide,
     IonGrid,
     IonRow,
     IonCol,
+    Swiper,
+    SwiperSlide
   },
   data() {
     return {
@@ -223,15 +224,19 @@ export default defineComponent({
     },
 
     // Set slide index
-    setSlideIndex(e: any) {
-      e.target.getActiveIndex().then(i => {
-        this.slideIndex = i;
-      })
+    setSlideIndex(swiper) {
+      this.slideIndex = swiper.activeIndex;
     }
   },
   setup() {
     const router = useRouter();
     const store = useStore();
+
+    // Slider options
+    const slideOptions = {
+      snapOnRelease: true,
+      centeredSlides: true
+    };
 
     // Execute on mount
     onMounted(async () => {
@@ -306,12 +311,18 @@ export default defineComponent({
       scanOutline,
       qrCodeOutline,
       timerOutline,
+      slideOptions
     };
   },
 });
 </script>
 
 <style scoped>
+/* Swiper */
+.swiper-slide {
+  width: 100%;
+}
+
 /* Card header */
 ion-card {
   background-image: url("../../assets/img/covers/feirm.png"),
