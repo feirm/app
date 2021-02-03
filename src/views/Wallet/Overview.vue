@@ -183,6 +183,7 @@ import {
   IonRippleEffect,
   alertController,
   modalController,
+  loadingController,
 } from "@ionic/vue";
 import {
   walletOutline,
@@ -194,7 +195,7 @@ import {
   settingsOutline,
   diceOutline,
   personOutline,
-  timerOutline
+  timerOutline,
 } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
@@ -204,6 +205,8 @@ import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 
 import SendCoins from "@/components/Wallet/Send/Send.vue";
 import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
+import tatsuyaService from "@/apiService/tatsuyaService";
+import { DecryptContacts, EncryptedContact } from "@/lib/contacts";
 
 export default defineComponent({
   name: "WalletOverview",
@@ -294,27 +297,68 @@ export default defineComponent({
 
     // Execute on mount
     onMounted(async () => {
-      // Fetch and store coin network data
-      await store.dispatch("setCoins");
+      await loadingController.create({
+        message: "Loading..."
+      }).then((a) => {
+        // Loading popup
+        a.present().then(async () => {
+          // Fetch and store coin network data
+          await store.dispatch("setCoins");
 
-      // P2PKH wallet
-      const wallet = hdWalletP2pkh;
+          // P2PKH wallet
+          const wallet = hdWalletP2pkh;
 
-      // Iterate over all of the coins
-      for (let i = 0; i < wallet.getAllCoins().length; i++) {
-        const coin = wallet.getAllCoins()[i];
+          // Iterate over all of the coins
+          for (let i = 0; i < wallet.getAllCoins().length; i++) {
+            const coin = wallet.getAllCoins()[i];
 
-        // Establish a WebSocket connection
-        wallet.establishWss(coin.ticker);
+            // Establish a WebSocket connection
+            wallet.establishWss(coin.ticker);
 
-        // Fetch and set coin balances
-        wallet.setBalances(coin.ticker, coin.extendedPublicKey);
-      }
+            // Fetch and set coin balances
+            wallet.setBalances(coin.ticker, coin.extendedPublicKey);
+          }
 
-      // Save wallet
-      wallet.saveWallet();
+          // Save wallet
+          wallet.saveWallet();
 
-    })
+          // Fetch and decrypt contacts
+          // Fetch and decrypt contacts
+          try {
+            await tatsuyaService.fetchContacts().then(async (res) => {
+              // Set the encrypted contacts array
+              const contacts = res.data as EncryptedContact[];
+              if (!contacts) {
+                return;
+              }
+
+              // Attempt to decrypt contacts array
+              await DecryptContacts(contacts)
+                .then((decryptedContacts) => {
+                  store.commit("setContacts", decryptedContacts);
+                })
+                .catch((e) => {
+                  console.log(e);
+                });
+            });
+          } catch (e) {
+            // Dismiss loading popup
+            a.dismiss();
+
+            // Error alert
+            const error = await alertController.create({
+              header: "Contact decryption error!",
+              message: e,
+              buttons: ["Close"]
+            })
+
+            return error.present();
+          }
+
+          a.dismiss();
+        });
+      });
+    });
 
     return {
       router,
@@ -328,7 +372,7 @@ export default defineComponent({
       settingsOutline,
       diceOutline,
       personOutline,
-      timerOutline
+      timerOutline,
     };
   },
 });
