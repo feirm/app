@@ -147,7 +147,14 @@ export abstract class AbstractWallet {
         const seed = mnemonicToSeedSync(mnemonic);
 
         // Derive the HD wallet data
-        const index = coinData.hdIndex;
+        // Support for clients that might be using old API
+        let index = 0;
+        if (coinData.hdIndex) {
+            index = coinData.hdIndex;
+        } else {
+            index = coinData.bip44;
+        }
+        
 
         // New instance of the coin object
         const coin = {} as Coin;
