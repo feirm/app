@@ -16,7 +16,7 @@
         <ion-refresher-content></ion-refresher-content>
       </ion-refresher>
 
-      <swiper @slideChange="setSlideIndex($event)">
+      <swiper :observer="true" :observe-parents="true" @slideChange="setSlideIndex($event)">
         <swiper-slide
           v-for="coin in store.getters.walletState.coins"
           v-bind:key="coin.ticker"
