@@ -16,7 +16,7 @@
         <ion-refresher-content></ion-refresher-content>
       </ion-refresher>
 
-      <swiper @slideChange="setSlideIndex($event)" :options="slideOptions">
+      <swiper @slideChange="setSlideIndex($event)">
         <swiper-slide
           v-for="coin in store.getters.walletState.coins"
           v-bind:key="coin.ticker"
@@ -121,6 +121,7 @@ import {
   timerOutline,
 } from "ionicons/icons";
 
+// Swiper.js
 import { Swiper, SwiperSlide } from "swiper/vue";
 
 import { useRouter } from "vue-router";
@@ -232,12 +233,6 @@ export default defineComponent({
     const router = useRouter();
     const store = useStore();
 
-    // Slider options
-    const slideOptions = {
-      snapOnRelease: true,
-      centeredSlides: true
-    };
-
     // Execute on mount
     onMounted(async () => {
       await loadingController.create({
@@ -310,8 +305,7 @@ export default defineComponent({
       addCircleOutline,
       scanOutline,
       qrCodeOutline,
-      timerOutline,
-      slideOptions
+      timerOutline
     };
   },
 });
@@ -319,9 +313,9 @@ export default defineComponent({
 
 <style scoped>
 /* Swiper */
-.swiper-slide {
+.swiper-container {
   width: 100%;
-}
+} 
 
 /* Card header */
 ion-card {
@@ -329,7 +323,6 @@ ion-card {
     linear-gradient(#242424, #1c1c1c);
   background-repeat: no-repeat;
   background-position: bottom right;
-  width: 100%;
 }
 
 /* Spacing between Ion Tab Button and Label */
