@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { createStore } from "vuex";
 
 // Vuex modules
