@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import jwt_decode from "jwt-decode";
 
 export const auth = {
