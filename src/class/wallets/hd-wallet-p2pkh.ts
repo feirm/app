@@ -93,8 +93,6 @@ class HDWalletP2PKH extends AbstractWallet {
                 ]
             })
 
-            console.log("Using input:", utxo.txid);
-
             // Increment input values
             valueOfInputs = valueOfInputs.plus(utxo.value);
         })

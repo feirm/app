@@ -130,7 +130,6 @@ export default defineComponent({
             if (parseInt(splitPath[4]) === 0) {
               // Increment the index until we reach one that doesnt exist
               if (i + 1 != parseInt(index) + 1) {
-                // console.log("Missing path:", i);
                 missingIndex = i;
                 break;
               }
@@ -183,7 +182,6 @@ export default defineComponent({
                   const amount = new BigNumber(output.value).dividedBy(100000000).toString();
 
                   // Show a screen
-                  // console.log("Incoming TXID:", data.tx.txid);
                   const modal = await modalController.create({
                     component: ReceivePopup,
                     componentProps: {

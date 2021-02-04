@@ -91,7 +91,7 @@ async function DecryptContacts(
       // Push to array
       decryptedContacts.push(decryptedContact);
     } catch (e) {
-      console.log("Decrypt error:", e);
+      return e;
     }
   });
 

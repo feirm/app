@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import { entropyToMnemonic, mnemonicToSeed, validateMnemonic } from "bip39";
 import { fromSeed } from "bip32";
 import { v4 as uuidv4 } from "uuid";
@@ -126,7 +128,7 @@ async function DeriveWallet(mnemonic: string, ticker: string) {
   const wallet = {
     id: uuidv4(),
     mnemonic: mnemonic,
-    coins: [] as {},
+    coins: [] as Coin[],
     encryption: {} as Encryption,
   } as Wallet;
 
@@ -175,11 +177,9 @@ async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
 
       // Only continue if the account level is 0 (receiving account)
       if (parseInt(splitPath[4]) === 0) {
-        // console.log("Have path:", index);
 
         // Increment the index until we reach one that doesnt exist
         if (i + 1 != parseInt(index) + 1) {
-          // console.log("Missing path:", i);
           missingIndex = i;
           break;
         }

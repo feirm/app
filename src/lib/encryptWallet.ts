@@ -55,7 +55,6 @@ async function decryptWallet(pin: string, wallet: Wallet): Promise<Wallet> {
             // Set coin data again
             wallet.coins[i] = coin;
           } catch (e) {
-            console.log(e);
             throw new Error(
               "Unable to decrypt wallet! Please make sure your PIN is correct!"
             );
@@ -170,7 +169,6 @@ async function encryptWallet(pin: string) {
     wallet.encryption.encryptionKeySalt = bufferToHex(salt);
     wallet.encryption.encryptionIv = bufferToHex(encryptionIv);
   } catch (e) {
-    console.log(e);
     throw new Error(e);
   }
 

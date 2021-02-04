@@ -69,11 +69,11 @@ export async function preload() {
                   store.commit("setContacts", decryptedContacts);
                 })
                 .catch((e) => {
-                  console.log(e);
+                  return e;
                 });
             });
           } catch (e) {
-            console.log("Error decrypting contacts...");
+            return e;
           }
 
           // Dismiss the modal
@@ -82,8 +82,6 @@ export async function preload() {
         .catch(async (e) => {
           // Dismiss current loading controller
           a.dismiss();
-
-          console.log(e);
 
           // Show error alert
           const alert = await alertController.create({
