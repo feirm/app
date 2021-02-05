@@ -16,46 +16,43 @@
         <ion-refresher-content></ion-refresher-content>
       </ion-refresher>
 
-      <swiper :observer="true" :observe-parents="true" @slideChange="setSlideIndex($event)">
-        <swiper-slide
-          v-for="coin in store.getters.walletState.coins"
-          v-bind:key="coin.ticker"
-        >
-          <!-- Show existing coins -->
-          <ion-card
-            button="true"
-            @click="detailedWallet(store.getters.walletState.id, coin.ticker)"
-          >
-            <ion-card-header class="ion-text-left">
-              <ion-text style="color: white">
-                <h5>{{ coin.name }}</h5>
-                <h7 v-show="coin.unconfirmedBalance !== '0'"
-                  >Unconfirmed:
-                  {{ (coin.unconfirmedBalance / 100000000).toFixed(3) }}
-                  {{ coin.ticker.toUpperCase() }}</h7
-                >
-                <h1>
-                  {{ (coin.balance / 100000000).toFixed(3) }}
-                  {{ coin.ticker.toUpperCase() }}
-                </h1>
-              </ion-text>
-            </ion-card-header>
-          </ion-card>
-        </swiper-slide>
+      <!-- Card swipers -->
+      <div class="swiper-container">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide" v-for="coin in store.getters.walletState.coins" :key="coin.ticker">
+            <!-- Show existing coins -->
+            <ion-card button="true" @click="detailedWallet(store.getters.walletState.id, coin.ticker)" style="height: 100%;">
+              <ion-card-header class="ion-text-left">
+                <ion-text style="color: white">
+                  <h5>{{ coin.name }}</h5>
+                  <h7 v-show="coin.unconfirmedBalance !== '0'">
+                    Unconfirmed:
+                    {{ (coin.unconfirmedBalance / 100000000).toFixed(3) }}
+                    {{ coin.ticker.toUpperCase() }}
+                  </h7>
+                  <h1>
+                    {{ (coin.balance / 100000000).toFixed(3) }}
+                    {{ coin.ticker.toUpperCase() }}
+                  </h1>
+                </ion-text>
+              </ion-card-header>
+            </ion-card>
+          </div>
 
-        <!-- Show add a wallet card if no wallet is present -->
-        <swiper-slide v-show="!store.getters.walletState.id">
-          <ion-card @click="addCoin">
-            <ion-card-header class="ion-text-left">
-              <ion-text style="color: white">
-                <h3>Add a wallet</h3>
-                <p>It's free and we support multiple assets!</p>
-              </ion-text>
-              <ion-button @click="addCoin">Add now</ion-button>
-            </ion-card-header>
-          </ion-card>
-        </swiper-slide>
-      </swiper>
+          <!-- Show "add wallet" card if no wallet/coin is present -->
+          <div class="swiper-slide" v-show="!store.getters.walletState.id">
+            <ion-card @click="addCoin">
+              <ion-card-header class="ion-text-left">
+                <ion-text style="color: white">
+                  <h3>Add a wallet</h3>
+                  <p>It's free and we support multiple assets!</p>
+                </ion-text>
+                <ion-button @click="addCoin">Add now</ion-button>
+              </ion-card-header>
+            </ion-card>
+          </div>
+        </div>
+      </div>
 
       <!-- Quick actions menu -->
       <ion-grid>
@@ -121,8 +118,8 @@ import {
   timerOutline,
 } from "ionicons/icons";
 
-// Swiper.js
-import { Swiper, SwiperSlide } from "swiper/vue";
+import Swiper from "swiper";
+import "swiper/swiper-bundle.css"
 
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
@@ -153,15 +150,27 @@ export default defineComponent({
     IonRefresherContent,
     IonGrid,
     IonRow,
-    IonCol,
-    Swiper,
-    SwiperSlide
+    IonCol
   },
   data() {
     return {
       slideIndex: 0,
       wallet: hdWalletP2pkh,
     };
+  },
+  mounted() {
+    // Initialise the Swiper
+    const swiper = new Swiper('.swiper-container', {
+      // Options
+      observer: true,
+      observeParents: true
+    });
+
+    // Slide change handler
+    const self = this;
+    swiper.on('slideChange', function() {
+      self.slideIndex = swiper.activeIndex;
+    })
   },
   methods: {
     detailedWallet(id: string, coin: string) {
@@ -222,11 +231,6 @@ export default defineComponent({
       });
 
       return modal.present();
-    },
-
-    // Set slide index
-    setSlideIndex(swiper) {
-      this.slideIndex = swiper.activeIndex;
     }
   },
   setup() {
@@ -312,11 +316,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-/* Swiper */
-.swiper-container {
-  width: 100%;
-} 
-
 /* Card header */
 ion-card {
   background-image: url("../../assets/img/covers/feirm.png"),
