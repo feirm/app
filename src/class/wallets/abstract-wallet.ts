@@ -11,7 +11,6 @@ import { store } from "@/store";
 import { entropyToMnemonic, mnemonicToSeedSync, validateMnemonic } from "bip39";
 import axios from "axios";
 import { fromSeed } from "bip32";
-import { wallet } from "@/store/modules/wallet";
 
 export abstract class AbstractWallet {
     id: string; // Wallet ID derived from secret mnemonic
@@ -88,6 +87,21 @@ export abstract class AbstractWallet {
         this.coins = [];
         this.secret = "";
         this.id = "";
+    }
+
+    // Delete a coin from the wallet
+    deleteCoin(ticker: string) {
+        // TODO: Refactor
+        for (let i = 0; i < this.coins.length; i++) {
+            const coin = this.coins[i];
+
+            // Check if the coin we want to delete is here
+            if (coin.ticker.toLowerCase() === ticker.toLowerCase()) {
+                // Delete if its here
+                this.coins.splice(i, 1);
+                this.saveWallet();
+            }
+        }
     }
 
     // Get blockbook instance by ticker
