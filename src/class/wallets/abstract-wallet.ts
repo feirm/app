@@ -219,22 +219,15 @@ export abstract class AbstractWallet {
         ws.onmessage = function(msg) {
             const data = JSON.parse(msg.data).data;
 
-            // Iterate over coins and set balances
-            for (let i = 0; i < self.coins.length; i++) {
-                // Check the origin of the message and set the correct balances
-                if (msg.origin.includes(self.coins[i].name.toLocaleLowerCase())) {
-                    self.coins[i].balance = data.balance;
-                    self.coins[i].unconfirmedBalance = data.unconfirmedBalance;
+            // Get the index of a coin based on its ticker
+            const coinIndex = self.coins.map(coin => coin.ticker.toLocaleLowerCase()).indexOf(ticker.toLocaleLowerCase())
 
-                    // Update balance
-                    self.saveWallet();
+            // Update balances
+            self.coins[coinIndex].balance = data.balance;
+            self.coins[coinIndex].unconfirmedBalance = data.unconfirmedBalance;
 
-                    return;
-                }
-            }
-
-            // Update store
-            store.commit("setWalletState", self.getWallet())
+            // Save wallet
+            self.saveWallet();
         }
     }
 

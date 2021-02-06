@@ -262,7 +262,7 @@ export default defineComponent({
           }
 
           // Save wallet
-          wallet.saveWallet();
+          // wallet.saveWallet();
 
           // Fetch and decrypt contacts
           // Fetch and decrypt contacts
