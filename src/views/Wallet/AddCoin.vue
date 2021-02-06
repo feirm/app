@@ -132,9 +132,6 @@ export default defineComponent({
           // Fetch and set balances
           wallet.setBalances(ticker, wallet.getXpub(ticker));
 
-          // Save the wallet (might be redundant)
-          // wallet.saveWallet();
-
           // Dismiss loading popup and navigate back to index
           a.dismiss();
           this.router.push({ path: "/" })

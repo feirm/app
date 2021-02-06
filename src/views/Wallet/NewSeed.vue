@@ -114,7 +114,7 @@ export default defineComponent({
             // Capture on dismiss
             await backupModal.onDidDismiss().then(async() => {
                 await loadingController.create({
-                    message: "Please wait..."
+                    message: "Generating wallet..."
                 }).then(a => {
                     a.present().then(async () => {
                         // Return to index
@@ -123,8 +123,11 @@ export default defineComponent({
                         // Generate a Feirm wallet
                         HDWalletP2PKH.addCoin("xfe");
 
-                        // Save wallet
-                        await HDWalletP2PKH.saveWallet();
+                        // Establish WSS connection
+                        HDWalletP2PKH.establishWss("xfe");
+
+                        // Fetch balances (likely none due to being a new wallet)
+                        HDWalletP2PKH.setBalances("xfe", HDWalletP2PKH.getXpub("xfe"));
 
                         // Dismiss loading prompt
                         a.dismiss();

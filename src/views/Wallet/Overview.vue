@@ -261,10 +261,6 @@ export default defineComponent({
             wallet.setBalances(coin.ticker, coin.extendedPublicKey);
           }
 
-          // Save wallet
-          // wallet.saveWallet();
-
-          // Fetch and decrypt contacts
           // Fetch and decrypt contacts
           try {
             await tatsuyaService.fetchContacts().then(async (res) => {
