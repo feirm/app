@@ -52,7 +52,7 @@ import {
   IonAvatar,
   IonLabel,
   loadingController,
-  alertController
+  alertController,
 } from "@ionic/vue";
 import { closeOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
@@ -82,39 +82,78 @@ export default defineComponent({
     };
   },
   async ionViewWillEnter() {
-    const coins = await azureService.getCoins();
+    // Wrap everything in a loading popup
+    await loadingController
+      .create({
+        message: "Fetching coins data...",
+      })
+      .then((a) => {
+        a.present()
+          .then(async () => {
+            const coins = await azureService.getCoins();
 
-    // Need to iterate over each of the coin data
-    for (let i = 0; i < coins.data.length; i++) {
-      // Current coin details
-      const coin = coins.data[i];
+            // Need to iterate over each of the coin data
+            for (let i = 0; i < coins.data.length; i++) {
+              // Current coin details
+              const coin = coins.data[i];
 
-      // Modify the network information
-      // P2PKH
-      if (coin.networks.p2pkh) {
-        coin.networks.p2pkh.pubKeyHash = coin.networks.p2pkh.pubKeyHash[0];
-        coin.networks.p2pkh.scriptHash = coin.networks.p2pkh.scriptHash[0];
-        coin.networks.p2pkh.wif = coin.networks.p2pkh.wif[0];
+              // Modify the network information
+              // P2PKH
+              if (coin.networks.p2pkh) {
+                coin.networks.p2pkh.pubKeyHash =
+                  coin.networks.p2pkh.pubKeyHash[0];
+                coin.networks.p2pkh.scriptHash =
+                  coin.networks.p2pkh.scriptHash[0];
+                coin.networks.p2pkh.wif = coin.networks.p2pkh.wif[0];
 
-        // Update the original data
-        coins.data[i].networks.p2pkh = coin.networks.p2pkh;
-      }
+                // Update the original data
+                coins.data[i].networks.p2pkh = coin.networks.p2pkh;
+              }
 
-      // P2WPKH
-      if (coin.networks.P2WPKH) {
-        coin.networks.P2WPKH.pubKeyHash = coin.networks.P2WPKH.pubKeyHash[0];
-        coin.networks.P2WPKH.scriptHash = coin.networks.P2WPKH.scriptHash[0];
-        coin.networks.P2WPKH.wif = coin.networks.P2WPKH.wif[0];
+              // P2WPKH
+              if (coin.networks.P2WPKH) {
+                coin.networks.P2WPKH.pubKeyHash =
+                  coin.networks.P2WPKH.pubKeyHash[0];
+                coin.networks.P2WPKH.scriptHash =
+                  coin.networks.P2WPKH.scriptHash[0];
+                coin.networks.P2WPKH.wif = coin.networks.P2WPKH.wif[0];
 
-        // Update the original data
-        coins.data[i].networks.P2WPKH = coin.networks.P2WPKH;
-      }
-    }
+                // Update the original data
+                coins.data[i].networks.P2WPKH = coin.networks.P2WPKH;
+              }
+            }
 
-    // TODO: Remove coins already listed
+            // Filter out the coins we already have in our wallet
+            const currentCoins = hdWalletP2pkh.getAllCoins();
+            currentCoins.forEach(coin => {
+              // Iterate over the coin data just fetched
+              for (let i = 0; i < coins.data.length; i++) {
+                // Remove coin from data if its present in our wallet
+                if (coins.data[i].ticker.toLowerCase() === coin.ticker.toLowerCase()) {
+                  coins.data.splice(i, 1);
+                }
+              }
+            })
 
-    // Update the coins list
-    this.coins = coins.data;
+            // Update the coins that the user can add to their wallet
+            this.coins = coins.data;
+
+            // Dimiss the loading popup
+            a.dismiss();
+          })
+          .catch(async (e) => {
+            // Dismiss and show error
+            a.dismiss();
+
+            const error = await alertController.create({
+              header: "Error fetching coins data!",
+              message: e,
+              buttons: ["Close"],
+            });
+
+            return error.present();
+          });
+      });
   },
   methods: {
     async createCoinWallet(ticker: string) {
@@ -122,33 +161,36 @@ export default defineComponent({
       const wallet = hdWalletP2pkh;
 
       // Wrap inside loading popup
-      await loadingController.create({
-        message: "Creating wallet..."
-      }).then(a => {
-        a.present().then(async () => {
-          // Create new wallet for ticker
-          wallet.addCoin(ticker);
-
-          // Fetch and set balances
-          wallet.setBalances(ticker, wallet.getXpub(ticker));
-
-          // Dismiss loading popup and navigate back to index
-          a.dismiss();
-          this.router.push({ path: "/" })
+      await loadingController
+        .create({
+          message: "Creating wallet...",
         })
-        .catch(async e => {
-          // Dismiss and show error
-          a.dismiss();
+        .then((a) => {
+          a.present()
+            .then(async () => {
+              // Create new wallet for ticker
+              wallet.addCoin(ticker);
 
-          const error = await alertController.create({
-            header: "Error creating coin wallet!",
-            message: e,
-            buttons: ["Close"]
-          });
+              // Fetch and set balances
+              wallet.setBalances(ticker, wallet.getXpub(ticker));
 
-          return error.present();
-        })
-      })
+              // Dismiss loading popup and navigate back to index
+              a.dismiss();
+              this.router.push({ path: "/" });
+            })
+            .catch(async (e) => {
+              // Dismiss and show error
+              a.dismiss();
+
+              const error = await alertController.create({
+                header: "Error creating coin wallet!",
+                message: e,
+                buttons: ["Close"],
+              });
+
+              return error.present();
+            });
+        });
     },
   },
   setup() {
