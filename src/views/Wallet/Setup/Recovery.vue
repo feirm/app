@@ -78,7 +78,13 @@ export default defineComponent({
                     const id = await wallet.getId();
                     wallet.setId(id);
 
-                    // Save wallet
+                    // Establish WSS connection
+                    wallet.establishWss("xfe");
+
+                    // Set balance
+                    wallet.setBalances("xfe", wallet.getXpub("xfe"));
+
+                    // Save wallet (might be redundant due to setting balances)
                     wallet.saveWallet();
 
                     // Dismiss

@@ -11,6 +11,7 @@ import { store } from "@/store";
 import { entropyToMnemonic, mnemonicToSeedSync, validateMnemonic } from "bip39";
 import axios from "axios";
 import { fromSeed } from "bip32";
+import { wallet } from "@/store/modules/wallet";
 
 export abstract class AbstractWallet {
     id: string; // Wallet ID derived from secret mnemonic
@@ -224,6 +225,9 @@ export abstract class AbstractWallet {
                 if (msg.origin.includes(self.coins[i].name.toLocaleLowerCase())) {
                     self.coins[i].balance = data.balance;
                     self.coins[i].unconfirmedBalance = data.unconfirmedBalance;
+
+                    // Update balance
+                    self.saveWallet();
                 }
             }
 
