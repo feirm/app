@@ -47,7 +47,7 @@
                   <h3>Add a wallet</h3>
                   <p>It's free and we support multiple assets!</p>
                 </ion-text>
-                <ion-button @click="addCoin">Add now</ion-button>
+                <ion-button @click="addCoin" color="dark">Add now</ion-button>
               </ion-card-header>
             </ion-card>
           </div>
