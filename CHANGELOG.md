@@ -22,10 +22,12 @@ All notable changes to the Feirm PWA will be documented in this file.
 * Validate "to address" against coin network parameters before sending.
 * Show transaction fee and total cost on send coins component.
 * Remove wallet and all coins from storage.
+* Replace Ionic Slides with official Swiper.js library.
+* Re-implemented multiple-asset support.
+* Correctly set multiple asset balances on launch.
 
 ### Work in Progress
 * PGP Signed pages
-* Wallet deletion
 
 ## [1.1.4](https://github.com/feirm/app/commits/1.1.4) - 05-01-2020
 ### Changed
