@@ -218,11 +218,13 @@ export abstract class AbstractWallet {
         ws.onmessage = function(msg) {
             const data = JSON.parse(msg.data).data;
 
-            // Iterate over coins
-            // Hardcode for XFE
+            // Iterate over coins and set balances
             for (let i = 0; i < self.coins.length; i++) {
-                self.coins[i].balance = data.balance;
-                self.coins[i].unconfirmedBalance = data.unconfirmedBalance;
+                // Check the origin of the message and set the correct balances
+                if (msg.origin.includes(self.coins[i].name.toLocaleLowerCase())) {
+                    self.coins[i].balance = data.balance;
+                    self.coins[i].unconfirmedBalance = data.unconfirmedBalance;
+                }
             }
 
             // Update store
