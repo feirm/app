@@ -18,7 +18,7 @@
       <ion-button expand="block">Show XPUB</ion-button>
     </ion-content>
     <ion-footer class="ion-no-border ion-padding ion-text-center">
-      <ion-button color="danger" fill="clear" @click="deleteCoin">Remove Coin</ion-button>
+      <ion-button color="danger" fill="clear" @click="deleteCoin" :disabled="store.getters.walletState.coins.length === 1">Remove Coin</ion-button>
     </ion-footer>
   </ion-page>
 </template>
@@ -39,6 +39,7 @@ import {
 } from "@ionic/vue";
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 
 export default defineComponent({
   name: "SettingsOverview",
@@ -66,9 +67,11 @@ export default defineComponent({
   },
   setup() {
     const router = useRouter();
+    const store = useStore();
 
     return {
-      router
+      router,
+      store
     }
   }
 });
