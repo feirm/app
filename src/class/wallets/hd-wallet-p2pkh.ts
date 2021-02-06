@@ -43,6 +43,10 @@ class HDWalletP2PKH extends AbstractWallet {
         const networks = this.getNetwork(ticker);
         
         const xpub = this.getXpub(ticker);
+
+        // TODO: Replace extended public key version, see:
+        // https://github.com/bitcoinjs/bitcoinjs-lib/issues/966
+
         const { address } = payments.p2pkh({
             pubkey: fromBase58(xpub).derive(node).derive(index).publicKey,
             network: networks.p2pkh
