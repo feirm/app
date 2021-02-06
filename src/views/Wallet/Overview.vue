@@ -186,9 +186,9 @@ export default defineComponent({
           buttons: ["Close"],
         });
 
-        return error.present();
+        // return error.present();
 
-        // return this.router.push({ path: "/wallet/addCoin" });
+        return this.router.push({ path: "/wallet/addCoin" });
       }
 
       this.router.push({ path: "/wallet/getStarted" });
