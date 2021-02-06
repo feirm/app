@@ -4,6 +4,7 @@ import { mnemonicToSeedSync } from "bip39";
 import { fromBase58, fromSeed } from "bip32";
 import { Utxo } from "@/models/transaction";
 import BigNumber from "bignumber.js";
+import b58 from "bs58check";
 
 /**
  * HD Wallet (BIP44)
@@ -33,8 +34,14 @@ class HDWalletP2PKH extends AbstractWallet {
 
         const path = "m/44'/" + index + "'/0'";
         const child = root.derivePath(path).neutered();
+        const xpub = child.toBase58();
 
-        return child.toBase58();
+        // BitcoinJS does not support any other version than XPUB, so convert ourselves
+        let data = b58.decode(xpub)
+        data = data.slice(4);
+        data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
+
+        return b58.encode(data);
     }
 
     // Fetch an address by its node and index
@@ -43,9 +50,6 @@ class HDWalletP2PKH extends AbstractWallet {
         const networks = this.getNetwork(ticker);
         
         const xpub = this.getXpub(ticker);
-
-        // TODO: Replace extended public key version, see:
-        // https://github.com/bitcoinjs/bitcoinjs-lib/issues/966
 
         const { address } = payments.p2pkh({
             pubkey: fromBase58(xpub).derive(node).derive(index).publicKey,
