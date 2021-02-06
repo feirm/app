@@ -129,8 +129,11 @@ export default defineComponent({
           // Create new wallet for ticker
           wallet.addCoin(ticker);
 
-          // Save the wallet
-          wallet.saveWallet();
+          // Fetch and set balances
+          wallet.setBalances(ticker, wallet.getXpub(ticker));
+
+          // Save the wallet (might be redundant)
+          // wallet.saveWallet();
 
           // Dismiss loading popup and navigate back to index
           a.dismiss();

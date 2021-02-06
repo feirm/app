@@ -85,7 +85,7 @@ export default defineComponent({
                     wallet.setBalances("xfe", wallet.getXpub("xfe"));
 
                     // Save wallet (might be redundant due to setting balances)
-                    wallet.saveWallet();
+                    // wallet.saveWallet();
 
                     // Dismiss
                     a.dismiss();

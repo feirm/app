@@ -228,6 +228,8 @@ export abstract class AbstractWallet {
 
                     // Update balance
                     self.saveWallet();
+
+                    return;
                 }
             }
 
