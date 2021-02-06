@@ -315,7 +315,7 @@ export default defineComponent({
 /* Card header */
 ion-card {
   background-image: url("../../assets/img/covers/feirm.png"),
-    linear-gradient(#242424, #1c1c1c);
+    linear-gradient(#cb4f2b, #f69738);
   background-repeat: no-repeat;
   background-position: bottom right;
 }
