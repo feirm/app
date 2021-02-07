@@ -81,14 +81,8 @@
           </ion-col>
           <ion-col>
             <ion-tab-button @click="receiveModal">
-              <ion-icon color="danger" :icon="qrCodeOutline"></ion-icon>
+              <ion-icon color="success" :icon="qrCodeOutline"></ion-icon>
               <ion-label>Receive</ion-label>
-            </ion-tab-button>
-          </ion-col>
-          <ion-col>
-            <ion-tab-button>
-              <ion-icon color="tertiary" :icon="timerOutline"></ion-icon>
-              <ion-label>History</ion-label>
             </ion-tab-button>
           </ion-col>
         </ion-row>
@@ -125,7 +119,6 @@ import {
   addCircleOutline,
   scanOutline,
   qrCodeOutline,
-  timerOutline,
 } from "ionicons/icons";
 
 import Swiper from "swiper";
@@ -142,8 +135,6 @@ import SendCoins from "@/components/Wallet/Send/Send.vue";
 import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
 import tatsuyaService from "@/apiService/tatsuyaService";
 import { DecryptContacts, EncryptedContact } from "@/lib/contacts";
-import { Transaction } from "@/models/transaction";
-import BigNumber from "bignumber.js";
 
 export default defineComponent({
   name: "WalletOverview",
@@ -311,7 +302,7 @@ export default defineComponent({
 
               // Error alert
               const error = await alertController.create({
-                header: "Contact decryption error!",
+                header: "Error loading data!",
                 message: e,
                 buttons: ["Close"],
               });
@@ -328,7 +319,6 @@ export default defineComponent({
       addCircleOutline,
       scanOutline,
       qrCodeOutline,
-      timerOutline,
       cGradient,
     };
   },
