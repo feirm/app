@@ -35,7 +35,9 @@ import {
   IonButtons,
   IonButton,
   IonBackButton,
-  IonFooter
+  IonFooter,
+  loadingController,
+  alertController
 } from "@ionic/vue";
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 import { useRouter } from "vue-router";
@@ -56,13 +58,41 @@ export default defineComponent({
     IonFooter
   },
   methods: {
-    deleteCoin() {
+    async deleteCoin() {
       // Fetch ticker from route parameter and delete the coin
       const ticker = this.$route.params.coin as string;
-      hdWalletP2pkh.deleteCoin(ticker);
 
-      // Navigate back to home
-      this.router.push("/");
+      // Wrap in loading popup
+      await loadingController.create({
+        message: "Removing coin..."
+      }).then(a => {
+        a.present()
+        .then(async () => {
+          // Delete coin wallet
+          hdWalletP2pkh.deleteCoin(ticker);
+
+          // Update transaction state
+          await hdWalletP2pkh.getAllTransactions();
+
+          // Dismiss
+          a.dismiss();
+
+          // Navigate back to home
+          this.router.push("/");
+        })
+        .catch(async e => {
+          // Dismiss and show error
+          a.dismiss();
+
+          const error = await alertController.create({
+            header: "Error removing coin!",
+            message: e,
+            buttons: ["Close"]
+          })
+
+          return error.present();
+        })
+      });
     }
   },
   setup() {
