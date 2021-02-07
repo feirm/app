@@ -25,9 +25,11 @@ All notable changes to the Feirm PWA will be documented in this file.
 * Replace Ionic Slides with official Swiper.js library.
 * Re-implemented multiple-asset support.
 * Correctly set multiple asset balances on launch.
+* Different colour wallet cards depending on the coin.
 
 ### Work in Progress
 * PGP Signed pages
+* Fetching entire transaction state through WebSockets
 
 ## [1.1.4](https://github.com/feirm/app/commits/1.1.4) - 05-01-2020
 ### Changed
