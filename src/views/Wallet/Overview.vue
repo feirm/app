@@ -28,7 +28,7 @@
             <ion-card
               button="true"
               @click="detailedWallet(store.getters.walletState.id, coin.ticker)"
-              style="height: 100%"
+              :style="{ 'background-image': cGradient.getGradient(coin.ticker) }"
             >
               <ion-card-header class="ion-text-left">
                 <ion-text style="color: white">
@@ -134,6 +134,7 @@ import { useStore } from "vuex";
 import { DateTime } from "luxon";
 
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
+import cardGradient from "@/class/cardGradient";
 
 import SendCoins from "@/components/Wallet/Send/Send.vue";
 import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
@@ -246,6 +247,9 @@ export default defineComponent({
   setup() {
     const router = useRouter();
     const store = useStore();
+
+    // Card gradient class
+    const cGradient = new cardGradient();
 
     // Execute on mount
     onMounted(async () => {
@@ -417,17 +421,13 @@ export default defineComponent({
       scanOutline,
       qrCodeOutline,
       timerOutline,
+      cGradient
     };
   },
 });
 </script>
 
 <style scoped>
-/* Card header */
-ion-card {
-  background-image: linear-gradient(#cb4f2b, #f69738);
-}
-
 /* Spacing between Ion Tab Button and Label */
 ion-tab-button > ion-label {
   padding-top: 7.5px;
