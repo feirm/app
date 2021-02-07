@@ -196,6 +196,7 @@ export abstract class AbstractWallet {
         }
 
         // P2WPKH (native segwit)
+        /*
         if (networks.P2WPKH) {
             const path = "m/84'/" + index + "'/0'"; // BIP84
             const rootKey = fromSeed(seed, networks.P2WPKH);
@@ -208,6 +209,7 @@ export abstract class AbstractWallet {
             this.coins.push(coin);
             return coin;
         }
+        */
     }
 
     // Fetch and set confirmed + unconfirmed balances
