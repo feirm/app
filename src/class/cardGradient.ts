@@ -23,9 +23,12 @@ export default class CardGradient {
 
         // Find the appropriate gradient index
         const gradientIndex = this.gradients.map(gradient => gradient.ticker).indexOf(lowerTicker);
-        console.log(gradientIndex);
-
         const gradient = this.gradients[gradientIndex];
+
+        // Default back to grey gradient if a gradient isn't available
+        if (!gradient) {
+            return `linear-gradient(#242424, #1c1c1c)`
+        }
 
         // Return assembled string
         const linearGradient = `linear-gradient(${gradient.colours[0]}, ${gradient.colours[1]})`;
