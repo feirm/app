@@ -237,6 +237,6 @@ ion-footer {
 }
 
 ion-toolbar {
-  --background: url("../../assets/img/covers/feirm.png") no-repeat bottom right, linear-gradient(#242424, #1c1c1c);
+  --background: no-repeat bottom right, linear-gradient(#242424, #1c1c1c);
 }
 </style>

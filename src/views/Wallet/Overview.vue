@@ -19,9 +19,17 @@
       <!-- Card swipers -->
       <div class="swiper-container">
         <div class="swiper-wrapper">
-          <div class="swiper-slide" v-for="coin in store.getters.walletState.coins" :key="coin.ticker">
+          <div
+            class="swiper-slide"
+            v-for="coin in store.getters.walletState.coins"
+            :key="coin.ticker"
+          >
             <!-- Show existing coins -->
-            <ion-card button="true" @click="detailedWallet(store.getters.walletState.id, coin.ticker)" style="height: 100%;">
+            <ion-card
+              button="true"
+              @click="detailedWallet(store.getters.walletState.id, coin.ticker)"
+              style="height: 100%"
+            >
               <ion-card-header class="ion-text-left">
                 <ion-text style="color: white">
                   <h5>{{ coin.name }}</h5>
@@ -119,7 +127,7 @@ import {
 } from "ionicons/icons";
 
 import Swiper from "swiper";
-import "swiper/swiper-bundle.css"
+import "swiper/swiper-bundle.css";
 
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
@@ -131,6 +139,8 @@ import SendCoins from "@/components/Wallet/Send/Send.vue";
 import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
 import tatsuyaService from "@/apiService/tatsuyaService";
 import { DecryptContacts, EncryptedContact } from "@/lib/contacts";
+import { Transaction } from "@/models/transaction";
+import BigNumber from "bignumber.js";
 
 export default defineComponent({
   name: "WalletOverview",
@@ -150,7 +160,7 @@ export default defineComponent({
     IonRefresherContent,
     IonGrid,
     IonRow,
-    IonCol
+    IonCol,
   },
   data() {
     return {
@@ -160,17 +170,17 @@ export default defineComponent({
   },
   mounted() {
     // Initialise the Swiper
-    const swiper = new Swiper('.swiper-container', {
+    const swiper = new Swiper(".swiper-container", {
       // Options
       observer: true,
-      observeParents: true
+      observeParents: true,
     });
 
     // Slide change handler
     const self = this;
-    swiper.on('slideChange', function() {
+    swiper.on("slideChange", function () {
       self.slideIndex = swiper.activeIndex;
-    })
+    });
   },
   methods: {
     detailedWallet(id: string, coin: string) {
@@ -231,7 +241,7 @@ export default defineComponent({
       });
 
       return modal.present();
-    }
+    },
   },
   setup() {
     const router = useRouter();
@@ -239,63 +249,164 @@ export default defineComponent({
 
     // Execute on mount
     onMounted(async () => {
-      await loadingController.create({
-        message: "Loading..."
-      }).then((a) => {
-        // Loading popup
-        a.present().then(async () => {
-          // Fetch and store coin network data
-          await store.dispatch("setCoins");
+      await loadingController
+        .create({
+          message: "Loading...",
+        })
+        .then((a) => {
+          // Loading popup
+          a.present().then(async () => {
+            // Fetch and store coin network data
+            await store.dispatch("setCoins");
 
-          // P2PKH wallet
-          const wallet = hdWalletP2pkh;
+            // P2PKH wallet
+            const wallet = hdWalletP2pkh;
 
-          // Iterate over all of the coins
-          for (let i = 0; i < wallet.getAllCoins().length; i++) {
-            const coin = wallet.getAllCoins()[i];
+            // Iterate over all of the coins
+            for (let i = 0; i < wallet.getAllCoins().length; i++) {
+              const coin = wallet.getAllCoins()[i];
 
-            // Establish a WebSocket connection
-            wallet.establishWss(coin.ticker);
+              // Establish a WebSocket connection
+              wallet.establishWss(coin.ticker);
 
-            // Fetch and set coin balances
-            wallet.setBalances(coin.ticker, coin.extendedPublicKey);
-          }
+              // Fetch and set coin balances
+              wallet.setBalances(coin.ticker, coin.extendedPublicKey);
+            }
 
-          // Fetch and decrypt contacts
-          try {
-            await tatsuyaService.fetchContacts().then(async (res) => {
-              // Set the encrypted contacts array
-              const contacts = res.data as EncryptedContact[];
-              if (!contacts) {
-                return;
+            // Fetch and sort transactions
+            const transactions = [] as Transaction[];
+
+            // Get all of our coins and iterate over them
+            const coins = wallet.getAllCoins();
+            for (let i = 0; i < coins.length; i++) {
+              const coin = coins[i];
+            }
+
+            coins.forEach((coin) => {
+              // Construct message payload
+              const payload = {
+                method: "getAccountInfo",
+                params: {
+                  descriptor: coin.extendedPublicKey,
+                  details: "txs",
+                },
+              };
+
+              // Retrieve the WebSocket connection
+              const ws = wallet.getWss(coin.ticker);
+
+              // Send off the message
+              ws.onopen = () => {
+                ws.send(JSON.stringify(payload))
               }
 
-              // Attempt to decrypt contacts array
-              await DecryptContacts(contacts)
-                .then((decryptedContacts) => {
-                  store.commit("setContacts", decryptedContacts);
-                })
-                .catch((e) => {
-                  console.log(e);
+              // Wait for messages
+              ws.onmessage = function (msg) {
+                // Parse data
+                const data = JSON.parse(msg.data).data;
+
+                // List of transactions and tokens
+                const txs = data.txids;
+                const tokens = data.tokens;
+
+                // No transactions, then return
+                if (!txs) {
+                  return;
+                }
+
+                // Iterate through all the transactions and match them up
+                txs.forEach((tx) => {
+                  const walletTx = {
+                    ticker: coin.ticker.toLowerCase(),
+                    txid: tx.txid,
+                    blockTime: tx.blockTime,
+                    confirmations: tx.confirmations,
+                  } as Transaction;
+
+                  // Iterate through all of the outputs and determine if they belong to us
+                  tx.vout.forEach((vout) => {
+                    // Exclude change addresses from this process
+                    tokens.forEach((token) => {
+                      // Split the token so we can get the account (0 or 1);
+                      const splitToken = token.path.split("/");
+                      const index = parseInt(splitToken[4]);
+
+                      // Get the address (name) from token
+                      const address = token.name;
+
+                      if (index === 0) {
+                        // Check that the output includes an address we own.
+                        // If it belongs to us, then calculate the amount and set it as incoming
+                        if (vout.addresses.includes(address)) {
+                          const value = new BigNumber(vout.value)
+                            .dividedBy(100000000)
+                            .toString();
+                          walletTx.value = value;
+                          walletTx.isMine = true;
+                        }
+                      }
+
+                      // It is a change address, so the transaction might be outgoing
+                      // Find the output and calculate the value as necessary
+                      if (index === 1) {
+                        if (vout.addreses.includes(address)) {
+                          const txValue = new BigNumber(tx.value).dividedBy(
+                            100000000
+                          );
+                          const changeOutput = new BigNumber(
+                            vout.value
+                          ).dividedBy(100000000);
+                          const amount = txValue.minus(changeOutput);
+
+                          walletTx.value = amount.toString();
+                        }
+                      }
+                    });
+
+                    // Append to the transaction array
+                    transactions.push(walletTx);
+
+                    console.log(walletTx)
+                  });
                 });
+              };
             });
-          } catch (e) {
-            // Dismiss loading popup
+
+            // Fetch and decrypt contacts
+            try {
+              await tatsuyaService.fetchContacts().then(async (res) => {
+                // Set the encrypted contacts array
+                const contacts = res.data as EncryptedContact[];
+                if (!contacts) {
+                  return;
+                }
+
+                // Attempt to decrypt contacts array
+                await DecryptContacts(contacts)
+                  .then((decryptedContacts) => {
+                    store.commit("setContacts", decryptedContacts);
+                  })
+                  .catch((e) => {
+                    console.log(e);
+                  });
+              });
+            } catch (e) {
+              // Dismiss loading popup
+              a.dismiss();
+
+              // Error alert
+              const error = await alertController.create({
+                header: "Contact decryption error!",
+                message: e,
+                buttons: ["Close"],
+              });
+
+              return error.present();
+            }
+
             a.dismiss();
-
-            // Error alert
-            const error = await alertController.create({
-              header: "Contact decryption error!",
-              message: e,
-              buttons: ["Close"]
-            })
-
-            return error.present();
-          }
-
-          a.dismiss();
+          });
         });
-      });
     });
 
     return {
@@ -305,7 +416,7 @@ export default defineComponent({
       addCircleOutline,
       scanOutline,
       qrCodeOutline,
-      timerOutline
+      timerOutline,
     };
   },
 });
@@ -314,10 +425,7 @@ export default defineComponent({
 <style scoped>
 /* Card header */
 ion-card {
-  background-image: url("../../assets/img/covers/feirm.png"),
-    linear-gradient(#cb4f2b, #f69738);
-  background-repeat: no-repeat;
-  background-position: bottom right;
+  background-image: linear-gradient(#cb4f2b, #f69738);
 }
 
 /* Spacing between Ion Tab Button and Label */
