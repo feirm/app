@@ -171,8 +171,14 @@ export default defineComponent({
               // Create new wallet for ticker
               wallet.addCoin(ticker);
 
+              // Establish websocket for new coin
+              wallet.establishWss(ticker);
+
               // Fetch and set balances
               wallet.setBalances(ticker, wallet.getXpub(ticker));
+
+              // Update all transactions
+              await wallet.getAllTransactions();
 
               // Dismiss loading popup and navigate back to index
               a.dismiss();
