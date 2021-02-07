@@ -28,10 +28,13 @@ export const wallet = {
   actions: {
     async initialize({ commit }) {
       const wallet = await hdWalletP2pkh.loadFromDisk();
-      await store.dispatch("setCoins");
 
       if (wallet) {
+        // Update wallet state
         commit("setWalletState", wallet);
+
+        // Set coin data
+        await store.dispatch("setCoins");
 
         // Establish WebSocket connections
         wallet.coins.forEach(coin => {
