@@ -28,7 +28,9 @@
             <ion-card
               button="true"
               @click="detailedWallet(store.getters.walletState.id, coin.ticker)"
-              :style="{ 'background-image': cGradient.getGradient(coin.ticker) }"
+              :style="{
+                'background-image': cGradient.getGradient(coin.ticker),
+              }"
             >
               <ion-card-header class="ion-text-left">
                 <ion-text style="color: white">
@@ -260,9 +262,6 @@ export default defineComponent({
         .then((a) => {
           // Loading popup
           a.present().then(async () => {
-            // Fetch and store coin network data
-            await store.dispatch("setCoins");
-
             // P2PKH wallet
             const wallet = hdWalletP2pkh;
 
@@ -270,111 +269,16 @@ export default defineComponent({
             for (let i = 0; i < wallet.getAllCoins().length; i++) {
               const coin = wallet.getAllCoins()[i];
 
-              // Establish a WebSocket connection
-              wallet.establishWss(coin.ticker);
-
               // Fetch and set coin balances
               wallet.setBalances(coin.ticker, coin.extendedPublicKey);
             }
 
-            // Fetch and sort transactions
-            const transactions = [] as Transaction[];
-
-            // Get all of our coins and iterate over them
-            const coins = wallet.getAllCoins();
-            for (let i = 0; i < coins.length; i++) {
-              const coin = coins[i];
+            // Fetch all transactions
+            try {
+              await wallet.getAllTransactions();
+            } catch (e) {
+              throw new Error(e);
             }
-
-            coins.forEach((coin) => {
-              // Construct message payload
-              const payload = {
-                method: "getAccountInfo",
-                params: {
-                  descriptor: coin.extendedPublicKey,
-                  details: "txs",
-                },
-              };
-
-              // Retrieve the WebSocket connection
-              const ws = wallet.getWss(coin.ticker);
-
-              // Send off the message
-              ws.onopen = () => {
-                ws.send(JSON.stringify(payload))
-              }
-
-              // Wait for messages
-              ws.onmessage = function (msg) {
-                // Parse data
-                const data = JSON.parse(msg.data).data;
-
-                // List of transactions and tokens
-                const txs = data.txids;
-                const tokens = data.tokens;
-
-                // No transactions, then return
-                if (!txs) {
-                  return;
-                }
-
-                // Iterate through all the transactions and match them up
-                txs.forEach((tx) => {
-                  const walletTx = {
-                    ticker: coin.ticker.toLowerCase(),
-                    txid: tx.txid,
-                    blockTime: tx.blockTime,
-                    confirmations: tx.confirmations,
-                  } as Transaction;
-
-                  // Iterate through all of the outputs and determine if they belong to us
-                  tx.vout.forEach((vout) => {
-                    // Exclude change addresses from this process
-                    tokens.forEach((token) => {
-                      // Split the token so we can get the account (0 or 1);
-                      const splitToken = token.path.split("/");
-                      const index = parseInt(splitToken[4]);
-
-                      // Get the address (name) from token
-                      const address = token.name;
-
-                      if (index === 0) {
-                        // Check that the output includes an address we own.
-                        // If it belongs to us, then calculate the amount and set it as incoming
-                        if (vout.addresses.includes(address)) {
-                          const value = new BigNumber(vout.value)
-                            .dividedBy(100000000)
-                            .toString();
-                          walletTx.value = value;
-                          walletTx.isMine = true;
-                        }
-                      }
-
-                      // It is a change address, so the transaction might be outgoing
-                      // Find the output and calculate the value as necessary
-                      if (index === 1) {
-                        if (vout.addreses.includes(address)) {
-                          const txValue = new BigNumber(tx.value).dividedBy(
-                            100000000
-                          );
-                          const changeOutput = new BigNumber(
-                            vout.value
-                          ).dividedBy(100000000);
-                          const amount = txValue.minus(changeOutput);
-
-                          walletTx.value = amount.toString();
-                        }
-                      }
-                    });
-
-                    // Append to the transaction array
-                    transactions.push(walletTx);
-
-                    console.log(walletTx)
-                  });
-                });
-              };
-            });
 
             // Fetch and decrypt contacts
             try {
@@ -395,7 +299,14 @@ export default defineComponent({
                   });
               });
             } catch (e) {
-              // Dismiss loading popup
+              throw new Error(e);
+            }
+
+            // Dismiss once all done
+            a.dismiss();
+          })
+          .catch(async e => {
+            // Dismiss loading popup
               a.dismiss();
 
               // Error alert
@@ -406,10 +317,7 @@ export default defineComponent({
               });
 
               return error.present();
-            }
-
-            a.dismiss();
-          });
+          })
         });
     });
 
@@ -421,7 +329,7 @@ export default defineComponent({
       scanOutline,
       qrCodeOutline,
       timerOutline,
-      cGradient
+      cGradient,
     };
   },
 });
