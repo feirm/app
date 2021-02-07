@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-header class="ion-no-border">
-      <ion-toolbar class="ion-text-left">
+      <ion-toolbar class="ion-text-left" :style="{ '--background': cGradient.getGradient(ticker) }">
         <ion-grid>
           <ion-row class="ion-no-padding">
             <ion-col>
@@ -129,6 +129,7 @@ import SendCoins from "@/components/Wallet/Send/Send.vue";
 // Wallet
 import { Coin } from "@/models/coin";
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
+import CardGradient from "@/class/cardGradient";
 
 export default defineComponent({
   name: "Details",
@@ -208,6 +209,9 @@ export default defineComponent({
     const store = useStore();
     const router = useRouter();
 
+    // Card colour gradients
+    const cGradient = new CardGradient();
+
     return {
       store,
       router,
@@ -217,6 +221,7 @@ export default defineComponent({
       arrowDownCircleOutline,
       arrowUpCircleOutline,
       timeOutline,
+      cGradient
     };
   },
 });
@@ -236,7 +241,4 @@ ion-footer {
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
-ion-toolbar {
-  --background: no-repeat bottom right, linear-gradient(#242424, #1c1c1c);
-}
 </style>
