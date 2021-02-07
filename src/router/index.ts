@@ -26,7 +26,9 @@ import WalletNewSeed from "@/views/Wallet/NewSeed.vue";
 import WalletRecovery from "@/views/Wallet/Setup/Recovery.vue";
 import WalletAddCoin from "@/views/Wallet/AddCoin.vue";
 
+// Wallet Settings
 import WalletSettingsOverview from "@/views/Wallet/Settings/Overview.vue";
+import WalletSettingsXpub from "@/views/Wallet/Settings/ShowXPUB.vue";
 
 const routes: Array<RouteRecordRaw> = [
   // Redirect index page to Discover route
@@ -79,12 +81,16 @@ const routes: Array<RouteRecordRaw> = [
         component: TabWalletDetails,
       },
       {
+        path: "wallet/:id/:coin/transactions",
+        component: TabWalletTransactions,
+      },
+      {
         path: "wallet/:id/:coin/settings",
         component: WalletSettingsOverview
       },
       {
-        path: "wallet/:id/:coin/transactions",
-        component: TabWalletTransactions,
+        path: "wallet/:id/:coin/settings/showXpub",
+        component: WalletSettingsXpub
       },
 
       // Marketplace
