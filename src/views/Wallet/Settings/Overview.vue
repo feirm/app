@@ -15,7 +15,7 @@
 
       <hr>
       <ion-button expand="block">Export / Backup</ion-button>
-      <ion-button expand="block">Show XPUB</ion-button>
+      <ion-button expand="block" @click="showXpub">Show XPUB</ion-button>
     </ion-content>
     <ion-footer class="ion-no-border ion-padding ion-text-center">
       <ion-button color="danger" fill="clear" @click="deleteCoin" :disabled="store.getters.walletState.coins.length === 1">Remove Coin</ion-button>
@@ -93,6 +93,14 @@ export default defineComponent({
           return error.present();
         })
       });
+    },
+    showXpub() {
+      // Get ID and ticker from params
+      const id = this.$route.params.id as string
+      const ticker = this.$route.params.coin as string;
+      
+      // Route to xpub page
+      this.router.push({ path: `/tabs/wallet/${id}/${ticker}/settings/showXpub` })
     }
   },
   setup() {
