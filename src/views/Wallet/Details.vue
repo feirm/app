@@ -203,7 +203,20 @@ export default defineComponent({
     openBlockbook(ticker: string, txid: string) {
       const blockbookUrl = hdWalletP2pkh.getBlockbook(ticker);
       window.open(blockbookUrl + "/tx/" + txid); 
-    }
+    },
+    async doRefresh(event: any) {
+      // Refresh balance data for all coins
+      const coins = hdWalletP2pkh.getAllCoins();
+      for (let i = 0; i < coins.length; i++) {
+        await hdWalletP2pkh.setBalances(coins[i].ticker, coins[i].extendedPublicKey);
+      }
+
+      // Refresh entire transaction state
+      await hdWalletP2pkh.getAllTransactions();
+
+      // Complete
+      event.target.complete();
+    },
   },
   setup() {
     const store = useStore();

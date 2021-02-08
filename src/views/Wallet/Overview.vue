@@ -51,7 +51,6 @@
 
           <!-- Always show "add wallet/coin" card -->
           <div class="swiper-slide">
-            <!-- TODO: Fix style -->
             <ion-card @click="addCoin" :style="{'background-image': cGradient.getGradient('default')}">
               <ion-card-header class="ion-text-left">
                 <ion-text style="color: white">
@@ -195,6 +194,19 @@ export default defineComponent({
     openBlockbook(ticker: string, txid: string) {
       const blockbookUrl = hdWalletP2pkh.getBlockbook(ticker);
       window.open(blockbookUrl + "/tx/" + txid);
+    },
+    async doRefresh(event: any) {
+      // Refresh balance data for all coins
+      const coins = this.wallet.getAllCoins();
+      for (let i = 0; i < coins.length; i++) {
+        await this.wallet.setBalances(coins[i].ticker, coins[i].extendedPublicKey);
+      }
+
+      // Refresh entire transaction state
+      await this.wallet.getAllTransactions();
+
+      // Complete
+      event.target.complete();
     },
     // Open modal to send XFE
     async sendModal() {
