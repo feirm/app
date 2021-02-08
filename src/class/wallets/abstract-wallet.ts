@@ -171,20 +171,18 @@ export abstract class AbstractWallet {
     }
 
     // P2WPKH (native segwit)
-    /*
-        if (networks.P2WPKH) {
-            const path = "m/84'/" + index + "'/0'"; // BIP84
-            const rootKey = fromSeed(seed, networks.P2WPKH);
-            coin.rootKey = rootKey.toBase58();
+    if (networks.P2WPKH) {
+      const path = "m/84'/" + index + "'/0'"; // BIP84
+      const rootKey = fromSeed(seed, networks.P2WPKH);
+      coin.rootKey = rootKey.toBase58();
 
-            const node = rootKey.derivePath(path);
-            coin.extendedPublicKey = node.neutered().toBase58();
-            coin.extendedPrivateKey = node.toBase58();
+      const node = rootKey.derivePath(path);
+      coin.extendedPublicKey = node.neutered().toBase58();
+      coin.extendedPrivateKey = node.toBase58();
 
-            this.coins.push(coin);
-            return coin;
-        }
-        */
+      this.coins.push(coin);
+      return coin;
+    }
   }
 
   // Fetch and set confirmed + unconfirmed balances
