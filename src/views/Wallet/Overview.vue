@@ -169,7 +169,7 @@ export default defineComponent({
       // Options
       observer: true,
       observeParents: true,
-      slidesPerView: 1.1,
+      slidesPerView: 1.2,
     });
 
     // Slide change handler
