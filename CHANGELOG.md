@@ -27,6 +27,7 @@ All notable changes to the Feirm PWA will be documented in this file.
 * Correctly set multiple asset balances on launch.
 * Different colour wallet cards depending on the coin.
 * Show the Extended Public Key for a coin.
+* Hardcode transaction fee if dynamic one cannot be calculated.
 
 ### Work in Progress
 * PGP Signed pages
