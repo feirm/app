@@ -49,15 +49,16 @@
             </ion-card>
           </div>
 
-          <!-- Show "add wallet" card if no wallet/coin is present -->
-          <div class="swiper-slide" v-show="!store.getters.walletState.id">
-            <ion-card @click="addCoin">
+          <!-- Always show "add wallet/coin" card -->
+          <div class="swiper-slide">
+            <!-- TODO: Fix style -->
+            <ion-card @click="addCoin" :style="{'background-image': cGradient.getGradient('default')}">
               <ion-card-header class="ion-text-left">
                 <ion-text style="color: white">
                   <h3>Add a wallet</h3>
                   <p>It's free and we support multiple assets!</p>
                 </ion-text>
-                <ion-button @click="addCoin" color="dark">Add now</ion-button>
+                <ion-button @click="addCoin" color="primary">Add now</ion-button>
               </ion-card-header>
             </ion-card>
           </div>
@@ -168,6 +169,7 @@ export default defineComponent({
       // Options
       observer: true,
       observeParents: true,
+      slidesPerView: 1.1,
     });
 
     // Slide change handler
@@ -182,16 +184,6 @@ export default defineComponent({
     },
     async addCoin() {
       if (this.store.getters.walletExists) {
-        // Show an error as there is an issue with new coins right now
-        const error = await alertController.create({
-          header: "Maintenance mode",
-          message:
-            "This functionality is currently disabled. Please try again later.",
-          buttons: ["Close"],
-        });
-
-        // return error.present();
-
         return this.router.push({ path: "/wallet/addCoin" });
       }
 
@@ -338,5 +330,11 @@ ion-col {
 
 .grey-background {
   background-color: var(--ion-color-light);
+}
+
+/* Cards */
+ion-card {
+  height: 10rem;
+  display: flex;
 }
 </style>
