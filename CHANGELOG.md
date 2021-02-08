@@ -26,6 +26,7 @@ All notable changes to the Feirm PWA will be documented in this file.
 * Re-implemented multiple-asset support.
 * Correctly set multiple asset balances on launch.
 * Different colour wallet cards depending on the coin.
+* Show the Extended Public Key for a coin.
 
 ### Work in Progress
 * PGP Signed pages
