@@ -265,6 +265,12 @@ export default defineComponent({
         "/api/v2/estimatefee/10"
     );
 
+    // Set a hardcoded fee if dynamic fee is not available
+    if (txFee.data.result == "-1") {
+      this.fee = "0.000o1";
+      return;
+    }
+
     this.fee = txFee.data.result;
   },
   setup() {
