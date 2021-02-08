@@ -1,7 +1,7 @@
 <template>
   <ion-page>
     <ion-header class="ion-no-border">
-      <ion-toolbar class="ion-text-left" color="transparent">
+      <ion-toolbar class="ion-text-left">
         <ion-title color="dark">Show XPUB</ion-title>
         <ion-buttons slot="secondary">
           <ion-back-button :icon="close"></ion-back-button>
