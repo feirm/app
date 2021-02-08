@@ -73,13 +73,10 @@ export abstract class AbstractWallet {
   getCoin(ticker: string): Coin {
     ticker = ticker.toLowerCase();
 
-    // Fetch coin index
-    const index = this.coins.map(coin => coin.ticker.toLowerCase()).indexOf(ticker);
-    if (index > 0) {
-      return this.coins[index];
-    }
+    // Fetch coin based on ticker
+    const coin = this.coins.find(coin => coin.ticker.toLowerCase() === ticker.toLowerCase())!;
 
-    return {} as Coin;
+    return coin;
   }
 
   // Delete an entire wallet and all of its state
