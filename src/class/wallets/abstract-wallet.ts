@@ -18,7 +18,6 @@ export abstract class AbstractWallet {
   secret: string; // Going to be a private key or mnemonic
   coins: Coin[] = []; // Coins available in wallet
   transactions: Transaction[] = []; // All transactions throughout a single wallet
-  websockets = [] as any; // Maintain a state of Websocket connections
 
   // Generate a wallet ID
   async getId() {
@@ -116,34 +115,6 @@ export abstract class AbstractWallet {
     const data = this.getCoinData(ticker);
 
     return data.blockbook;
-  }
-
-  // Establish WSS connection to Blockbook and add to connections list
-  establishWss(ticker: string): WebSocket {
-    // Get Blockbook instance and remove HTTPS prefix
-    const blockbookUrl = this.getBlockbook(ticker).replace(/(^\w+:|^)\/\//, "");
-
-    // Create new Websocket
-    const socket = new WebSocket("wss://" + blockbookUrl + "/websocket");
-
-    // Add the connection to the Websocket connections array
-    const obj = {
-      ticker: ticker.toLowerCase() as string,
-      socket: socket as WebSocket,
-    };
-
-    this.websockets.push(obj);
-
-    return socket;
-  }
-
-  // Fetch an existing websocket connection
-  getWss(ticker: string): WebSocket {
-    ticker = ticker.toLowerCase();
-    const socket = this.websockets.find((socket) => socket.ticker === ticker)
-      .socket;
-
-    return socket;
   }
 
   // Return all coin data
