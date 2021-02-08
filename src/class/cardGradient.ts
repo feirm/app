@@ -14,6 +14,10 @@ export default class CardGradient {
         {
             ticker: "doge",
             colours: ["#a17c34", "#e5cb7a"]
+        },
+        {
+            ticker: "xln",
+            colours: ["#043483", "#026397"]
         }
     ]
 
