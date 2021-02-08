@@ -1,7 +1,6 @@
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 import { Wallet } from "@/models/wallet";
 import { Transaction } from "@/models/transaction";
-import { store } from "@/store";
 
 export const wallet = {
   state: {
@@ -32,14 +31,6 @@ export const wallet = {
       if (wallet) {
         // Update wallet state
         commit("setWalletState", wallet);
-
-        // Set coin data
-        await store.dispatch("setCoins");
-
-        // Establish WebSocket connections
-        wallet.coins.forEach(coin => {
-          hdWalletP2pkh.establishWss(coin.ticker);
-        })
       }
     },
     clearWallet({ commit }) {
