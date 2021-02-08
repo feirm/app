@@ -4,7 +4,7 @@
       <ion-toolbar class="ion-text-left" color="transparent">
         <ion-title color="dark">Show XPUB</ion-title>
         <ion-buttons slot="secondary">
-          <ion-back-button></ion-back-button>
+          <ion-back-button :icon="close"></ion-back-button>
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
@@ -38,6 +38,8 @@
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 import { defineComponent } from "vue";
 import QRCode from "qrcode";
+
+import { close } from "ionicons/icons";
 
 import {
   IonPage,
@@ -126,6 +128,7 @@ export default defineComponent({
 
     return {
       wallet,
+      close
     };
   },
 });
