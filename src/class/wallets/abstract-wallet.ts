@@ -286,6 +286,8 @@ export abstract class AbstractWallet {
       const coin = coins[i];
       const blockbookUrl = this.getBlockbook(coin.ticker);
 
+      console.log("Fetching transaction data for:", coin.name);
+
       await axios
         .get(
           `https://cors-anywhere.feirm.com/${blockbookUrl}/api/v2/xpub/${coin.extendedPublicKey}?details=txs&tokens=used`
