@@ -123,9 +123,6 @@ export default defineComponent({
                         // Generate a Feirm wallet
                         HDWalletP2PKH.addCoin("xfe");
 
-                        // Establish WSS connection
-                        HDWalletP2PKH.establishWss("xfe");
-
                         // Fetch balances (likely none due to being a new wallet)
                         HDWalletP2PKH.setBalances("xfe", HDWalletP2PKH.getXpub("xfe"));
 

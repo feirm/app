@@ -71,13 +71,10 @@ import {
   close,
   helpCircleOutline,
 } from "ionicons/icons";
-import { FindWallet, DeriveAddress } from "@/lib/wallet";
 import QRCode from "qrcode";
 import bip21 from "bip21";
 import hdWalletP2pkh from "@/class/wallets/hd-wallet-p2pkh";
 import axios from "axios";
-import ReceivePopup from "@/components/Wallet/Receive/Popup.vue";
-import BigNumber from "bignumber.js";
 
 export default defineComponent({
   name: "ReceivingAddress",
@@ -150,51 +147,6 @@ export default defineComponent({
           await QRCode.toDataURL(payment, { width: 200, margin: 1 }).then((qr) => {
             this.qrCode = qr;
           });
-
-          // Fetch existing WSS connection
-          const socket = hdWalletP2pkh.getWss(coin.ticker);
-
-          // Subscribe to the address channel
-          const subscription = {
-            method: "subscribeAddresses",
-            params: {
-              addresses: [ address ]
-            }
-          };
-
-          socket.send(JSON.stringify(subscription));
-
-          // Handle messages
-          socket.onmessage = function(msg) {
-            const data = JSON.parse(msg.data).data;
-            if (data) {
-              // Iterate over outputs and determine if it is ours
-              data.tx.vout.forEach(async output => {
-                if (output.addresses.includes(address)) {
-                  // Unsubscribe from address
-                  const unsubscribe = {
-                    method: "unsubscribeAddresses"
-                  }
-
-                  socket.send(JSON.stringify(unsubscribe));
-
-                  // Calculate amount from Satoshis
-                  const amount = new BigNumber(output.value).dividedBy(100000000).toString();
-
-                  // Show a screen
-                  const modal = await modalController.create({
-                    component: ReceivePopup,
-                    componentProps: {
-                      amount: amount,
-                      ticker: coin.ticker
-                    }
-                  });
-
-                  return modal.present();
-                }
-              });
-            }
-          }
 
           // Dismiss modal
           a.dismiss();
