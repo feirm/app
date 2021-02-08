@@ -217,40 +217,28 @@ export abstract class AbstractWallet {
   }
 
   // Fetch and set confirmed + unconfirmed balances
-  setBalances(ticker: string, xpub: string) {
-    // Get WSS connection for coin
-    const ws = this.getWss(ticker);
+  async setBalances(ticker: string, xpub: string) {
+    // Find the index of the coin ticker
+    const index = this.coins.map(coin => coin.ticker.toLowerCase()).indexOf(ticker.toLowerCase());
 
-    // Query for balances
-    // But first, construct a payload
-    const payload = {
-      method: "getAccountInfo",
-      params: {
-        descriptor: xpub,
-      },
-    };
+    // Get the coin for it
+    const coin = this.coins[index];
 
-    ws.onopen = () => {
-      ws.send(JSON.stringify(payload));
-    };
+    console.log("Fetching balance data for:", coin.name);
 
-    // Listen for message and get balance data
-    const self = this; // Hacky work-around
-    ws.onmessage = function(msg) {
-      const data = JSON.parse(msg.data).data;
+    // Get Blockbook URL for coin
+    const blockbook = this.getBlockbook(ticker);
 
-      // Get the index of a coin based on its ticker
-      const coinIndex = self.coins
-        .map((coin) => coin.ticker.toLocaleLowerCase())
-        .indexOf(ticker.toLocaleLowerCase());
+    // Query for balance data
+    const res = await axios.get('https://cors-anywhere.feirm.com/' + blockbook + '/api/v2/xpub/' + xpub);
 
-      // Update balances
-      self.coins[coinIndex].balance = data.balance;
-      self.coins[coinIndex].unconfirmedBalance = data.unconfirmedBalance;
-
-      // Save wallet
-      self.saveWallet();
-    };
+    // Set the data
+    coin.balance = res.data.balance;
+    coin.unconfirmedBalance = res.data.unconfirmedBalance;
+    this.coins[index] = coin;
+    
+    // Save the wallet state
+    this.saveWallet();
   }
 
   // Return an object of the entire wallet
