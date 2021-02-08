@@ -168,11 +168,11 @@ export abstract class AbstractWallet {
 
     // Derive the HD wallet data
     // Support for clients that might be using old API
-    let index = 0;
-    if (coinData.hdIndex) {
-      index = coinData.hdIndex;
-    } else {
+    let index;
+    if (coinData.bip44) {
       index = coinData.bip44;
+    } else {
+      index = coinData.hdIndex;
     }
 
     // New instance of the coin object
