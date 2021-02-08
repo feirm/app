@@ -71,15 +71,12 @@ export abstract class AbstractWallet {
 
   // Return a coin wallet by searching for its ticker
   getCoin(ticker: string): Coin {
-    ticker = ticker.toLocaleLowerCase();
+    ticker = ticker.toLowerCase();
 
-    for (let i = 0; i < this.getAllCoins().length; i++) {
-      if (
-        this.getAllCoins()[i].ticker.toLocaleLowerCase() ===
-        ticker.toLocaleLowerCase()
-      ) {
-        return this.coins[i];
-      }
+    // Fetch coin index
+    const index = this.coins.map(coin => coin.ticker.toLowerCase()).indexOf(ticker);
+    if (index > 0) {
+      return this.coins[index];
     }
 
     return {} as Coin;
