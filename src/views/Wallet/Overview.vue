@@ -245,6 +245,9 @@ export default defineComponent({
         .then((a) => {
           // Loading popup
           a.present().then(async () => {
+            // Fetch coin network data
+            await store.dispatch("setCoins");
+
             // P2PKH wallet
             const wallet = hdWalletP2pkh;
 
