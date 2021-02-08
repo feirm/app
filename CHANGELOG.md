@@ -18,7 +18,6 @@ All notable changes to the Feirm PWA will be documented in this file.
 * Re-design of the wallet creation and recovery process.
 * Real-time calculation of transaction value (including fees).
 * Success page when a transaction has been sent.
-* Establish WebSocket connection to every coin's Blockbook explorer upon startup.
 * Validate "to address" against coin network parameters before sending.
 * Show transaction fee and total cost on send coins component.
 * Remove wallet and all coins from storage.
