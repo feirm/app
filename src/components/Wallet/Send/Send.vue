@@ -165,7 +165,7 @@ export default defineComponent({
                       );
 
                       // Create and return a signed psbt
-                      const tx = hdWalletP2pkh.createSignedTransaction(
+                      const tx = await hdWalletP2pkh.createSignedTransaction(
                         this.$props.ticker!,
                         this.toAddress,
                         amount,
@@ -257,6 +257,10 @@ export default defineComponent({
   async created() {
     // Fetch a reasonable TX fee
     const blockbookUrl = hdWalletP2pkh.getBlockbook(this.$props.ticker!);
+
+    // Testing, get change address
+    const change = await hdWalletP2pkh.getChangeAddress(this.$props.ticker!);
+    console.log("Next change address:", change);
 
     // Set fee for 10 blocks confirmation
     const txFee = await axios.get(
