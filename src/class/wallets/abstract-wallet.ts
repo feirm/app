@@ -317,9 +317,7 @@ export abstract class AbstractWallet {
                 if (index === 0) {
                   // If the output includes our address, it means it is targeted to us - making it incoming
                   if (vout.addresses.includes(address)) {
-                    const value = new BigNumber(vout.value)
-                      .dividedBy(100000000)
-                      .toString();
+                    const value = new BigNumber(vout.value).dividedBy(100000000).toFixed(3).toString();
                     walletTx.value = value;
                     walletTx.isMine = true;
                   }
@@ -329,13 +327,9 @@ export abstract class AbstractWallet {
                 // so find the output, and deduct it from the original amount + fees
                 if (index === 1) {
                   if (vout.addresses.includes(address)) {
-                    const txValue = new BigNumber(tx.value).dividedBy(
-                      100000000
-                    );
-                    const changeOutput = new BigNumber(vout.value).dividedBy(
-                      100000000
-                    );
-                    const amount = txValue.minus(changeOutput);
+                    const txValue = new BigNumber(tx.value).dividedBy(100000000);
+                    const changeOutput = new BigNumber(vout.value).dividedBy(100000000);
+                    const amount = txValue.minus(changeOutput).toFixed(3);
 
                     walletTx.value = amount.toString();
                   }
