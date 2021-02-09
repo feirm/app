@@ -51,13 +51,18 @@
 
           <!-- Always show "add wallet/coin" card -->
           <div class="swiper-slide">
-            <ion-card @click="addCoin" :style="{'background-image': cGradient.getGradient('default')}">
+            <ion-card
+              @click="addCoin"
+              :style="{ 'background-image': cGradient.getGradient('default') }"
+            >
               <ion-card-header class="ion-text-left">
                 <ion-text style="color: white">
                   <h3>Add a wallet</h3>
                   <p>It's free and we support multiple assets!</p>
                 </ion-text>
-                <ion-button @click="addCoin" color="primary">Add now</ion-button>
+                <ion-button @click="addCoin" color="primary"
+                  >Add now</ion-button
+                >
               </ion-card-header>
             </ion-card>
           </div>
@@ -87,6 +92,59 @@
           </ion-col>
         </ion-row>
       </ion-grid>
+
+      <!-- Recent transactions -->
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <h4 class="ion-text-bold">Transactions</h4>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <p v-show="store.getters.allTransactions.length === 0">
+              It appears that you do not have any transactions yet...
+            </p>
+
+            <!-- Transactions -->
+            <ion-item-group>
+              <ion-item
+                lines="none"
+                class="ion-no-padding"
+                color="transparent"
+                v-for="tx in store.getters.allTransactions"
+                v-bind:key="tx.txid"
+                @click="openBlockbook(tx.ticker, tx.txid)"
+              >
+                <!-- Icons: incoming, outgoing or pending -->
+                <ion-icon
+                  v-if="tx.confirmations > 0"
+                  slot="start"
+                  :color="!tx.isMine ? 'danger' : 'success'"
+                  :icon="
+                    !tx.isMine ? arrowUpCircleOutline : arrowDownCircleOutline
+                  "
+                ></ion-icon>
+                <ion-icon
+                  v-if="tx.confirmations === 0"
+                  slot="start"
+                  color="warning"
+                  :icon="timeOutline"
+                ></ion-icon>
+
+                <!-- Time received -->
+                <ion-label>{{ formatDate(tx.blockTime) }}</ion-label>
+
+                <!-- Value -->
+                <ion-label slot="end" class="ion-text-right"
+                  >{{ tx.value }}
+                  <b>{{ tx.ticker.toUpperCase() }}</b></ion-label
+                >
+              </ion-item>
+            </ion-item-group>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </ion-content>
   </ion-page>
 </template>
@@ -110,6 +168,7 @@ import {
   IonGrid,
   IonRow,
   IonCol,
+  IonLabel,
   alertController,
   modalController,
   loadingController,
@@ -119,6 +178,9 @@ import {
   addCircleOutline,
   scanOutline,
   qrCodeOutline,
+  arrowDownCircleOutline,
+  arrowUpCircleOutline,
+  timeOutline
 } from "ionicons/icons";
 
 import Swiper from "swiper";
@@ -199,7 +261,10 @@ export default defineComponent({
       // Refresh balance data for all coins
       const coins = this.wallet.getAllCoins();
       for (let i = 0; i < coins.length; i++) {
-        await this.wallet.setBalances(coins[i].ticker, coins[i].extendedPublicKey);
+        await this.wallet.setBalances(
+          coins[i].ticker,
+          coins[i].extendedPublicKey
+        );
       }
 
       // Refresh entire transaction state
@@ -256,55 +321,56 @@ export default defineComponent({
         })
         .then((a) => {
           // Loading popup
-          a.present().then(async () => {
-            // Fetch coin network data
-            await store.dispatch("setCoins");
+          a.present()
+            .then(async () => {
+              // Fetch coin network data
+              await store.dispatch("setCoins");
 
-            // P2PKH wallet
-            const wallet = hdWalletP2pkh;
+              // P2PKH wallet
+              const wallet = hdWalletP2pkh;
 
-            // Iterate over all of the coins
-            for (let i = 0; i < wallet.getAllCoins().length; i++) {
-              const coin = wallet.getAllCoins()[i];
+              // Iterate over all of the coins
+              for (let i = 0; i < wallet.getAllCoins().length; i++) {
+                const coin = wallet.getAllCoins()[i];
 
-              // Fetch and set coin balances
-              wallet.setBalances(coin.ticker, coin.extendedPublicKey);
-            }
+                // Fetch and set coin balances
+                wallet.setBalances(coin.ticker, coin.extendedPublicKey);
+              }
 
-            // Fetch all transactions
-            try {
-              await wallet.getAllTransactions();
-            } catch (e) {
-              throw new Error(e);
-            }
+              // Fetch all transactions
+              try {
+                await wallet.getAllTransactions();
+              } catch (e) {
+                throw new Error(e);
+              }
 
-            // Fetch and decrypt contacts
-            try {
-              await tatsuyaService.fetchContacts().then(async (res) => {
-                // Set the encrypted contacts array
-                const contacts = res.data as EncryptedContact[];
-                if (!contacts) {
-                  return;
-                }
+              // Fetch and decrypt contacts
+              try {
+                await tatsuyaService.fetchContacts().then(async (res) => {
+                  // Set the encrypted contacts array
+                  const contacts = res.data as EncryptedContact[];
+                  if (!contacts) {
+                    return;
+                  }
 
-                // Attempt to decrypt contacts array
-                await DecryptContacts(contacts)
-                  .then((decryptedContacts) => {
-                    store.commit("setContacts", decryptedContacts);
-                  })
-                  .catch((e) => {
-                    console.log(e);
-                  });
-              });
-            } catch (e) {
-              throw new Error(e);
-            }
+                  // Attempt to decrypt contacts array
+                  await DecryptContacts(contacts)
+                    .then((decryptedContacts) => {
+                      store.commit("setContacts", decryptedContacts);
+                    })
+                    .catch((e) => {
+                      console.log(e);
+                    });
+                });
+              } catch (e) {
+                throw new Error(e);
+              }
 
-            // Dismiss once all done
-            a.dismiss();
-          })
-          .catch(async e => {
-            // Dismiss loading popup
+              // Dismiss once all done
+              a.dismiss();
+            })
+            .catch(async (e) => {
+              // Dismiss loading popup
               a.dismiss();
 
               // Error alert
@@ -315,7 +381,7 @@ export default defineComponent({
               });
 
               return error.present();
-          })
+            });
         });
     });
 
@@ -326,7 +392,10 @@ export default defineComponent({
       addCircleOutline,
       scanOutline,
       qrCodeOutline,
-      cGradient,
+      arrowDownCircleOutline,
+      arrowUpCircleOutline,
+      timeOutline,
+      cGradient
     };
   },
 });
