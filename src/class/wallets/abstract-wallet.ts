@@ -264,6 +264,9 @@ export abstract class AbstractWallet {
         }
       });
 
+    // Sort the array of UTXOs by value size
+    utxos.sort((a, b) => (b.value, a.value) ? -1 : 1);
+
     return utxos;
   }
 
