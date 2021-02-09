@@ -5,6 +5,7 @@ import { fromBase58, fromSeed } from "bip32";
 import { Utxo } from "@/models/transaction";
 import BigNumber from "bignumber.js";
 import b58 from "bs58check";
+import axios from "axios";
 
 /**
  * HD Wallet (BIP44)
@@ -59,8 +60,58 @@ class HDWalletP2PKH extends AbstractWallet {
         return address;
     }
 
+    // Fetch a P2PKH change address that is unused
+    async getChangeAddress(ticker: string): Promise<string> {
+        // Fetch coin xpub and relevant network data
+        const xpub = this.getXpub(ticker);
+        const network = this.getNetwork(ticker).p2pkh;
+
+        // Blockbook instance of coin
+        const blockbookUrl = this.getBlockbook(ticker);
+
+        // Fetch XPUB data
+        const xpubData = await axios.get(
+            "https://cors-anywhere.feirm.com/" +
+            blockbookUrl +
+            "/api/v2/xpub/" +
+            xpub +
+            "?tokens=used"
+        );
+
+        // Iterate over the XPUB data to find the lowest change index
+        let lowestChangeIndex = 0;
+
+        if (xpubData.data.tokens) {
+            for (let i = 0; i < xpubData.data.tokens.length; i++) {
+                const token = xpubData.data.tokens[i];
+
+                // Get the token BIP path
+                const path = token.path;
+
+                // Split up the path to extract the index
+                const split = path.split("/");
+                const node = parseInt(split[4]);
+                const index = parseInt(split[5]);
+
+                // Check that the node is internal (change)
+                if (node === 1) {
+                    // Now sure how I figured out this works, so don't touch!!!
+                    lowestChangeIndex = index + 1;
+                }
+            }
+        }
+
+        // Derive the P2PKH change address
+        const address = payments.p2pkh({
+            pubkey: fromBase58(xpub).derive(1).derive(lowestChangeIndex).publicKey,
+            network: network
+        }).address
+
+        return address!;
+    }
+
     // Create a signed transaction
-    createSignedTransaction(ticker: string, address: string, amount: string, fee: string, utxos: Utxo[]): Psbt {
+    async createSignedTransaction(ticker: string, address: string, amount: string, fee: string, utxos: Utxo[]): Promise<Psbt> {
         /*
          * Expect the amount and fee to be in Satoshi format.
         */
@@ -82,27 +133,24 @@ class HDWalletP2PKH extends AbstractWallet {
 
         // We have the UTXOs, so iterate over them and add them as inputs to our Psbt
         utxos.forEach(utxo => {
+            // Only continue to add more inputs if the outgoing value we want is not met
+            if (valueOfInputs.isLessThan(newAmount)) {
+                psbt.addInput({
+                    hash: utxo.txid,
+                    index: utxo.vout,
+                    nonWitnessUtxo: Buffer.from(utxo.hex, "hex"),
+                    bip32Derivation: [
+                        {
+                            masterFingerprint: rootKey.fingerprint,
+                            path: utxo.path,
+                            pubkey: rootKey.derivePath(utxo.path).publicKey
+                        }
+                    ]
+                })
 
-            // Might not need all of the UTXOs, so stop when needed
-            if (valueOfInputs.isGreaterThanOrEqualTo(newAmount)) {
-                return;
+                // Increment UTXO input values
+                valueOfInputs = valueOfInputs.plus(utxo.value);
             }
-
-            psbt.addInput({
-                hash: utxo.txid,
-                index: utxo.vout,
-                nonWitnessUtxo: Buffer.from(utxo.hex, "hex"),
-                bip32Derivation: [
-                    {
-                        masterFingerprint: rootKey.fingerprint,
-                        path: utxo.path,
-                        pubkey: rootKey.derivePath(utxo.path).publicKey
-                    }
-                ]
-            })
-
-            // Increment input values
-            valueOfInputs = valueOfInputs.plus(utxo.value);
         })
 
         // Construct an output
@@ -113,7 +161,7 @@ class HDWalletP2PKH extends AbstractWallet {
 
         // Construct change output
         const changeAmount = valueOfInputs.minus(newAmount).minus(newFee);
-        const changeAddress = this.getNodeAddressByIndex(coin.ticker, 1, 0);
+        const changeAddress = await this.getChangeAddress(coin.ticker);
         psbt.addOutput({
             address: changeAddress as string,
             value: changeAmount.toNumber()
