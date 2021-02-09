@@ -258,20 +258,16 @@ export default defineComponent({
     // Fetch a reasonable TX fee
     const blockbookUrl = hdWalletP2pkh.getBlockbook(this.$props.ticker!);
 
-    // Testing, get change address
-    const change = await hdWalletP2pkh.getChangeAddress(this.$props.ticker!);
-    console.log("Next change address:", change);
-
-    // Set fee for 10 blocks confirmation
+    // Set fee for 25 blocks confirmation
     const txFee = await axios.get(
       "https://cors-anywhere.feirm.com/" +
         blockbookUrl +
-        "/api/v2/estimatefee/10"
+        "/api/v2/estimatefee/25"
     );
 
     // Set a hardcoded fee if dynamic fee is not available
     if (txFee.data.result == "-1") {
-      this.fee = "0.000o1";
+      this.fee = "0.00001";
       return;
     }
 
