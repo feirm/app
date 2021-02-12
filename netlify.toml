@@ -1,8 +1,0 @@
-# Current 1.1.4 version
-[build]
-    command = "yarn build --mode production"
-    publish = "dist/"
-
-# Staging branch
-[context.staging]
-    command = "yarn build --mode staging"
