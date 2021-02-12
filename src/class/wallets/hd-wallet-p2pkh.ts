@@ -131,6 +131,10 @@ class HDWalletP2PKH extends AbstractWallet {
         // Derive BIP32 root key
         const rootKey = fromBase58(coin.rootKey, network);
 
+        // Organise the UTXOs
+        utxos.sort((a, b) => new BigNumber(a.value).toNumber() - new BigNumber(b.value).toNumber());
+        console.log(utxos);
+
         // We have the UTXOs, so iterate over them and add them as inputs to our Psbt
         utxos.forEach(utxo => {
             // Only continue to add more inputs if the outgoing value we want is not met
@@ -147,6 +151,8 @@ class HDWalletP2PKH extends AbstractWallet {
                         }
                     ]
                 })
+
+                console.log("Using input:", utxo.txid, "worth:", utxo.value, "for:", ticker);
 
                 // Increment UTXO input values
                 valueOfInputs = valueOfInputs.plus(utxo.value);
