@@ -308,6 +308,10 @@ export abstract class AbstractWallet {
             // Iterate through the transaction outputs and determine if the TX belongs to us
             tx.vout.forEach((vout) => {
               // Exclude change addresses from this process
+              if (!tokens) {
+                return;
+              }
+              
               tokens.forEach((token) => {
                 // Split the token so we can get the account (0 or 1);
                 const splitToken = token.path.split("/");
