@@ -11,17 +11,18 @@
   </ion-header>
   <ion-content class="ion-padding ion-text-center">
     <!-- Address input -->
-    <ion-item lines="none" color="transparent">
+    <ion-item color="transparent">
       <ion-label position="stacked">Address</ion-label>
       <ion-input
         v-model="toAddress"
         type="text"
+        placeholder="Enter recipient address"
         v-on:ionChange="validateAddress($event.target.value)"
       ></ion-input>
     </ion-item>
 
     <!-- Amount input -->
-    <ion-item lines="none" color="transparent">
+    <ion-item color="transparent">
       <ion-label position="stacked"
         >Amount ({{ this.$props.ticker.toUpperCase() }})</ion-label
       >
@@ -33,25 +34,27 @@
       ></ion-input>
     </ion-item>
 
-    <hr />
-
     <!-- Transaction fee -->
-    <ion-item lines="none" color="transparent">
-      <ion-label position="stacked"
+    <ion-item color="transparent">
+      <ion-label position="floating"
         >Transaction Fee ({{ this.$props.ticker.toUpperCase() }})</ion-label
       >
       <ion-input v-model="fee" disabled></ion-input>
     </ion-item>
 
     <!-- Total amount inc. fee -->
-    <ion-item lines="none" color="transparent">
-      <ion-label position="stacked"
+    <ion-item color="transparent">
+      <ion-label position="floating"
         >Amount including fee ({{
           this.$props.ticker.toUpperCase()
         }})</ion-label
       >
-      <ion-input v-model="total" disabled></ion-input>
+      <ion-input v-model="total" type="number" disabled></ion-input>
     </ion-item>
+
+    <!-- Balance available -->
+    <br>
+    <ion-label>Available balance: {{ max/100000000 }} {{ this.$props.ticker.toUpperCase() }}</ion-label>
 
     <!-- Floating send button -->
     <ion-fab vertical="bottom" horizontal="end" slot="fixed">
@@ -105,7 +108,7 @@ export default defineComponent({
       amount: 0,
       fee: "",
       total: "",
-      max: 0,
+      max: "",
       sendDisabled: true,
     };
   },
@@ -255,6 +258,9 @@ export default defineComponent({
     },
   },
   async created() {
+    // Get total balance
+    this.max = hdWalletP2pkh.getCoin(this.$props.ticker!).balance;
+
     // Fetch a reasonable TX fee
     const blockbookUrl = hdWalletP2pkh.getBlockbook(this.$props.ticker!);
 
@@ -279,7 +285,7 @@ export default defineComponent({
       sendSharp,
       qrCodeOutline,
       closeOutline,
-      scanOutline,
+      scanOutline
     };
   },
   components: {
