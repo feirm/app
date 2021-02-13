@@ -10,8 +10,10 @@ import { Wallet } from "@/models/wallet";
 import { store } from "@/store";
 import { entropyToMnemonic, mnemonicToSeedSync, validateMnemonic } from "bip39";
 import axios from "axios";
-import { fromSeed } from "bip32";
+import { fromBase58, fromSeed } from "bip32";
 import BigNumber from "bignumber.js";
+import b58 from "bs58check";
+import { payments } from "bitcoinjs-lib";
 
 export abstract class AbstractWallet {
   id: string; // Wallet ID derived from secret mnemonic
@@ -74,7 +76,9 @@ export abstract class AbstractWallet {
     ticker = ticker.toLowerCase();
 
     // Fetch coin based on ticker
-    const coin = this.coins.find(coin => coin.ticker.toLowerCase() === ticker.toLowerCase())!;
+    const coin = this.coins.find(
+      (coin) => coin.ticker.toLowerCase() === ticker.toLowerCase()
+    )!;
 
     return coin;
   }
@@ -182,7 +186,9 @@ export abstract class AbstractWallet {
   // Fetch and set confirmed + unconfirmed balances
   async setBalances(ticker: string, xpub: string) {
     // Find the index of the coin ticker
-    const index = this.coins.map(coin => coin.ticker.toLowerCase()).indexOf(ticker.toLowerCase());
+    const index = this.coins
+      .map((coin) => coin.ticker.toLowerCase())
+      .indexOf(ticker.toLowerCase());
 
     // Get the coin for it
     const coin = this.coins[index];
@@ -193,13 +199,15 @@ export abstract class AbstractWallet {
     const blockbook = this.getBlockbook(ticker);
 
     // Query for balance data
-    const res = await axios.get('https://cors-anywhere.feirm.com/' + blockbook + '/api/v2/xpub/' + xpub);
+    const res = await axios.get(
+      "https://cors-anywhere.feirm.com/" + blockbook + "/api/v2/xpub/" + xpub
+    );
 
     // Set the data
     coin.balance = res.data.balance;
     coin.unconfirmedBalance = res.data.unconfirmedBalance;
     this.coins[index] = coin;
-    
+
     // Save the wallet state
     this.saveWallet();
   }
@@ -265,7 +273,7 @@ export abstract class AbstractWallet {
       });
 
     // Sort the array of UTXOs by value size
-    utxos.sort((a, b) => (b.value, a.value) ? -1 : 1);
+    utxos.sort((a, b) => ((b.value, a.value) ? -1 : 1));
 
     return utxos;
   }
@@ -280,6 +288,8 @@ export abstract class AbstractWallet {
       // Individual coin and Blockbook
       const coin = coins[i];
       const blockbookUrl = this.getBlockbook(coin.ticker);
+
+      const networks = this.getNetwork(coin.ticker);
 
       console.log("Fetching transaction data for:", coin.name);
 
@@ -307,41 +317,102 @@ export abstract class AbstractWallet {
 
             // Iterate through the transaction outputs and determine if the TX belongs to us
             tx.vout.forEach((vout) => {
-              // Exclude change addresses from this process
-              if (!tokens) {
-                return;
+              // If a token is present, then match using the token
+              if (tokens) {
+                tokens.forEach((token) => {
+                  // Split the token so we can get the account (0 or 1);
+                  const splitToken = token.path.split("/");
+                  const index = parseInt(splitToken[4]);
+
+                  // Get the address (name) from token
+                  const address = token.name;
+
+                  // Not a change address, so continue
+                  if (index === 0) {
+                    // If the output includes our address, it means it is targeted to us - making it incoming
+                    if (vout.addresses.includes(address)) {
+                      const value = new BigNumber(vout.value)
+                        .dividedBy(100000000)
+                        .toFixed(3)
+                        .toString();
+                      walletTx.value = value;
+                      walletTx.isMine = true;
+                    }
+                  }
+
+                  // It is a change address, so the transaction might be outgoing
+                  // so find the output, and deduct it from the original amount + fees
+                  if (index === 1) {
+                    if (vout.addresses.includes(address)) {
+                      const txValue = new BigNumber(tx.value).dividedBy(
+                        100000000
+                      );
+                      const changeOutput = new BigNumber(vout.value).dividedBy(
+                        100000000
+                      );
+                      const amount = txValue.minus(changeOutput).toFixed(3);
+
+                      walletTx.value = amount.toString();
+                    }
+                  }
+                });
               }
-              
-              tokens.forEach((token) => {
-                // Split the token so we can get the account (0 or 1);
-                const splitToken = token.path.split("/");
-                const index = parseInt(splitToken[4]);
 
-                // Get the address (name) from token
-                const address = token.name;
+              // Otherwise increment through all of our addresses for this coin and compare
+              if (!tokens) {
+                console.log("Transaction:", walletTx.txid, "for", walletTx.ticker.toUpperCase(), "does not have tokens present...");
 
-                // Not a change address, so continue
-                if (index === 0) {
-                  // If the output includes our address, it means it is targeted to us - making it incoming
-                  if (vout.addresses.includes(address)) {
-                    const value = new BigNumber(vout.value).dividedBy(100000000).toFixed(3).toString();
-                    walletTx.value = value;
-                    walletTx.isMine = true;
+                for (let i = 0; i < txs.length; i ++) {
+                  // Derive address for current TX based on their network types
+                  const tx = txs[i];
+
+                  // P2WPKH
+                  if (networks.P2WPKH) {
+                    console.log("Deriving address for P2WPKH type");
+
+                    // Convert ZPUB to XPUB
+                    let data = b58.decode(coin.extendedPublicKey)
+                    data = data.slice(4);
+                    data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
+
+                    const xpub = b58.encode(data);
+
+                    // Derive external Segwit address
+                    const nodeA = fromBase58(xpub);
+                    const externalAddress = payments.p2wpkh({
+                      pubkey: nodeA.derive(0).derive(i).publicKey,
+                      network: networks.P2WPKH
+                    }).address!;
+
+                    // Derive internal Segwit address
+                    const changeAddress = payments.p2wpkh({
+                      pubkey: nodeA.derive(1).derive(i).publicKey,
+                      network: networks.P2WPKH
+                    }).address!;
+
+                    // Iterate through the outputs
+                    tx.vout.forEach(vout => {
+                      if (vout.addresses.includes(externalAddress)) {
+                        // The transaction is incoming to us
+                        walletTx.isMine = true;
+                        walletTx.value = new BigNumber(vout.value).dividedBy(100000000).toString();
+
+                        return;
+                      }
+
+                      // The transaction belongs to a change address of ours,
+                      // so calculate the amount sent
+                      if (vout.addresses.includes(changeAddress)) {
+                        const txValue = new BigNumber(tx.value).dividedBy(100000000);
+                        const changeOutput = new BigNumber(vout.value).dividedBy(100000000);
+                        const amount = txValue.minus(changeOutput).toFixed(3);
+
+                        walletTx.value = amount.toString();
+                      }
+                    })
                   }
                 }
-
-                // It is a change address, so the transaction might be outgoing
-                // so find the output, and deduct it from the original amount + fees
-                if (index === 1) {
-                  if (vout.addresses.includes(address)) {
-                    const txValue = new BigNumber(tx.value).dividedBy(100000000);
-                    const changeOutput = new BigNumber(vout.value).dividedBy(100000000);
-                    const amount = txValue.minus(changeOutput).toFixed(3);
-
-                    walletTx.value = amount.toString();
-                  }
-                }
-              });
+              }
             });
 
             // Lastly, push the transaction to our TXs array
