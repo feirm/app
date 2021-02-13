@@ -22,7 +22,20 @@ yarn build --mode production
 # Copy files over to server
 echo 'Transferring files to production server...'
 scp -r dist/* feirm:/home/jack/Feirm-Caddy/caddy_data/$PRODUCTION
+
+# Cleanup
 rm -rf dist/
+rm -rf node_modules
 
 # Checkout back to previous branch
-git checkout $CURRENT_BRANCH 
+git checkout $CURRENT_BRANCH
+
+# Staging deployment
+# Use current branch
+yarn install
+yarn build --mode staging
+
+# Copy files over to server
+echo 'Transferring files to staging server...'
+scp -r dist/* feirm:/home/jack/Feirm-Caddy/caddy_data/$STAGING
+rm -rf dist/
