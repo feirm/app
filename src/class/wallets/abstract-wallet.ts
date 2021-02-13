@@ -360,16 +360,12 @@ export abstract class AbstractWallet {
 
               // Otherwise increment through all of our addresses for this coin and compare
               if (!tokens) {
-                console.log("Transaction:", walletTx.txid, "for", walletTx.ticker.toUpperCase(), "does not have tokens present...");
-
                 for (let i = 0; i < txs.length; i ++) {
                   // Derive address for current TX based on their network types
                   const tx = txs[i];
 
                   // P2WPKH
                   if (networks.P2WPKH) {
-                    console.log("Deriving address for P2WPKH type");
-
                     // Convert ZPUB to XPUB
                     let data = b58.decode(coin.extendedPublicKey)
                     data = data.slice(4);
@@ -388,6 +384,50 @@ export abstract class AbstractWallet {
                     const changeAddress = payments.p2wpkh({
                       pubkey: nodeA.derive(1).derive(i).publicKey,
                       network: networks.P2WPKH
+                    }).address!;
+
+                    // Iterate through the outputs
+                    tx.vout.forEach(vout => {
+                      if (vout.addresses.includes(externalAddress)) {
+                        // The transaction is incoming to us
+                        walletTx.isMine = true;
+                        walletTx.value = new BigNumber(vout.value).dividedBy(100000000).toString();
+
+                        return;
+                      }
+
+                      // The transaction belongs to a change address of ours,
+                      // so calculate the amount sent
+                      if (vout.addresses.includes(changeAddress)) {
+                        const txValue = new BigNumber(tx.value).dividedBy(100000000);
+                        const changeOutput = new BigNumber(vout.value).dividedBy(100000000);
+                        const amount = txValue.minus(changeOutput).toFixed(3);
+
+                        walletTx.value = amount.toString();
+                      }
+                    })
+                  }
+
+                  // P2PKH
+                  if (networks.p2pkh) {
+                    // Convert version to XPUB
+                    let data = b58.decode(coin.extendedPublicKey)
+                    data = data.slice(4);
+                    data = Buffer.concat([Buffer.from('0488b21e', 'hex'), data]);
+
+                    const xpub = b58.encode(data);
+
+                    // Derive external P2PKH address
+                    const nodeA = fromBase58(xpub);
+                    const externalAddress = payments.p2pkh({
+                      pubkey: nodeA.derive(0).derive(i).publicKey,
+                      network: networks.p2pkh
+                    }).address!;
+
+                    // Derive internal P2PKH address
+                    const changeAddress = payments.p2pkh({
+                      pubkey: nodeA.derive(1).derive(i).publicKey,
+                      network: networks.p2pkh
                     }).address!;
 
                     // Iterate through the outputs
