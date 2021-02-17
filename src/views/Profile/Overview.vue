@@ -21,7 +21,7 @@
         <ion-item>
           <ion-icon slot="start" color="dark" :icon="moonOutline"></ion-icon>
           <ion-label>Dark Mode</ion-label>
-          <ion-toggle :checked="true"></ion-toggle>
+          <ion-toggle :checked="store.getters.darkModeEnabled" @ionChange="toggleDark($event)"></ion-toggle>
         </ion-item>
 
         <!--
@@ -96,8 +96,6 @@ import {
   IonIcon,
   IonToggle,
   alertController,
-  modalController,
-  loadingController,
 } from "@ionic/vue";
 import {
   personOutline,
@@ -111,8 +109,6 @@ import {
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { version } from "../../../package.json";
-import PIN from "@/components/Auth/PIN.vue";
-import { decryptWallet, encryptWallet } from "@/lib/encryptWallet";
 
 export default defineComponent({
   components: {
@@ -131,100 +127,6 @@ export default defineComponent({
     IonToggle
   },
   methods: {
-    async encryptWalletPopup() {
-      // Show the PIN modal popup
-      // Fetch a PIN first the first time
-      const firstPin = await modalController.create({
-        component: PIN,
-        componentProps: {
-          header: "Create a Wallet encryption PIN",
-          description: "This six-digit PIN is used to encrypt your entire wallet."
-        }
-      })
-
-      firstPin.present();
-
-      // Extract the first PIN
-      const pin = (await firstPin.onDidDismiss()).data;
-
-      // If the response is less than 6 characters, assume its empty, or they wanted to cancel, so go no further
-      if (pin.length < 6) {
-        return;
-      }
-
-      // Fetch the PIN again so we can confirm they match
-      const secondPin = await modalController.create({
-        component: PIN,
-        componentProps: {
-          header: "Confirm your Wallet encryption PIN",
-          description: "Please re-enter your six-digit Wallet encryption PIN."
-        }
-      })
-
-      secondPin.present();
-
-      // Extract the second (confirmation) PIN
-      const confirmPin = (await secondPin.onDidDismiss()).data;
-
-      // If the response is less than 6 characters, assume its empty, or they wanted to cancel, so go no further
-      if (confirmPin.length < 6) {
-        return;
-      }
-
-      // Compare the PINs against each other to make sure they match
-      if (pin !== confirmPin) {
-        const errorAlert = await alertController.create({
-          header: "Encryption PIN Error!",
-          message: "The Encryption PINs you provided do not match, please try again!",
-          buttons: ["Close"],
-          });
-          
-        errorAlert.present();
-
-        // Go through the process again...
-        this.encryptWalletPopup();
-      }
-
-      // Attempt to encrypt the wallet
-      await loadingController.create({
-        message: "Encrypting wallet..."
-      }).then(a => {
-        a.present().then(async() => {
-          // Encrypt wallet and return its encrypted form
-          const wallet = await encryptWallet(pin)
-
-          // Save the encrypted wallet to localStorage
-          localStorage.setItem("wallet", JSON.stringify(wallet));
-
-          // Do something with the wallet, such as decrypt it, and then save it to Vuex
-          const decryptedWallet = await decryptWallet(pin, wallet);
-          this.store.commit("setWalletState", decryptedWallet);
-
-          // Update the unlocked state
-          this.store.commit("setWalletUnlock", true);
-
-          // Set the wallet PIN state
-          this.store.commit("setWalletPin", pin);
-
-          // Dismiss the loading controller
-          a.dismiss();
-        })
-        .catch(async e => {
-          // Dismiss the loading controller
-          a.dismiss()
-
-          // Error alert
-          const errorAlert = await alertController.create({
-            header: "Wallet Encryption Error!",
-            message: e,
-            buttons: ["Close"],
-          });
-          
-          errorAlert.present();
-        })
-      })
-
-    },
     async logout() {
       const alert = await alertController.create({
         header: "Are you sure?",
@@ -250,6 +152,12 @@ export default defineComponent({
       });
 
       return alert.present();
+    },
+    toggleDark(event) {
+      const enableDarkMode = event.detail.checked;
+
+      // Save toggle option
+      this.store.commit("toggleDarkMode", enableDarkMode);
     },
     async deleteWallet() {
       const alert = await alertController.create({
