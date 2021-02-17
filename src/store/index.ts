@@ -5,12 +5,14 @@ import { auth } from "./modules/auth";
 import { wallet } from "./modules/wallet";
 import { contacts } from "./modules/contacts";
 import { coins } from "./modules/coins";
+import { options } from "./modules/options";
 
 export const store = createStore({
   modules: {
     auth,
     wallet,
     contacts,
-    coins
+    coins,
+    options
   }
 });
