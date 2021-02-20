@@ -420,5 +420,7 @@ ion-col {
 ion-card {
   height: 10rem;
   display: flex;
+  background-repeat: no-repeat;
+  background-position: bottom right;
 }
 </style>
