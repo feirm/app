@@ -10,15 +10,18 @@ export default class CardGradient {
         },
         {
             ticker: "btc",
-            colours: ["#ff7e00", "#f7931a"]
+            colours: ["#ff7e00", "#f7931a"],
+            logo: require("../assets/img/card_logos/btc.png")
         },
         {
             ticker: "doge",
-            colours: ["#a17c34", "#e5cb7a"]
+            colours: ["#a17c34", "#e5cb7a"],
+            logo: require("../assets/img/card_logos/doge.png")
         },
         {
             ticker: "xln",
-            colours: ["#043483", "#026397"]
+            colours: ["#043483", "#026397"],
+            logo: require("../assets/img/card_logos/xln.png")
         },
         {
             ticker: "scc",
