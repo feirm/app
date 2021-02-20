@@ -6,13 +6,9 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      <!-- Account information start -->
-      <ion-note>My Account</ion-note>
-      <br />
-      <br />
-
       <!-- Identicon -->
-      <div v-html="identicon"></div>
+      <div class="ion-text-center" v-html="identicon"></div>
+      <br>
 
       <ion-list lines="none">
         <ion-item>
