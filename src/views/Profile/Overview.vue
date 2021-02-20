@@ -11,6 +11,9 @@
       <br />
       <br />
 
+      <!-- Identicon -->
+      <div v-html="identicon"></div>
+
       <ion-list lines="none">
         <ion-item>
           <ion-icon slot="start" color="primary" :icon="personOutline"></ion-icon>
@@ -109,6 +112,10 @@ import {
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { version } from "../../../package.json";
+import { toSvg } from "jdenticon";
+import { store } from "@/store";
+import bufferToHex from "@/lib/bufferToHex";
+import * as nacl from "tweetnacl";
 
 export default defineComponent({
   components: {
@@ -125,6 +132,27 @@ export default defineComponent({
     IonList,
     IonIcon,
     IonToggle
+  },
+  data() {
+    return {
+      identicon: ""
+    }
+  },
+  async created() {
+    // Need to derive the users identity keypair
+    const rootKey = store.getters.getRootKey;
+
+    const identityKeyString = bufferToHex(rootKey) + "identity";
+    const identityKey = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(identityKeyString));
+
+    // Derive the signing ed25519 keypair from a seed (identityKey)
+    const rootKeyPair = nacl.sign.keyPair.fromSeed(new Uint8Array(identityKey));
+
+    // Create the Identicon of the user's identity public key
+    const identicon = toSvg(bufferToHex(rootKeyPair.publicKey), 100)
+    this.identicon = identicon;
+
+    console.log(identicon)
   },
   methods: {
     async logout() {
