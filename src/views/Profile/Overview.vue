@@ -61,7 +61,7 @@
       <br />
 
       <ion-list lines="none">
-        <ion-item>
+        <ion-item @click="navigate('/tabs/settings/version')" button>
           <ion-icon slot="start" color="primary" :icon="arrowDownOutline"></ion-icon>
           <ion-label>App Version</ion-label>
           <ion-label slot="end" class="ion-text-right">{{ version }}</ion-label>
@@ -158,6 +158,9 @@ export default defineComponent({
 
       // Save toggle option
       this.store.commit("toggleDarkMode", enableDarkMode);
+    },
+    navigate(path: string) {
+      return this.router.push({ path: path });
     },
     async deleteWallet() {
       const alert = await alertController.create({
