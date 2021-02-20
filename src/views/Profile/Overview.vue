@@ -18,18 +18,10 @@
         </ion-item>
 
         <ion-item>
-          <ion-icon slot="start" color="dark" :icon="moonOutline"></ion-icon>
-          <ion-label>Dark Mode</ion-label>
-          <ion-toggle :checked="store.getters.darkModeEnabled" @ionChange="toggleDark($event)"></ion-toggle>
-        </ion-item>
-
-        <!--
-        <ion-item>
           <ion-icon slot="start" color="primary" :icon="keyOutline"></ion-icon>
           <ion-label>Identity Key</ion-label>
-          <ion-label slot="end" class="ion-text-right"></ion-label>
+          <ion-label slot="end" class="ion-text-right">{{ identityPublicKey }}</ion-label>
         </ion-item>
-        -->
       </ion-list>
 
       <br />
@@ -70,7 +62,24 @@
           <ion-label>Privacy Policy</ion-label>
         </ion-item>
       </ion-list>
-      <!-- Wallet actions end -->
+
+      <br>
+      <!-- About information end -->
+
+      <!-- Settings start -->
+      <ion-note>Settings</ion-note>
+      <br>
+      <br>
+
+      <ion-list lines="none">
+        <ion-item>
+          <ion-icon slot="start" color="dark" :icon="moonOutline"></ion-icon>
+          <ion-label>Dark Mode</ion-label>
+          <ion-toggle :checked="store.getters.darkModeEnabled" @ionChange="toggleDark($event)"></ion-toggle>
+        </ion-item>
+      </ion-list>
+
+      <!-- Settings end -->
     </ion-content>
     <ion-footer class="ion-no-border ion-padding ion-text-center">
       <ion-button color="danger" @click="logout" expand="block">Log out</ion-button>
@@ -131,6 +140,7 @@ export default defineComponent({
   },
   data() {
     return {
+      identityPublicKey: "",
       identicon: ""
     }
   },
@@ -145,7 +155,10 @@ export default defineComponent({
     const rootKeyPair = nacl.sign.keyPair.fromSeed(new Uint8Array(identityKey));
 
     // Create the Identicon of the user's identity public key
-    const identicon = toSvg(bufferToHex(rootKeyPair.publicKey), 100)
+    const identityPublicKey = bufferToHex(rootKeyPair.publicKey);
+    const identicon = toSvg(identityPublicKey, 100);
+
+    this.identityPublicKey = identityPublicKey;
     this.identicon = identicon;
 
     console.log(identicon)
