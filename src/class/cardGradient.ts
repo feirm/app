@@ -43,7 +43,7 @@ export default class CardGradient {
         }
 
         // Return assembled string
-        const linearGradient = `url(${gradient.logo}), linear-gradient(${gradient.colours[0]}, ${gradient.colours[1]})`;
+        const linearGradient = `url(${gradient.logo}) no-repeat bottom right, linear-gradient(${gradient.colours[0]}, ${gradient.colours[1]})`;
         return linearGradient;
     }
 }
