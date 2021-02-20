@@ -18,7 +18,10 @@ import TabWalletDetails from "@/views/Wallet/Details.vue";
 import TabWalletTransactions from "@/views/Wallet/Transactions.vue";
 import TabMarketplaceOverview from "@/views/Marketplace/Overview.vue";
 import TabContacts from "@/views/Contacts/Contacts.vue";
+
+// Profile and Settings
 import TabProfileOverview from "@/views/Profile/Overview.vue";
+import AppVersion from "@/views/Settings/Version.vue";
 
 // Wallet
 import WalletGetStarted from "@/views/Wallet/GetStarted.vue";
@@ -108,6 +111,12 @@ const routes: Array<RouteRecordRaw> = [
         path: "profile",
         component: TabProfileOverview,
       },
+
+      // App settings
+      {
+        path: "settings/version",
+        component: AppVersion
+      }
     ],
   },
   // Wallet Service
