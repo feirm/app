@@ -4,25 +4,29 @@
       <ion-tab-bar slot="bottom">
         <ion-tab-button tab="wallet" href="/tabs/wallet">
           <ion-icon :icon="walletOutline" />
-          <ion-label>Wallet</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="marketplace" href="/tabs/marketplace">
           <ion-icon :icon="cartOutline" />
-          <ion-label>Marketplace</ion-label>
         </ion-tab-button>
+
+        <ion-tab-button tab="" disabled></ion-tab-button>
 
         <ion-tab-button tab="contacts" href="/tabs/contacts">
           <ion-icon :icon="peopleOutline" />
-          <ion-label>Contacts</ion-label>
         </ion-tab-button>
 
         <ion-tab-button tab="profile" href="/tabs/profile">
           <ion-icon :icon="personCircleOutline" />
-          <ion-label>Profile</ion-label>
         </ion-tab-button>
       </ion-tab-bar>
-      </ion-tabs>
+    </ion-tabs>
+
+    <ion-fab vertical="bottom" horizontal="center" slot="fixed">
+      <ion-fab-button color="light">
+        <img width="36" src="@/assets/img/logos/feirm.png" />
+      </ion-fab-button>
+    </ion-fab>
   </ion-page>
 </template>
 
@@ -31,9 +35,10 @@ import {
   IonTabBar,
   IonTabButton,
   IonTabs,
-  IonLabel,
   IonIcon,
   IonPage,
+  IonFab,
+  IonFabButton,
 } from "@ionic/vue";
 import {
   personCircleOutline,
@@ -46,12 +51,13 @@ import {
 export default {
   name: "Tabs",
   components: {
-    IonLabel,
     IonTabs,
     IonTabBar,
     IonTabButton,
     IonIcon,
     IonPage,
+    IonFab,
+    IonFabButton
   },
   setup() {
     return {
