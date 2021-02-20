@@ -1,5 +1,5 @@
 <template>
-  <ion-header>
+  <ion-header class="ion-no-border">
     <ion-toolbar>
       <ion-buttons slot="start">
         <ion-button @click="closeModal">
