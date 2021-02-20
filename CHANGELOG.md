@@ -27,10 +27,11 @@ All notable changes to the Feirm PWA will be documented in this file.
 * Different colour wallet cards depending on the coin.
 * Show the Extended Public Key for a coin.
 * Hardcode transaction fee if dynamic one cannot be calculated.
-
-### Work in Progress
-* PGP Signed pages
-* Fetching entire transaction state through WebSockets
+* Dark/light theme toggle.
+* Show user account identicon of identity public key.
+* Show user account identity public key on profile page.
+* Addition of a "super" Feirm button to access additional services.
+* Non-sticky footer on profile page.
 
 ## [1.1.4](https://github.com/feirm/app/commits/1.1.4) - 05-01-2020
 ### Changed
