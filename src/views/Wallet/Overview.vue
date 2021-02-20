@@ -29,7 +29,7 @@
               button="true"
               @click="detailedWallet(store.getters.walletState.id, coin.ticker)"
               :style="{
-                'background-image': cGradient.getGradient(coin.ticker),
+                '--background': cGradient.getGradient(coin.ticker),
               }"
             >
               <ion-card-header class="ion-text-left">
@@ -420,7 +420,5 @@ ion-col {
 ion-card {
   height: 10rem;
   display: flex;
-  background-repeat: no-repeat;
-  background-position: bottom right;
 }
 </style>
