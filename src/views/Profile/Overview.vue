@@ -80,10 +80,12 @@
       </ion-list>
 
       <!-- Settings end -->
+      
+      <!-- Footer -->
+      <ion-footer class="ion-no-border ion-padding ion-text-center">
+        <ion-button color="danger" @click="logout" expand="block">Log out</ion-button>
+      </ion-footer>
     </ion-content>
-    <ion-footer class="ion-no-border ion-padding ion-text-center">
-      <ion-button color="danger" @click="logout" expand="block">Log out</ion-button>
-    </ion-footer>
   </ion-page>
 </template>
 
