@@ -5,7 +5,8 @@ export default class CardGradient {
     private gradients = [
         {
             ticker: "xfe",
-            colours: ["#cb4f2b", "#f69738"]
+            colours: ["#cb4f2b", "#f69738"],
+            logo: require("../assets/img/card_logos/xfe.png")
         },
         {
             ticker: "btc",
@@ -39,7 +40,7 @@ export default class CardGradient {
         }
 
         // Return assembled string
-        const linearGradient = `linear-gradient(${gradient.colours[0]}, ${gradient.colours[1]})`;
+        const linearGradient = `url(${gradient.logo}), linear-gradient(${gradient.colours[0]}, ${gradient.colours[1]})`;
         return linearGradient;
     }
 }
