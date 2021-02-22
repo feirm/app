@@ -2,10 +2,10 @@
     "name": "Feirm",
     "short_name": "Feirm",
     "description": "Privacy for everyone.",
-    "start_url": "/",
+    "start_url": "/tabs/wallet",
     "display": "standalone",
-    "background_color": "#363636",
-    "theme_color": "#363636",
+    "background_color": "rgb(255,255,255)",
+    "theme_color": "rgb(255,255,255)",
     "icons": [
          {
             "src": "/img/icons/android-chrome-maskable-192x192.png",
