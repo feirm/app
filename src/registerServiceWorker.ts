@@ -10,8 +10,11 @@ if (process.env.NODE_ENV === 'production') {
         'For more details, visit https://goo.gl/AFskqB'
       )
     },
-    registered () {
-      console.log('Service worker has been registered.')
+    registered (registration: ServiceWorkerRegistration) {
+      // Check for updates in the background every hour
+      setInterval(() => {
+        registration.update();
+      }, 1000 * 60 * 60);
     },
     cached () {
       console.log('Content has been cached for offline use.')
@@ -20,10 +23,9 @@ if (process.env.NODE_ENV === 'production') {
       console.log('New content is downloading.')
     },
     updated (registration) {
-      // Check for updates in the background every hour
-      setInterval(() => {
-        registration.update();
-      }, 1000 * 60 * 60);
+      document.dispatchEvent(
+        new CustomEvent('swUpdated', { detail: registration })
+      );
     },
     offline () {
       console.log('No internet connection found. App is running in offline mode.')
