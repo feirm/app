@@ -19,8 +19,11 @@ if (process.env.NODE_ENV === 'production') {
     updatefound () {
       console.log('New content is downloading.')
     },
-    updated () {
-      console.log('Updated PWA');
+    updated (registration) {
+      // Check for updates in the background every hour
+      setInterval(() => {
+        registration.update();
+      }, 1000 * 60 * 60);
     },
     offline () {
       console.log('No internet connection found. App is running in offline mode.')
