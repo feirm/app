@@ -15,6 +15,7 @@ All notable changes to the Feirm PWA will be documented in this file.
 * Show user account identicon of identity public key.
 * Show user account identity public key on profile page.
 * Addition of a "super" Feirm button to access additional services.
+* App version/about page.
 
 ### Changed
 * Re-design of Marketplace overview page.
