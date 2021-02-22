@@ -11,10 +11,10 @@ if (process.env.NODE_ENV === 'production') {
       )
     },
     registered (registration: ServiceWorkerRegistration) {
-      // Check for updates in the background every hour
+      // Check for updates in the background every 3 minutes seconds
       setInterval(() => {
         registration.update();
-      }, 1000 * 60 * 60);
+      }, 1000 * 60 * 3);
     },
     cached () {
       console.log('Content has been cached for offline use.')
