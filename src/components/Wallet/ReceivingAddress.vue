@@ -16,7 +16,7 @@
           <!-- QR Code -->
           <ion-card>
             <ion-card-content>
-              <ion-img :src="qrCode"></ion-img>
+              <ion-img :src="qrCode" alt="Receiving Address QR Code"></ion-img>
             </ion-card-content>
           </ion-card>
 

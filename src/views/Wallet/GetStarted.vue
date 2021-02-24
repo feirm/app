@@ -11,7 +11,7 @@
       <ion-grid>
         <ion-row>
           <ion-col class="ion-text-center">
-            <ion-img src="/assets/logo.png"></ion-img>
+            <ion-img src="/assets/logo.png" alt="Feirm Logo"></ion-img>
             <h1>Feirm Wallet</h1>
             <p>
               It appears that you don't have a wallet created. Would you like to

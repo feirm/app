@@ -9,7 +9,7 @@
     <ion-content class="ion-padding" fullscreen="true">
       <ion-card>
         <ion-card-content>
-          <ion-img src="/assets/logo.png"></ion-img>
+          <ion-img src="/assets/logo.png" alt="Feirm Logo"></ion-img>
           <hr />
           <ion-text class="ion-text-center">
             <p>

@@ -9,7 +9,7 @@
       </ion-toolbar>
     </ion-header>
     <ion-content fullscreen="true" class="ion-padding ion-text-center">
-      <img width="128" style="margin: 0 auto;" src="@/assets/img/logos/feirm.png">
+      <img width="128" style="margin: 0 auto;" src="@/assets/img/logos/feirm.png" alt="Feirm Logo">
       <br>
       <ion-note>The Feirm Platform is a secure and private web application built using amazing open source software!</ion-note>
       <p>Version {{ version }}</p>

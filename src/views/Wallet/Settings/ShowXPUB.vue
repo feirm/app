@@ -15,7 +15,7 @@
             <!-- QR Code -->
             <ion-card>
               <ion-card-content>
-                <ion-img :src="qrCode"></ion-img>
+                <ion-img :src="qrCode" alt="Extended public key QR code"></ion-img>
               </ion-card-content>
             </ion-card>
 

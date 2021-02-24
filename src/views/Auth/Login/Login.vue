@@ -4,7 +4,7 @@
       <ion-grid>
         <ion-row>
           <ion-col>
-            <ion-img src="/assets/logo.png"></ion-img>
+            <ion-img src="/assets/logo.png" alt="Feirm Logo"></ion-img>
             <ion-text class="ion-text-center">
               <h1>Welcome to Feirm.</h1>
               <p>Please Login or Create An Account to continue.</p>

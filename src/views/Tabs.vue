@@ -24,7 +24,7 @@
 
     <ion-fab vertical="bottom" horizontal="center" slot="fixed">
       <ion-fab-button color="light">
-        <img width="36" src="@/assets/img/logos/feirm.png" />
+        <img width="36" src="@/assets/img/logos/feirm.png" alt="Feirm Logo"/>
       </ion-fab-button>
     </ion-fab>
   </ion-page>
