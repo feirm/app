@@ -1,14 +1,9 @@
 /* eslint-disable no-console */
 
-import { entropyToMnemonic, mnemonicToSeed, validateMnemonic } from "bip39";
-import { fromSeed } from "bip32";
-import { v4 as uuidv4 } from "uuid";
-import bufferToHex from "./bufferToHex";
 import { payments, bip32, Psbt, Network } from "bitcoinjs-lib";
 import { store } from "@/store";
 import axios from "axios";
 import { BigNumber } from "bignumber.js";
-import { encryptCoin } from "./encryptWallet";
 
 // Wallet interface
 interface Wallet {
@@ -38,167 +33,6 @@ interface Coin {
   changeIndex: number;
   blockbook: string;
   isEncrypted: boolean;
-}
-
-// Derive a new mnemonic
-function GenerateMnemonic(): string {
-  const entropy = window.crypto.getRandomValues(new Uint8Array(32));
-  const mnemonic = entropyToMnemonic(bufferToHex(entropy));
-  return mnemonic;
-}
-
-// Take a mnemonic and derive a wallet for a coin (based on ticker)
-async function DeriveWallet(mnemonic: string, ticker: string) {
-  // First of all, lets validate the mnemonic
-  const valid = validateMnemonic(mnemonic);
-  if (!valid) {
-    throw new Error("The mnemonic provided is not valid!");
-  }
-
-  // Derive seed from mnemonic
-  const seed = await mnemonicToSeed(mnemonic);
-
-  // Fetch the coin data based on the ticker provided
-  const coin = store.getters.getCoin(ticker);
-
-  // Form the network information from coin data
-  const network = coin.networks.p2pkh;
-
-  // Set the derivation path
-  const derivationPath = "m/44'/" + coin.bip44 + "'/0'";
-
-  // Generate the root key
-  const rootKey = fromSeed(seed, network);
-
-  // Derive the address node from root key
-  const addressNode = rootKey.derivePath(derivationPath);
-
-  // Now that we've got our address node, we can begin to either create a new wallet, or append to an existing one.
-  // But first, lets assemble all the coin data
-  const cData = {
-    name: coin.name,
-    balance: 0,
-    ticker: coin.ticker.toLowerCase(),
-    rootKey: rootKey.toBase58(),
-    extendedPrivateKey: addressNode.toBase58(),
-    extendedPublicKey: addressNode.neutered().toBase58(),
-    index: 0,
-    blockbook: coin.blockbook
-  } as Coin;
-
-  // Check if we already have a wallet
-  const walletPresent = store.getters.isWalletPresent;
-  if (walletPresent) {
-    // Handle encrypted wallets
-    const walletEncrypted = store.getters.isWalletEncrypted;
-    if (walletEncrypted) {
-      // Get the PIN from Vuex
-      const pin = store.getters.getWalletPin;
-
-      // Encrypt the coin data
-      const encryptedCoin = await encryptCoin(pin, cData);
-
-      // Get localStorage encrypted wallet and update it
-      const encryptedWallet = JSON.parse(
-        localStorage.getItem("wallet")!
-      ) as Wallet;
-      encryptedWallet.coins.push(encryptedCoin);
-      localStorage.setItem("wallet", JSON.stringify(encryptedWallet));
-
-      // Add the new wallet to Vuex state
-      // Decrypt the entire wallet again to get our newly added coin, and save state
-      //const decryptedWallet = await decryptWallet(pin, encryptedWallet);
-      //store.commit("setWalletState", decryptedWallet);
-
-      return encryptedWallet;
-    }
-
-    // Otherwise, just add the coin to localStorage wallet, and update Vuex state
-    const localWallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
-    localWallet.coins.push(cData);
-    localStorage.setItem("wallet", JSON.stringify(localWallet));
-
-    // Update Vuex
-    store.commit("setWalletState", localWallet);
-
-    return localWallet;
-  }
-
-  // Generate a new wallet
-  const wallet = {
-    id: uuidv4(),
-    mnemonic: mnemonic,
-    coins: [] as Coin[],
-    encryption: {} as Encryption,
-  } as Wallet;
-
-  // Push the coin data to our new wallet
-  wallet.coins.push(cData);
-
-  // New wallets aren't encrypted by default
-  wallet.encryption.isEncrypted = false;
-
-  // Return the newly created wallet
-  return wallet;
-}
-
-// Derive a new coin address from the Extended public key
-async function DeriveAddress(xpub: string, ticker: string): Promise<string> {
-  if (!ticker) {
-    throw new Error("Ticker is not present!");
-  }
-
-  // Fetch the coin data for the provided ticker and assemble network information from it
-  const coin = store.getters.getCoin(ticker);
-
-  // Set the network
-  const network = coin.networks.p2pkh;
-
-  // Fetch xpub data
-  const xpubData = await axios.get(
-    "https://cors-anywhere.feirm.com/" +
-      coin.blockbook +
-      "/api/v2/xpub/" +
-      xpub +
-      "?tokens=used"
-  );
-
-  // Find the lowest index missing index
-  let missingIndex = 0;
-
-  if (xpubData.data.tokens) {
-    for (let i = 0; i < xpubData.data.tokens.length; i++) {
-      // Get the path
-      const path: string = xpubData.data.tokens[i].path;
-
-      // Split the path to extract index
-      const splitPath = path.split("/");
-      const index = splitPath[5];
-
-      // Only continue if the account level is 0 (receiving account)
-      if (parseInt(splitPath[4]) === 0) {
-
-        // Increment the index until we reach one that doesnt exist
-        if (i + 1 != parseInt(index) + 1) {
-          missingIndex = i;
-          break;
-        }
-
-        missingIndex = i + 1;
-      }
-    }
-  }
-
-  // Derive an address using xpub data response
-  const { address } = payments.p2pkh({
-    pubkey: bip32
-      .fromBase58(xpub)
-      .derive(0)
-      .derive(xpubData.data.usedTokens ? missingIndex : 0).publicKey,
-    network: network,
-  });
-
-  return address as string;
 }
 
 // Find an existing coin wallet based on ticker from user input
@@ -417,9 +251,6 @@ async function CreateSignedTransaction(
 }
 
 export {
-  GenerateMnemonic,
-  DeriveWallet,
-  DeriveAddress,
   FindWallet,
   CreateSignedTransaction,
   Wallet,
