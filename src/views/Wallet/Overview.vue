@@ -197,6 +197,7 @@ import SendCoins from "@/components/Wallet/Send/Send.vue";
 import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
 import tatsuyaService from "@/apiService/tatsuyaService";
 import { DecryptContacts, EncryptedContact } from "@/lib/contacts";
+import Contacts from "@/class/contacts";
 
 export default defineComponent({
   name: "WalletOverview",
@@ -323,6 +324,10 @@ export default defineComponent({
           // Loading popup
           a.present()
             .then(async () => {
+
+              // Testing, add a dummy contact
+              Contacts.addContact();
+
               // Fetch coin network data
               await store.dispatch("setCoins");
 
