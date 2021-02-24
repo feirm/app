@@ -325,9 +325,6 @@ export default defineComponent({
           a.present()
             .then(async () => {
 
-              // Testing, add a dummy contact
-              Contacts.addContact();
-
               // Fetch coin network data
               await store.dispatch("setCoins");
 
@@ -356,6 +353,11 @@ export default defineComponent({
                   const contacts = res.data as EncryptedContact[];
                   if (!contacts) {
                     return;
+                  }
+
+                  // Store contacts in database
+                  for (let i = 0; i < contacts.length; i++) {
+                    Contacts.addContact(contacts[i]);
                   }
 
                   // Attempt to decrypt contacts array

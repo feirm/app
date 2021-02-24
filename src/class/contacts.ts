@@ -7,14 +7,7 @@ class Contacts extends DB {
         super();
     }
 
-    addContact() {
-        // Dummy data
-        const contact: EncryptedContact = {
-            id: '123456',
-            cipherText: '0x0000',
-            iv: '0x1234'
-        };
-
+    addContact(contact: EncryptedContact) {
         this.contacts.add(contact, contact.id);
     }    
 }

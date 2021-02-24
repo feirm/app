@@ -12,7 +12,7 @@ class DB extends Dexie {
   constructor() {
     super("feirm");
     this.version(1).stores({
-      contacts: 'id'
+      contacts: 'id, cipherText, iv'
     })
 
     // Assign our tables
