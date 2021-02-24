@@ -1,11 +1,5 @@
 module.exports = {
     productionSourceMap: true,
-    pwa: {
-        workboxOptions: {
-            skipWaiting: true,
-            exclude: [/_redirects/],
-        }
-    },
     configureWebpack: {
         module: {
             noParse: /\.wasm$/,
