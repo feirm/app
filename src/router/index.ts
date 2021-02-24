@@ -6,33 +6,6 @@ import tatsuyaService from "@/apiService/tatsuyaService";
 import * as nacl from "tweetnacl";
 import bufferToHex from "@/lib/bufferToHex";
 
-// Pages and Components
-// Authentication
-import Login from "@/views/Auth/Login/Login.vue";
-import RegisterUsername from "@/views/Auth/Register/Username.vue";
-import RegisterPassword from "@/views/Auth/Register/Password.vue";
-
-// Tabs
-import TabWalletOverview from "@/views/Wallet/Overview.vue";
-import TabWalletDetails from "@/views/Wallet/Details.vue";
-import TabWalletTransactions from "@/views/Wallet/Transactions.vue";
-import TabMarketplaceOverview from "@/views/Marketplace/Overview.vue";
-import TabContacts from "@/views/Contacts/Contacts.vue";
-
-// Profile and Settings
-import TabProfileOverview from "@/views/Profile/Overview.vue";
-import AppVersion from "@/views/Settings/Version.vue";
-
-// Wallet
-import WalletGetStarted from "@/views/Wallet/GetStarted.vue";
-import WalletNewSeed from "@/views/Wallet/NewSeed.vue";
-import WalletRecovery from "@/views/Wallet/Setup/Recovery.vue";
-import WalletAddCoin from "@/views/Wallet/AddCoin.vue";
-
-// Wallet Settings
-import WalletSettingsOverview from "@/views/Wallet/Settings/Overview.vue";
-import WalletSettingsXpub from "@/views/Wallet/Settings/ShowXPUB.vue";
-
 const routes: Array<RouteRecordRaw> = [
   // Redirect index page to Discover route
   {
@@ -42,21 +15,21 @@ const routes: Array<RouteRecordRaw> = [
   // Authentication routes
   {
     path: "/auth/login",
-    component: Login,
+    component: () => import('@/views/Auth/Login/Login.vue'),
     meta: {
       requiresAuth: false,
     },
   },
   {
     path: "/auth/register",
-    component: RegisterUsername,
+    component: () => import('@/views/Auth/Register/Username.vue'),
     meta: {
       requiresAuth: false,
     },
   },
   {
     path: "/auth/register/password",
-    component: RegisterPassword,
+    component: () => import('@/views/Auth/Register/Password.vue'),
     meta: {
       requiresAuth: false,
     },
@@ -77,64 +50,60 @@ const routes: Array<RouteRecordRaw> = [
       // Wallet
       {
         path: "wallet",
-        component: TabWalletOverview,
+        component: () => import('@/views/Wallet/Overview.vue')
       },
       {
         path: "wallet/:id/:coin",
-        component: TabWalletDetails,
-      },
-      {
-        path: "wallet/:id/:coin/transactions",
-        component: TabWalletTransactions,
+        component: () => import('@/views/Wallet/Details.vue')
       },
       {
         path: "wallet/:id/:coin/settings",
-        component: WalletSettingsOverview
+        component: () => import('@/views/Wallet/Settings/Overview.vue')
       },
       {
         path: "wallet/:id/:coin/settings/showXpub",
-        component: WalletSettingsXpub
+        component: () => import('@/views/Wallet/Settings/ShowXPUB.vue')
       },
 
       // Marketplace
       {
         path: "marketplace",
-        component: TabMarketplaceOverview
+        component: () => import('@/views/Marketplace/Overview.vue')
       },
 
       // Account
       {
         path: "contacts",
-        component: TabContacts,
+        component: () => import('@/views/Contacts/Contacts.vue')
       },
       {
         path: "profile",
-        component: TabProfileOverview,
+        component: () => import('@/views/Profile/Overview.vue')
       },
 
       // App settings
       {
         path: "settings/version",
-        component: AppVersion
+        component: () => import('@/views/Settings/Version.vue')
       }
     ],
   },
   // Wallet Service
   {
     path: "/wallet/getStarted",
-    component: WalletGetStarted,
+    component: () => import('@/views/Wallet/GetStarted.vue')
   },
   {
     path: "/wallet/newSeed",
-    component: WalletNewSeed,
+    component: () => import('@/views/Wallet/NewSeed.vue')
   },
   {
     path: "/wallet/recovery",
-    component: WalletRecovery
+    component: () => import('@/views/Wallet/Setup/Recovery.vue')
   },
   {
     path: "/wallet/addCoin",
-    component: WalletAddCoin,
+    component: () => import('@/views/Wallet/AddCoin.vue')
   }
 ];
 
