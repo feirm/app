@@ -2,7 +2,7 @@
     "name": "Feirm",
     "short_name": "Feirm",
     "description": "Privacy for everyone.",
-    "start_url": "/tabs/wallet",
+    "start_url": "/",
     "display": "standalone",
     "background_color": "rgb(255,255,255)",
     "theme_color": "rgb(255,255,255)",
