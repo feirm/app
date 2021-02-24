@@ -10,11 +10,8 @@ if (process.env.NODE_ENV === 'production') {
         'For more details, visit https://goo.gl/AFskqB'
       )
     },
-    registered (registration: ServiceWorkerRegistration) {
-      // Check for updates in the background every 3 minutes seconds
-      setInterval(() => {
-        registration.update();
-      }, 1000 * 60 * 3);
+    registered () {
+      console.log('Service worker has been registered.')
     },
     cached () {
       console.log('Content has been cached for offline use.')
@@ -22,10 +19,8 @@ if (process.env.NODE_ENV === 'production') {
     updatefound () {
       console.log('New content is downloading.')
     },
-    updated (registration) {
-      document.dispatchEvent(
-        new CustomEvent('swUpdated', { detail: registration })
-      );
+    updated () {
+      console.log('Updated PWA.')
     },
     offline () {
       console.log('No internet connection found. App is running in offline mode.')
