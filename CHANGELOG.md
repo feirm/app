@@ -16,6 +16,7 @@ All notable changes to the Feirm PWA will be documented in this file.
 * Show user account identity public key on profile page.
 * Addition of a "super" Feirm button to access additional services.
 * App version/about page.
+* Render a plaintext message if JavaScript is not available.
 
 ### Changed
 * Re-design of Marketplace overview page.
@@ -34,6 +35,8 @@ All notable changes to the Feirm PWA will be documented in this file.
 * Replace Ionic Slides with official Swiper.js library.
 * Re-implemented multiple-asset support.
 * Non-sticky footer on profile page.
+* Production source maps have been re-enabled.
+* Search engine and accessibility optimisations.
 
 ## [1.1.4](https://github.com/feirm/app/commits/1.1.4) - 05-01-2020
 ### Changed
