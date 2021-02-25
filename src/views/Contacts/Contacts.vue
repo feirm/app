@@ -6,7 +6,12 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding ion-text-center">
-      <ion-item v-for="contact in contacts" :key="contact.id" :button="true" @click="viewContacts(contact)">
+      <ion-item
+        v-for="contact in contacts"
+        :key="contact.id"
+        :button="true"
+        @click="viewContacts(contact)"
+      >
         {{ contact.firstName }} {{ contact.lastName }}
       </ion-item>
 
@@ -79,8 +84,8 @@ export default defineComponent({
   },
   data() {
     return {
-      contacts: [] as Contact[]
-    }
+      contacts: [] as Contact[],
+    };
   },
   async mounted() {
     // Decrypt all contacts in our database
@@ -90,33 +95,38 @@ export default defineComponent({
     }
 
     // Wrap in a loading controller
-    await loadingController.create({
-      message: "Decrypting contacts..."
-    }).then(a => {
-      a.present().then(async () => {
-        // Iterate over all of the contacts and decrypt them
-        for (let i = 0; i < contacts.length; i++) {
-          const contact = contacts[i];
-          const decryptedContact = await Contacts.decryptContact(contact.id);
-          this.contacts.push(decryptedContact);
-        }
-
-        // Dimiss modal
-        a.dismiss()
+    await loadingController
+      .create({
+        message: "Decrypting contacts...",
       })
-      .catch(async e => {
-        // Dismiss and show error
-        a.dismiss();
+      .then((a) => {
+        a.present()
+          .then(async () => {
+            // Iterate over all of the contacts and decrypt them
+            for (let i = 0; i < contacts.length; i++) {
+              const contact = contacts[i];
+              const decryptedContact = await Contacts.decryptContact(
+                contact.id
+              );
+              this.contacts.push(decryptedContact);
+            }
 
-        const error = await alertController.create({
-          header: "Error decrypting your contacts",
-          message: e,
-          buttons: ["Close"]
-        });
+            // Dimiss modal
+            a.dismiss();
+          })
+          .catch(async (e) => {
+            // Dismiss and show error
+            a.dismiss();
 
-        return error.present();
-      })
-    })
+            const error = await alertController.create({
+              header: "Error decrypting your contacts",
+              message: e,
+              buttons: ["Close"],
+            });
+
+            return error.present();
+          });
+      });
   },
   methods: {
     async newContactModal() {
@@ -124,7 +134,27 @@ export default defineComponent({
         component: NewContact,
       });
 
-      return modal.present();
+      await modal.present();
+
+      // TODO: This code has been duplicated, so refactor it into its own method at some point... 
+      // Capture dismiss response
+      await modal.onDidDismiss().then(async () => {
+        // Fetch new contacts as its possible the database has been updated
+        const contacts = await Contacts.getEncryptedContacts();
+        const contactsArray: Contact[] = [];
+
+        // Decrypt all the contacts
+        for (let i = 0; i < contacts.length; i++) {
+          const contact = contacts[i];
+
+          // Otherwise go ahead and decrypt the contact and add it to our temporary array
+          const decryptedContact = await Contacts.decryptContact(contact.id);
+          contactsArray.push(decryptedContact);
+        }
+
+        // Update the data of contacts we want to show
+        this.contacts = contactsArray;
+      });
     },
     async viewContacts(contact: Contact) {
       const modal = await modalController.create({
@@ -134,7 +164,26 @@ export default defineComponent({
         },
       });
 
-      return modal.present();
+      await modal.present();
+
+      // Capture dismiss response
+      await modal.onDidDismiss().then(async () => {
+        // Fetch new contacts as its possible the database has been updated
+        const contacts = await Contacts.getEncryptedContacts();
+        const contactsArray: Contact[] = [];
+
+        // Decrypt all the contacts
+        for (let i = 0; i < contacts.length; i++) {
+          const contact = contacts[i];
+
+          // Otherwise go ahead and decrypt the contact and add it to our temporary array
+          const decryptedContact = await Contacts.decryptContact(contact.id);
+          contactsArray.push(decryptedContact);
+        }
+
+        // Update the data of contacts we want to show
+        this.contacts = contactsArray;
+      });
     },
   },
   setup() {
