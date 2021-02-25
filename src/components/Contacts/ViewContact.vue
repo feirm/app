@@ -14,21 +14,21 @@
     </ion-toolbar>
   </ion-header>
   <ion-content :fullscreen="true" class="ion-padding">
-    <ion-item @click="copyToClipboard(contact.firstName)" button="true">
+    <ion-item @click="copyToClipboard($props.contact.firstName)" button="true">
       <ion-label position="stacked">First Name</ion-label>
-      {{ contact.firstName }}
+      {{ $props.contact.firstName }}
     </ion-item>
-    <ion-item @click="copyToClipboard(contact.lastName)" button="true">
+    <ion-item @click="copyToClipboard($props.contact.lastName)" button="true">
       <ion-label position="stacked">Last Name</ion-label>
-      {{ contact.lastName }}
+      {{ $props.contact.lastName }}
     </ion-item>
-    <ion-item @click="copyToClipboard(contact.phoneNumber)" button="true">
+    <ion-item @click="copyToClipboard($props.contact.phoneNumber)" button="true">
       <ion-label position="stacked">Phone Number</ion-label>
-      {{ contact.phoneNumber }}
+      {{ $props.contact.phoneNumber }}
     </ion-item>
-    <ion-item @click="copyToClipboard(contact.emailAddress)" button="true">
+    <ion-item @click="copyToClipboard($props.contact.emailAddress)" button="true">
       <ion-label position="stacked">Email Address</ion-label>
-      {{ contact.emailAddress }}
+      {{ $props.contact.emailAddress }}
     </ion-item>
   </ion-content>
 </template>
@@ -49,32 +49,18 @@ import {
   toastController,
 } from "@ionic/vue";
 import { trashOutline, closeOutline } from "ionicons/icons";
-import { useStore } from "vuex";
 import tatsuyaService from "@/apiService/tatsuyaService";
-import { Contact } from "@/models/contact";
 import Contacts from "@/class/contacts";
 
 export default defineComponent({
   name: "ViewContact",
   props: {
-    id: {
-      type: String,
+    contact: {
+      type: Object,
     },
   },
-  data() {
-    return {
-      contact: {} as Contact,
-    };
-  },
-  async mounted() {
-    // Fetch and decrypt contact
-    this.contact = await Contacts.decryptContact(this.$props.id as string);
-  },
   setup() {
-    const store = useStore();
-
     return {
-      store,
       trashOutline,
       closeOutline,
     };
@@ -95,8 +81,10 @@ export default defineComponent({
           {
             text: "Yes",
             handler: async () => {
+              console.log(this.$props.contact)
+
               // Delete from database store first
-              const id = this.$props.id as string;
+              const id = this.$props.contact?.id as string;
               Contacts.deleteContact(id);
 
               // Submit contact ID to Tatsuya API for deletion
@@ -109,9 +97,6 @@ export default defineComponent({
 
                 return alert.present()
               })
-
-              // Remove contact from Vuex
-              this.store.commit("deleteContact", this.$props.id as string);
 
               // Dismiss the modal
               await modalController.dismiss();

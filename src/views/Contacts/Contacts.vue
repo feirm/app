@@ -6,7 +6,7 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding ion-text-center">
-      <ion-item v-for="contact in contacts" :key="contact.id" :button="true" @click="viewContacts(contact.id)">
+      <ion-item v-for="contact in contacts" :key="contact.id" :button="true" @click="viewContacts(contact)">
         {{ contact.firstName }} {{ contact.lastName }}
       </ion-item>
 
@@ -84,14 +84,17 @@ export default defineComponent({
   },
   async mounted() {
     // Decrypt all contacts in our database
+    const contacts = await Contacts.getEncryptedContacts();
+    if (contacts.length === 0) {
+      return;
+    }
+
     // Wrap in a loading controller
     await loadingController.create({
       message: "Decrypting contacts..."
     }).then(a => {
       a.present().then(async () => {
         // Iterate over all of the contacts and decrypt them
-        const contacts = await Contacts.getEncryptedContacts();
-
         for (let i = 0; i < contacts.length; i++) {
           const contact = contacts[i];
           const decryptedContact = await Contacts.decryptContact(contact.id);
@@ -123,11 +126,11 @@ export default defineComponent({
 
       return modal.present();
     },
-    async viewContacts(contactId: string) {
+    async viewContacts(contact: Contact) {
       const modal = await modalController.create({
         component: ViewContact,
         componentProps: {
-          id: contactId,
+          contact: contact,
         },
       });
 
