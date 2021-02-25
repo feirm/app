@@ -230,7 +230,7 @@ export default defineComponent({
       // Options
       observer: true,
       observeParents: true,
-      slidesPerView: 1.2,
+      slidesPerView: 1.15,
     });
 
     // Slide change handler
@@ -415,7 +415,7 @@ ion-col {
 
 /* Cards */
 ion-card {
-  height: 10rem;
+  height: 12rem;
   display: flex;
 }
 </style>
