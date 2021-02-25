@@ -49,9 +49,10 @@ import {
   toastController,
 } from "@ionic/vue";
 import { trashOutline, closeOutline } from "ionicons/icons";
-import { Contact } from "@/lib/contacts";
 import { useStore } from "vuex";
 import tatsuyaService from "@/apiService/tatsuyaService";
+import { Contact } from "@/models/contact";
+import Contacts from "@/class/contacts";
 
 export default defineComponent({
   name: "ViewContact",
@@ -65,8 +66,9 @@ export default defineComponent({
       contact: {} as Contact,
     };
   },
-  mounted() {
-    this.contact = this.store.getters.getContact(this.$props.id);
+  async mounted() {
+    // Fetch and decrypt contact
+    this.contact = await Contacts.decryptContact(this.$props.id as string);
   },
   setup() {
     const store = useStore();
@@ -93,8 +95,12 @@ export default defineComponent({
           {
             text: "Yes",
             handler: async () => {
-              // Submit contact ID to Tatsuya API
-              await tatsuyaService.deleteContact(this.$props.id as string).catch(async err => {
+              // Delete from database store first
+              const id = this.$props.id as string;
+              Contacts.deleteContact(id);
+
+              // Submit contact ID to Tatsuya API for deletion
+              await tatsuyaService.deleteContact(id).catch(async err => {
                 const alert = await alertController.create({
                   header: "Error removing contact!",
                   message: err.response.data.error,
