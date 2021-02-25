@@ -20,10 +20,10 @@ class Contacts extends DB {
   }
 
   // Fetch all encrypted contacts
-  getEncryptedContacts(): EncryptedContact[] {
+  async getEncryptedContacts(): Promise<EncryptedContact[]> {
     const contacts: EncryptedContact[] = [];
 
-    this.contacts.each((contact) => contacts.push(contact));
+    await this.contacts.each((contact) => contacts.push(contact));
 
     return contacts;
   }
