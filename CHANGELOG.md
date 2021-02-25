@@ -17,6 +17,7 @@ All notable changes to the Feirm PWA will be documented in this file.
 * Addition of a "super" Feirm button to access additional services.
 * App version/about page.
 * Render a plaintext message if JavaScript is not available.
+* Use IndexedDB for long term storage of data (primarily JSON blobs).
 
 ### Changed
 * Re-design of Marketplace overview page.
@@ -37,6 +38,7 @@ All notable changes to the Feirm PWA will be documented in this file.
 * Non-sticky footer on profile page.
 * Production source maps have been re-enabled.
 * Search engine and accessibility optimisations.
+* Contacts are only decrypted when the contacts page is visited.
 
 ## [1.1.4](https://github.com/feirm/app/commits/1.1.4) - 05-01-2020
 ### Changed
