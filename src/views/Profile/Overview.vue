@@ -150,7 +150,7 @@ export default defineComponent({
     // Need to derive the users identity keypair
     const rootKey = store.getters.getRootKey;
 
-    const identityKeyString = bufferToHex(rootKey) + "identity";
+    const identityKeyString = rootKey + "identity";
     const identityKey = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(identityKeyString));
 
     // Derive the signing ed25519 keypair from a seed (identityKey)
