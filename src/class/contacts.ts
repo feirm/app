@@ -55,6 +55,9 @@ class Contacts extends DB {
       aes.utils.utf8.fromBytes(aes.padding.pkcs7.strip(decrypted))
     );
 
+    // Set the contact ID again on the newly decrypted contact
+    decryptedContact.id = contactId;
+
     return decryptedContact as Contact;
   }
 }
