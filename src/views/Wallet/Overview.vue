@@ -168,7 +168,6 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonLabel,
   alertController,
   modalController,
   loadingController,

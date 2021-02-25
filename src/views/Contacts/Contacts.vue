@@ -48,12 +48,9 @@ import {
   IonRow,
   IonCol,
   modalController,
-  alertController,
 } from "@ionic/vue";
 import { addOutline, sadOutline } from "ionicons/icons";
 import { useRouter } from "vue-router";
-import tatsuyaService from "@/apiService/tatsuyaService";
-import { DecryptContacts, EncryptedContact } from "@/lib/contacts";
 
 // Components
 import NewContact from "@/components/Contacts/NewContact.vue";
