@@ -3,6 +3,10 @@ import App from './App.vue'
 import router from './router';
 import { store } from '@/store';
 
+// Sentry
+import * as Sentry from "@sentry/vue";
+import { Integrations } from "@sentry/tracing";
+
 import { IonicVue } from '@ionic/vue';
 
 /* Core CSS required for Ionic components to work properly */
@@ -34,6 +38,16 @@ const app = createApp(App)
   .use(IonicVue)
   .use(store)
   .use(router);
+
+// Sentry
+Sentry.init({
+  dsn: "https://995a8522ee9745f4a0fc8035d001c9f2@o533251.ingest.sentry.io/5652656",
+  integrations: [new Integrations.BrowserTracing()],
+
+  // We recommend adjusting this value in production, or using tracesSampler
+  // for finer control
+  tracesSampleRate: 1.0,
+});
   
 router.isReady().then(() => {
   app.mount('#app');
