@@ -1,6 +1,6 @@
 import { tatsuyaApi } from "@/apiService/Api";
 import { Account } from "@/lib/account";
-import { EncryptedContact } from '@/lib/contacts';
+import { EncryptedContact } from '@/models/contact';
 
 // Export all endpoints for authentication API
 export default {

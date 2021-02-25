@@ -195,7 +195,7 @@ import cardGradient from "@/class/cardGradient";
 import SendCoins from "@/components/Wallet/Send/Send.vue";
 import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
 import tatsuyaService from "@/apiService/tatsuyaService";
-import { EncryptedContact } from "@/lib/contacts";
+import { EncryptedContact } from "@/models/contact";
 import Contacts from "@/class/contacts";
 
 export default defineComponent({
