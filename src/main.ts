@@ -27,6 +27,9 @@ import './theme/variables.css';
 // Initialise the store
 store.dispatch("initialize");
 
+// Service worker
+import '@/registerServiceWorker';
+
 const app = createApp(App)
   .use(IonicVue)
   .use(store)

@@ -1,5 +1,10 @@
 module.exports = {
     productionSourceMap: true,
+    pwa: {
+        workboxOptions: {
+            skipWaiting: true
+        }
+    },
     configureWebpack: {
         module: {
             noParse: /\.wasm$/,
