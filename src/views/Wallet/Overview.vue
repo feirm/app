@@ -168,7 +168,6 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonLabel,
   alertController,
   modalController,
   loadingController,
@@ -196,7 +195,8 @@ import cardGradient from "@/class/cardGradient";
 import SendCoins from "@/components/Wallet/Send/Send.vue";
 import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
 import tatsuyaService from "@/apiService/tatsuyaService";
-import { DecryptContacts, EncryptedContact } from "@/lib/contacts";
+import { EncryptedContact } from "@/lib/contacts";
+import Contacts from "@/class/contacts";
 
 export default defineComponent({
   name: "WalletOverview",
@@ -323,6 +323,7 @@ export default defineComponent({
           // Loading popup
           a.present()
             .then(async () => {
+
               // Fetch coin network data
               await store.dispatch("setCoins");
 
@@ -344,7 +345,7 @@ export default defineComponent({
                 throw new Error(e);
               }
 
-              // Fetch and decrypt contacts
+              // Fetch all of our encrypted contacts
               try {
                 await tatsuyaService.fetchContacts().then(async (res) => {
                   // Set the encrypted contacts array
@@ -353,14 +354,10 @@ export default defineComponent({
                     return;
                   }
 
-                  // Attempt to decrypt contacts array
-                  await DecryptContacts(contacts)
-                    .then((decryptedContacts) => {
-                      store.commit("setContacts", decryptedContacts);
-                    })
-                    .catch((e) => {
-                      console.log(e);
-                    });
+                  // Store contacts in IDB
+                  for (let i = 0; i < contacts.length; i++) {
+                    Contacts.addContact(contacts[i]);
+                  }
                 });
               } catch (e) {
                 throw new Error(e);
@@ -375,7 +372,7 @@ export default defineComponent({
 
               // Error alert
               const error = await alertController.create({
-                header: "Error loading data!",
+                header: "Error fetching data!",
                 message: e,
                 buttons: ["Close"],
               });

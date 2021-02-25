@@ -35,19 +35,6 @@
         </ion-item>
       </ion-card-content>
     </ion-card>
-    <!--
-    <ion-card>
-      <ion-card-content>
-        <ion-item lines="none">
-          <ion-label color="success" position="floating">Cryptocurrency address</ion-label>
-          <ion-input
-            v-model="contact.cryptocurrencyAddress"
-            type="text"
-          ></ion-input>
-        </ion-item>
-      </ion-card-content>
-    </ion-card>
-    -->
   </ion-content>
 </template>
 
@@ -71,10 +58,12 @@ import {
   loadingController,
 } from "@ionic/vue";
 import { checkmarkOutline, closeOutline } from "ionicons/icons";
-import { Contact, CreateEncryptedContact } from "@/lib/contacts";
 import tatsuyaService from "@/apiService/tatsuyaService";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
+
+import { Contact } from "@/models/contact";
+import Contacts from "@/class/contacts";
 
 export default defineComponent({
   name: "NewContact",
@@ -99,28 +88,6 @@ export default defineComponent({
   },
   methods: {
     async closeModal() {
-      // Check if object fields are empty
-      if (!this.empty(this.contact)) {
-        const alert = await alertController.create({
-          header: "Are you sure you want to exit?",
-          message: "Any information on this page will not be saved!",
-          buttons: [
-            {
-              text: "No",
-            },
-            {
-              text: "Yes",
-              handler: async () => {
-                // Dismiss
-                await modalController.dismiss();
-              },
-            },
-          ],
-        });
-
-        return alert.present();
-      }
-
       // Dismiss
       await modalController.dismiss();
     },
@@ -134,14 +101,15 @@ export default defineComponent({
           a.present()
             .then(async () => {
               // Encrypt the the contact payload
-              await CreateEncryptedContact(contact).then(async (data) => {
+              await Contacts.encryptContact(contact).then(async (data) => {
                 // Submit payload to API
                 await tatsuyaService.newContact(data).then((res) => {
+                  // Data is the new encrypted contact
                   // Apply the missing contact ID
-                  contact.id = res.data.id;
+                  data.id = res.data.id;
 
-                  // Add contact to Vuex
-                  this.store.commit("addContact", contact);
+                  // Add contact to IDB
+                  Contacts.addContact(data);
 
                   // Close loading spinner
                   a.dismiss();
@@ -168,24 +136,12 @@ export default defineComponent({
     },
   },
   setup() {
-    // Check if a provided contact values are empty
-    const empty = function (contact: Contact) {
-      for (const key in contact) {
-        if (contact[key] !== null && contact[key] != "") {
-          return false;
-        }
-      }
-
-      return true;
-    };
-
     const router = useRouter();
     const store = useStore();
 
     return {
       checkmarkOutline,
       closeOutline,
-      empty,
       router,
       store,
     };
