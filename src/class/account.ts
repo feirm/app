@@ -1,9 +1,10 @@
 import { DB } from "./db";
 import { EncryptedAccount, SignedAuthenticationToken, AuthenticationToken } from "@/models/account";
 import { ArgonType, hash } from "argon2-browser";
-import { ModeOfOperation } from "aes-js";
+import { ModeOfOperation, utils } from "aes-js";
 import { SignKeyPair, sign } from "tweetnacl";
 import bufferToHex from "@/lib/bufferToHex";
+import hexStringToBytes from "@/lib/hexStringToBytes";
 
 // Different account key types
 enum Keys {
@@ -83,6 +84,28 @@ class Account extends DB {
     return account;
   }
 
+  // Decrypt an account to return the root key
+  async decryptAccount(password: string, account: EncryptedAccount): Promise<Uint8Array> {
+    // Reconstruct the stretched key from the password supplied as a parameter
+    const secretKey = await hash({
+      pass: password,
+      salt: hexStringToBytes(account.rootPasswordSalt),
+      type: ArgonType.Argon2id,
+      hashLen: 32
+    });
+
+    // Attempt to decrypt the account root key
+    // Convert the salt to a format that is AES cipher friendly
+    const salt = utils.hex.toBytes(account.encryptedRootKey.iv).slice(0, 16);
+
+    // Create the AES256-CBC decipher and decrypt the root key
+    const aesCbc = new ModeOfOperation.cbc(secretKey.hash, salt);
+    const rootKey = aesCbc.decrypt(utils.hex.toBytes(account.encryptedRootKey.cipherText));
+
+    // Return the root key
+    return rootKey;
+  }
+
   // Derive an identity (signing) keypair from account root
   async deriveIdentityKeypair(
     accountRootKey: Uint8Array
@@ -103,10 +126,7 @@ class Account extends DB {
   }
 
   // Sign an authentication token using identity keypair
-  async signAuthenticationToken(token: AuthenticationToken): Promise<SignedAuthenticationToken> {
-      // Derive keypair
-      const keypair = await this.deriveIdentityKeypair(this.rootKey);
-
+  async signAuthenticationToken(keypair: SignKeyPair, token: AuthenticationToken): Promise<SignedAuthenticationToken> {
       // Construct a new signed authentication token from the token passed as a parameter
       const signedToken = {
           id: token.id
