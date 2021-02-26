@@ -36,7 +36,6 @@
 </template>
 
 <script lang="ts">
-import { useStore } from "vuex";
 import {
   IonPage,
   IonHeader,
@@ -89,7 +88,11 @@ export default defineComponent({
   },
   methods: {
     next() {
-      this.store.commit("registerUsername", this.username);
+      // Set username in LocalStorage instead of Vuex
+      // We want this to remain persistant
+      localStorage.setItem("username", this.username);
+
+      // Push to next page
       this.router.push({ path: "/auth/register/password" });
     },
     async checkUsername(username: string) {
@@ -113,12 +116,10 @@ export default defineComponent({
     },
   },
   setup() {
-    // Use existing store and router
-    const store = useStore();
+    // Use existing router
     const router = useRouter();
 
     return {
-      store,
       router,
       personCircleOutline,
     };
