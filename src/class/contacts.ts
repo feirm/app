@@ -5,11 +5,6 @@ import aes from "aes-js";
 import bufferToHex from "@/lib/bufferToHex";
 
 class Contacts extends DB {
-  // Inherit from DB class
-  constructor() {
-    super();
-  }
-
   // Add encrypted contact
   addContact(contact: EncryptedContact) {
     this.contacts.add(contact, contact.id);

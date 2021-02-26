@@ -13,10 +13,6 @@ enum Keys {
 }
 
 class Account extends DB {
-  constructor() {
-    super();
-  }
-
   // Properties
   public username: string;
   public rootKey: Uint8Array;
