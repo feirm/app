@@ -9,16 +9,23 @@ interface EncryptedAccount {
     cipherText: string;
     iv: string;
   };
-  token?: AuthenticationToken;
+  token?: SignedAuthenticationToken;
 }
 
-// Representation of an authentication token
-interface AuthenticationToken {
+// Representation of a signed authentication token
+interface SignedAuthenticationToken {
   id: string;
   signature: string;
 }
 
+// Representation of an authentication token straight from the API
+interface AuthenticationToken {
+  id: string;
+  nonce: string;
+}
+
 export {
   EncryptedAccount,
+  SignedAuthenticationToken,
   AuthenticationToken
 };
