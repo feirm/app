@@ -146,6 +146,9 @@ export default defineComponent({
             // Submit the authentication token to the API and save the JWT session token
             const session = await tatsuyaService.loginAccount(signedToken);
 
+            // Save the account key root
+            await Account.setRootKey(rootKey);
+
             // Save the JWT in Vuex
             this.store.dispatch("login", session.data);
 
