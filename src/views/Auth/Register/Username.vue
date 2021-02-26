@@ -14,14 +14,10 @@
             <ion-icon :icon="personCircleOutline" size="large"></ion-icon>
             <ion-text class="ion-text-center">
               <h1>Pick your username</h1>
-              <p>
-                This is how other Feirm users can find you and send you
-                payments.
-              </p>
               <p>You should know that usernames cannot be changed, so pick wisely! 🧙‍♂️</p>
             </ion-text>
-            <ion-item>
-              <ion-label position="floating">Username</ion-label>
+            <ion-item color="transparent" lines="none">
+              <ion-label position="floating" color="primary">Username</ion-label>
               <ion-input
                 v-model="username"
                 debounce="250"
@@ -60,9 +56,9 @@ import {
   IonFooter
 } from "@ionic/vue";
 import { personCircleOutline } from "ionicons/icons";
-import router from "@/router";
 import { defineComponent } from "vue";
 import tatsuyaService from "@/apiService/tatsuyaService";
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -94,7 +90,7 @@ export default defineComponent({
   methods: {
     next() {
       this.store.commit("registerUsername", this.username);
-      router.push({ path: "/auth/register/password" });
+      this.router.push({ path: "/auth/register/password" });
     },
     async checkUsername(username: string) {
       // Set username
@@ -117,11 +113,13 @@ export default defineComponent({
     },
   },
   setup() {
-    // Use existing store
+    // Use existing store and router
     const store = useStore();
+    const router = useRouter();
 
     return {
       store,
+      router,
       personCircleOutline,
     };
   },
