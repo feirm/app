@@ -9,15 +9,15 @@
               <h1>Welcome to Feirm.</h1>
               <p>Please Login or Create An Account to continue.</p>
             </ion-text>
-            <ion-card>
+            <ion-card color="transparent">
               <ion-card-content>
                 <form @submit.prevent="login">
-                  <ion-item>
-                    <ion-label position="floating">Username</ion-label>
+                  <ion-item color="transparent" lines="none">
+                    <ion-label position="floating" color="primary">Username</ion-label>
                     <ion-input v-model="username"></ion-input>
                   </ion-item>
-                  <ion-item>
-                    <ion-label position="floating">Password</ion-label>
+                  <ion-item color="transparent" lines="none">
+                    <ion-label position="floating" color="primary">Password</ion-label>
                     <ion-input v-model="password" type="password"></ion-input>
                   </ion-item>
                   <br />
@@ -177,6 +177,10 @@ export default defineComponent({
 ion-img {
   margin: 0 auto;
   width: 100px;
+}
+
+ion-card {
+  box-shadow: none !important;
 }
 
 ion-grid {
