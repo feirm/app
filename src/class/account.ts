@@ -1,5 +1,5 @@
 import { DB } from "./db";
-import { EncryptedAccount } from "@/models/account";
+import { EncryptedAccount, SignedAuthenticationToken, AuthenticationToken } from "@/models/account";
 import { ArgonType, hash } from "argon2-browser";
 import { ModeOfOperation } from "aes-js";
 import { SignKeyPair, sign } from "tweetnacl";
@@ -12,6 +12,15 @@ enum Keys {
 }
 
 class Account extends DB {
+  // Properties
+  public username: string;
+  public rootKey: Uint8Array;
+
+  // Set the account root key
+  setRootKey(rootKey: Uint8Array) {
+      this.rootKey = rootKey;
+  }
+
   // Generate an encrypted account
   async generateAccount(
     username: string,
@@ -87,6 +96,23 @@ class Account extends DB {
     const identityKeypair = sign.keyPair.fromSeed(new Uint8Array(identityKey));
 
     return identityKeypair;
+  }
+
+  // Sign an authentication token using identity keypair
+  // async signAuthenticationToken(token: AuthenticationToken): Promise<SignedAuthenticationToken> {}
+
+  // Save an encrypted account to IndexedDB
+  async saveAccountToIDB(account: EncryptedAccount): Promise<void> {
+    await this.account.add(account, account.id);
+  }
+
+  // Fetch an encrypted account from IndexedDB by username.
+  // It is likely the account username will be stored in LocalStorage
+  // but this method is handy to have just in case of multi-account
+  // support in the future.
+  async fetchAccountFromIDB(username: string): Promise<EncryptedAccount> {
+      const account = await this.account.get(username);
+      return account!;
   }
 }
 
