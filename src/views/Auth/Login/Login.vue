@@ -61,8 +61,10 @@ import {
 import { useStore } from "vuex";
 
 import PIN from "@/components/Auth/PIN.vue";
-import { loginAccount } from "@/lib/account";
 import { useRouter } from "vue-router";
+import tatsuyaService from "@/apiService/tatsuyaService";
+import { AuthenticationToken, EncryptedAccount } from "@/models/account";
+import Account from "@/class/account";
 
 export default defineComponent({
   name: "Login",
@@ -98,10 +100,6 @@ export default defineComponent({
         return;
       }
 
-      // Commit username + password to Vuex
-      this.store.commit("loginUsername", this.username);
-      this.store.commit("loginPassword", this.password);
-
       // Open the PIN entry component to fetch the user PIN
       const pinEntry = await modalController.create({
         component: PIN,
@@ -122,39 +120,55 @@ export default defineComponent({
         return;
       }
 
-      // Store the PIN in Vuex along with our other login details
-      this.store.commit("loginPin", pin);
-
       // Attempt to sign in
       await loadingController
         .create({
-          message: "Signing in...",
+          message: "Signing you in...",
         })
         .then(async (a) => {
-          a.present().then(async () => {
-            await loginAccount(
-              this.store.getters.getLoginState.username,
-              this.store.getters.getLoginState.password,
-              this.store.getters.getLoginState.pin
-            )
-              .then(() => {
-                // Dimiss the loading controller
-                a.dismiss();
-              })
-              .catch(async (err) => {
-                // Dismiss loading controller
-                a.dismiss();
+          a.present()
+          .then(async () => {
+            // Submit username and PIN to authentication API
+            // to retrieve encrypted payload
+            const encryptedAccount = await (await tatsuyaService.fetchEncryptedAccount(this.username, pin)).data as EncryptedAccount;
 
-                // Return an error
-                const alert = await alertController.create({
-                  header: "Sign in error!",
-                  message: err.response.data.error,
-                  buttons: ["Okay"],
-                });
+            // Decrypt the account to get the root key
+            const rootKey = await Account.decryptAccount(this.password, encryptedAccount);
 
-                return alert.present();
-              });
-          });
+            // Derive the identity keypair
+            const keypair = await Account.deriveIdentityKeypair(rootKey);
+            
+            // Fetch and sign an authentication token
+            const token = await (await tatsuyaService.getRegistrationToken()).data as AuthenticationToken;
+            const signedToken = await Account.signAuthenticationToken(keypair, token);
+            signedToken.username = this.username;
+
+            // Submit the authentication token to the API and save the JWT session token
+            const session = await tatsuyaService.loginAccount(signedToken);
+
+            // Save the JWT in Vuex
+            this.store.dispatch("login", session.data);
+
+            // Save the encrypted account payload
+            await Account.saveAccountToIDB(encryptedAccount);
+
+            // Push to discover page
+            this.router.push({ path: "/" });
+
+            // Dismiss loading controller
+            a.dismiss();
+          })
+          .catch(async e => {
+            a.dismiss();
+
+            const error = await alertController.create({
+              header: "Login error!",
+              message: e,
+              buttons: ["Close"]
+            });
+
+            return error.present();
+          })
         });
     },
     register() {
