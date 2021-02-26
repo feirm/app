@@ -1,8 +1,9 @@
 import { store } from "@/store";
 import axios from "axios";
 import tatsuyaService from "./tatsuyaService";
-import * as nacl from "tweetnacl";
-import bufferToHex from "@/lib/bufferToHex";
+
+import Account from "@/class/account";
+import { AuthenticationToken } from "@/models/account";
 
 // Axios instance for Tatsuya authentication API
 const tatsuyaApi = axios.create({
@@ -32,57 +33,33 @@ tatsuyaApi.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error) => {
+  async (error) => {
     const originalRequest = error.config;
 
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      // Fetch a new authentication/session token for the user
-      const username = store.getters.getUsername;
-      const rootKey = store.getters.getRootKey;
+      // Fetch the username and account root key
+      const username = localStorage.getItem("username")!;
+      const rootKey = Account.getRootKey();
 
-      // Reconstruct the identity key from the root key
-      const identityKeyString = rootKey + "identity";
-      window.crypto.subtle
-        .digest("SHA-256", new TextEncoder().encode(identityKeyString))
-        .then(async (identityKey) => {
-          // Derive the signing ed25519 keypair from identityKey
-          const rootKeyPair = nacl.sign.keyPair.fromSeed(
-            new Uint8Array(identityKey)
-          );
+      // Reconstruct the identity keypair
+      const keypair = await Account.deriveIdentityKeypair(rootKey)
 
-          await tatsuyaService.getLoginToken(username).then(async (res) => {
-            // Create signature
-            const signature = nacl.sign.detached(
-              new TextEncoder().encode(res.data.nonce),
-              rootKeyPair.secretKey
-            );
+      // Fetch and sign the authentication token for the username
+      const loginToken = await (await tatsuyaService.getLoginToken(username)).data as AuthenticationToken;
+      const signedToken = await Account.signAuthenticationToken(keypair, loginToken);
+      signedToken.username = username;
 
-            // Construct the login/new session payload
-            const payload = {
-              id: res.data.id,
-              username: username,
-              signature: bufferToHex(signature),
-            };
+      // Submit signed token to API to get a session
+      const session = await tatsuyaService.loginAccount(signedToken);
 
-            await tatsuyaService.loginAccount(payload).then((res) => {
-              // Construct the session object
-              const session = {
-                rootKey: rootKey,
-                sessionToken: res.data.sessionToken,
-                username: res.data.username,
-              };
+      // Update Vuex to store JWT
+      store.dispatch("login", session.data)
 
-              store.dispatch("login", session);
-
-              // Attempt to handle the original request
-              originalRequest.headers.Authorization =
-                "Bearer " + res.data.sessionToken;
-              return axios(originalRequest);
-            });
-          });
-        });
+      // Attempt to handle the original request
+      originalRequest.headers.Authorization = "Bearer " + session.data.sessionToken;
+      return axios(originalRequest);
     }
 
     return Promise.reject(error);
