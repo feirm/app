@@ -32,20 +32,25 @@
                 recovered by us! 🔒
               </p>
             </ion-text>
-            <ion-item>
-              <ion-label position="floating">Password</ion-label>
-              <ion-input type="password" v-model="password"></ion-input>
+            <ion-item color="transparent" lines="none">
+              <ion-label position="floating" color="primary">Password</ion-label>
+              <ion-input type="password" v-model="password" v-on:ionChange="checkPassword($event.target.value, confirmPassword)"></ion-input>
             </ion-item>
-            <ion-item>
-              <ion-label position="floating">Confirm Password</ion-label>
-              <ion-input type="password" v-model="confirmPassword"></ion-input>
+            <ion-item color="transparent" lines="none">
+              <ion-label position="floating" color="primary">Confirm Password</ion-label>
+              <ion-input type="password" v-model="confirmPassword" v-on:ionChange="checkPassword(password, $event.target.value)"></ion-input>
             </ion-item>
+
+            <!-- Password message -->
+            <ion-text>
+              <p>{{ passwordMessage }}</p>
+            </ion-text>
           </ion-col>
         </ion-row>
       </ion-grid>
     </ion-content>
     <ion-footer class="ion-no-border ion-padding ion-text-center">
-      <ion-button expand="block" color="primary" @click="next">Next</ion-button>
+      <ion-button expand="block" color="primary" @click="next" :disabled="disabled">Next</ion-button>
     </ion-footer>
   </ion-page>
 </template>
@@ -78,9 +83,10 @@ import zxcvbn from "zxcvbn";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 
+import Account from "@/class/account";
 import PIN from "@/components/Auth/PIN.vue";
 import tatsuyaService from "@/apiService/tatsuyaService";
-import { generateAccount } from "@/lib/account";
+import { AuthenticationToken } from "@/models/account";
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -106,155 +112,133 @@ export default defineComponent({
     return {
       password: "",
       confirmPassword: "",
+      passwordMessage: "",
+      disabled: true
     };
   },
   methods: {
-    async next() {
-      // Validate the passwords before moving on
-      
-      // Check that a password is actually present
-      if (this.password.length === 0) {
-        const alert = await alertController.create({
-          header: "Password Error",
-          message:
-            "The password field cannot be empty. Please try again!",
-          buttons: ["Okay!"],
-        });
+    checkPassword(password: string, confirmPassword: string) {
+      // Reset button enable state
+      this.disabled = true;
 
-        return alert.present();
-      }
+      // Want to show the strength of the original password
+      const score = zxcvbn(password).score;
+      this.passwordMessage = this.passwordStrengthMessages[score];
 
-      // Verify if the passwords match
-      if (this.password !== this.confirmPassword) {
-        const alert = await alertController.create({
-          header: "Password Error",
-          message:
-            "The passwords do not match. Please double check your password and try again.",
-          buttons: ["Okay!"],
-        });
-
-        return alert.present();
-      }
-
-      // Generate a zxcvbn score for the password
-      const score = zxcvbn(this.password).score;
-
-      // Set the password strength message based on our score
-      const passwordMessage = this.passwordStrengthMessages[score];
-
-      // If the password has a high score, save the password in our state and move on
-      if (score > 2) {
-        this.store.commit("registerPassword", this.password);
-
-        // Modal to show first PIN entry screen
-        const firstPin = await modalController.create({
-          component: PIN,
-          componentProps: {
-            header: "Create a PIN",
-            description: "Enter a six-digit PIN to secure your Feirm account.",
-          },
-        });
-
-        firstPin.present();
-
-        // Wait for a response to get our first PIN
-        const firstPinResponse = await firstPin.onDidDismiss();
-        const pin = firstPinResponse.data;
-
-        // If the response is less than 6 characters, assume its empty, or they wanted to cancel, so go no further
-        if (pin.length < 6) {
+      // If the comfirmation password has a length
+      // then check it matches the main password
+      if (confirmPassword) {
+        if (confirmPassword !== password) {
+          this.passwordMessage = "Passwords do not match!";
           return;
         }
-
-        // Modal to show confirmation PIN entry screen
-        const secondPin = await modalController.create({
-          component: PIN,
-          componentProps: {
-            header: "Confirm your PIN",
-            description: "Please re-enter your PIN from the previous screen.",
-          },
-        });
-
-        secondPin.present();
-
-        // Wait for a respond to get the second PIN
-        const secondPinResponse = await secondPin.onDidDismiss();
-        const confirmPin = secondPinResponse.data;
-
-        // Compare the PINs and check if they match
-        if (pin !== confirmPin) {
-          const errorAlert = await alertController.create({
-            header: "PIN Error!",
-            message: "The PINs you provided do not match, please try again!",
-            buttons: ["Close"],
-          });
-
-          return errorAlert.present();
-        }
-
-        // Assume the PINs match, so then update the PIN state
-        this.store.commit("registerPin", pin);
-
-        // Submit the account object from our state
-        // Begin the submitting process and show a loading popup
-        await loadingController
-          .create({
-            message: "Creating account...",
-          })
-          .then((a) => {
-            a.present().then(async () => {
-              const signUpInfo = this.store.getters.getRegistration;
-
-              const account = await generateAccount(
-                signUpInfo.username,
-                signUpInfo.password,
-                signUpInfo.pin
-              );
-
-              await tatsuyaService
-                .registerAccount(account)
-                .then((res) => {
-                  // Account data
-                  const username = res.data.username;
-                  const sessionToken = res.data.sessionToken;
-                  const rootKey = this.store.getters.getRootKey;
-
-                  // Save authentication tokens
-                  this.store.dispatch("login", {
-                    username,
-                    sessionToken,
-                    rootKey,
-                  });
-
-                  // Dismiss the loading controller
-                  a.dismiss();
-
-                  // Push to Discover page
-                  this.router.push({ path: "/" });
-                })
-                // Stop the loading popup and show an alert
-                .catch(async (err) => {
-                  a.dismiss();
-
-                  // Error alert
-                  const errorAlert = await alertController.create({
-                    header: "Registration Error",
-                    message: err.response.data.error,
-                    buttons: ["Okay!"],
-                  });
-                  errorAlert.present();
-                });
-            });
-          });
-      } else {
-        const alert = await alertController.create({
-          header: "Password Strength Error",
-          message: passwordMessage,
-          buttons: ["Okay!"],
-        });
-
-        return alert.present();
       }
+
+      // Check the score is must be more than or equal to 3 (strong)
+      // Also check that confirmed password is present.
+      // If so, enable the button
+      if (confirmPassword) {
+        if (score > 2) {
+          this.disabled = false;
+        }
+      }
+    },
+    async next() {
+      // Proceed to capturing the PIN entry
+      const pin = await modalController.create({
+        component: PIN,
+        componentProps: {
+          header: "Create a PIN",
+          description: "Enter a six-digit PIN to secure your Feirm account."
+        }
+      });
+
+      pin.present();
+
+      // Capture the PIN component response
+      const pinResponse = await (await pin.onDidDismiss()).data;
+
+      // If the PIN is less than 6 characters, chances are the user wanted to cancel
+      if (pinResponse.length < 6) {
+        return;
+      }
+
+      // Proceed to capture the second user PIN for confirmation it was entered correctly
+      const confirmPin = await modalController.create({
+        component: PIN,
+        componentProps: {
+          header: "Confirm your PIN",
+          description: "Please re-enter your PIN from the previous screen."
+        }
+      });
+
+      confirmPin.present();
+
+      // Capture the confirmation PIN component response
+      const confirmPinResponse = await (await confirmPin.onDidDismiss()).data;
+
+      // Compare the two PINs against each other to make sure that they match
+      if (pinResponse !== confirmPinResponse) {
+        const error = await alertController.create({
+          header: "PIN Error!",
+          message: "The PINs you provided do not match! Please try again.",
+          buttons: ["Close"]
+        });
+
+        return error.present();
+      }
+
+      // Retrieve the username from LocalStorage
+      const username = localStorage.getItem("username")!;
+
+      // Open up a loading controller
+      await loadingController.create({
+        message: "Creating your account..."
+      }).then(a => {
+        a.present()
+        .then(async () => {
+          // Generate an encrypted account using data previously entered
+          const encryptedAccount = await Account.generateAccount(username, this.password, pinResponse);
+          
+          // Retrieve an ephemeral authentication token
+          const authenticationToken = await (await tatsuyaService.getRegistrationToken()).data as AuthenticationToken;
+
+          // Decrypt the account payload we had just encrypted
+          const rootKey = await Account.decryptAccount(this.password, encryptedAccount);
+
+          // Reconstruct the identity (signing keypair) to sign the authentication token
+          const keypair = await Account.deriveIdentityKeypair(rootKey);
+          const signedAuthenticationToken = await Account.signAuthenticationToken(keypair, authenticationToken);
+
+          // Attach the signed authentication token to the encrypted account object
+          encryptedAccount.token!.id = signedAuthenticationToken.id;
+          encryptedAccount.token!.signature = signedAuthenticationToken.signature;
+
+          // Submit encrypted account to auth API
+          await tatsuyaService.registerAccount(encryptedAccount).then(res => {
+            console.log(res.data);
+          })
+
+          // Set authentication token (JWT) in Vuex
+
+          // Save the encrypted account to IndexedDB
+
+          // Registration process is complete, so we can now close the modal
+          a.dismiss();
+        })
+        .catch(async e => {
+          a.dismiss();
+
+          const error = await alertController.create({
+            header: "Error creating your account!",
+            message: e,
+            buttons: ["Close"]
+          });
+
+          return error.present();
+        })
+      }) 
+
     },
     async presentAlert() {
       const alert = await alertController.create({
