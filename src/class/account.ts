@@ -13,13 +13,18 @@ enum Keys {
 }
 
 class Account extends DB {
-  // Properties
+  // Properties (these are to be used for in-memory)
   public username: string;
   public rootKey: Uint8Array;
 
   // Set the account root key
   setRootKey(rootKey: Uint8Array) {
       this.rootKey = rootKey;
+  }
+
+  // Get the account root key
+  getRootKey(): Uint8Array {
+    return this.rootKey;
   }
 
   // Generate an encrypted account
