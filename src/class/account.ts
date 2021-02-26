@@ -99,7 +99,24 @@ class Account extends DB {
   }
 
   // Sign an authentication token using identity keypair
-  // async signAuthenticationToken(token: AuthenticationToken): Promise<SignedAuthenticationToken> {}
+  async signAuthenticationToken(token: AuthenticationToken): Promise<SignedAuthenticationToken> {
+      // Derive keypair
+      const keypair = await this.deriveIdentityKeypair(this.rootKey);
+
+      // Construct a new signed authentication token from the token passed as a parameter
+      const signedToken = {
+          id: token.id
+      } as SignedAuthenticationToken;
+
+      // Sign the nonce in the token provided as parameter
+      const nonce = new TextEncoder().encode(token.nonce);
+      const signature = sign.detached(nonce, keypair.secretKey);
+
+      // Update the signed token with a signature and return it
+      signedToken.signature = bufferToHex(signature);
+      
+      return signedToken;
+  }
 
   // Save an encrypted account to IndexedDB
   async saveAccountToIDB(account: EncryptedAccount): Promise<void> {
