@@ -1,3 +1,4 @@
+// Representation of an encrypted user account from the API
 interface EncryptedAccount {
   id: string;
   username: string;
@@ -8,10 +9,16 @@ interface EncryptedAccount {
     cipherText: string;
     iv: string;
   };
-  token?: {
-      id: string;
-      signature: string;
-  } 
+  token?: AuthenticationToken;
 }
 
-export { EncryptedAccount };
+// Representation of an authentication token
+interface AuthenticationToken {
+  id: string;
+  signature: string;
+}
+
+export {
+  EncryptedAccount,
+  AuthenticationToken
+};
