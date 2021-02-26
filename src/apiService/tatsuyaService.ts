@@ -1,5 +1,5 @@
 import { tatsuyaApi } from "@/apiService/Api";
-import { Account } from "@/lib/account";
+import { EncryptedAccount } from "@/models/account";
 import { EncryptedContact } from '@/models/contact';
 
 // Export all endpoints for authentication API
@@ -13,7 +13,7 @@ export default {
         return tatsuyaApi.get(`/v1/register/token`)
     },
     // Register a user account
-    registerAccount(account: Account) {
+    registerAccount(account: EncryptedAccount) {
         return tatsuyaApi.post(`/v1/register`, account)
     },
     // Fetch a temporary login token
