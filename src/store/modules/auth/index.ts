@@ -2,55 +2,24 @@ import jwt_decode from "jwt-decode";
 
 export const auth = {
   state: {
-    login: {
-      username: "",
-      password: "",
-      pin: "",
-    },
     authentication: {
-      rootKey: "",
       sessionToken: "",
       username: "",
     },
   },
   mutations: {
-    // Mutations for login process
-    loginUsername(state, username) {
-      state.login.username = username;
-    },
-    loginPassword(state, password) {
-      state.login.password = password;
-    },
-    loginPin(state, pin) {
-      state.login.pin = pin;
-    },
     setSessionState(state, sessionData) {
-      state.authentication.rootKey = sessionData.rootKey;
       state.authentication.sessionToken = sessionData.sessionToken;
       state.authentication.username = sessionData.username;
 
-      localStorage.setItem("session", JSON.stringify(sessionData));
-    },
-    clearSessionState(state) {
-      state.authentication.rootKey = "";
-      state.authentication.sessionToken = "";
-      state.authentication.username = "";
+      // Store session token in SessionStorage
+      sessionStorage.setItem("session", sessionData.sessionToken);
 
-      localStorage.removeItem("session");
+      // Update username in LocalStorage
+      localStorage.setItem("username", sessionData.username);
     },
   },
   actions: {
-    initialize({ commit }) {
-      // Load existing session if its in storage
-      const session = localStorage.getItem("session");
-
-      if (session) {
-        commit("setSessionState", JSON.parse(session));
-      }
-    },
-    clearRegistrationState({ commit }) {
-      commit("clearRegistration");
-    },
     login({ commit }, sessionData) {
       commit("setSessionState", sessionData);
     },
@@ -65,7 +34,7 @@ export const auth = {
         getters.getSessionExpirationDate > new Date()
       );
     },
-    getSessionExpirationDate: (state, getters) => {
+    getSessionExpirationDate: (getters) => {
       if (!getters.getSessionToken) {
         return null;
       }
@@ -80,8 +49,6 @@ export const auth = {
       return date;
     },
     getSessionToken: (state) => state.authentication.sessionToken,
-    getUsername: (state) => state.authentication.username,
-    getRootKey: (state) => state.authentication.rootKey,
-    getLoginState: (state) => state.login, // Return the entire login state
+    getUsername: (state) => state.authentication.username
   },
 };
