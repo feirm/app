@@ -71,7 +71,7 @@ export default defineComponent({
         const rootKey = await Account.decryptAccount(this.password, encryptedAccount);
 
         // Save account root key
-        await Account.setRootKey(rootKey);
+        Account.setRootKey(rootKey);
 
         // Toggle decrypting state to false
         this.decrypting = false;
