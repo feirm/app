@@ -70,7 +70,7 @@ class Account extends DB {
     const rootKeyCiphertext = aesCbc.encrypt(rootKey);
 
     // Construct the encrypted account object to be returned.
-    const account = {
+    const account: EncryptedAccount = {
       username: username,
       pin: pin,
       rootPasswordSalt: bufferToHex(salt),
@@ -78,8 +78,12 @@ class Account extends DB {
       encryptedRootKey: {
         cipherText: bufferToHex(rootKeyCiphertext),
         iv: bufferToHex(rootKeySalt),
+      },
+      token: {
+        id: "",
+        signature: ""
       }
-    } as EncryptedAccount;
+    };
 
     return account;
   }
@@ -144,7 +148,7 @@ class Account extends DB {
 
   // Save an encrypted account to IndexedDB
   async saveAccountToIDB(account: EncryptedAccount): Promise<void> {
-    await this.account.add(account, account.id);
+    await this.account.add(account, account.username);
   }
 
   // Fetch an encrypted account from IndexedDB by username.
