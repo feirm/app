@@ -13,7 +13,7 @@ class DB extends Dexie {
   constructor() {
     super("feirm");
     this.version(1).stores({
-      account: 'id, username',
+      account: 'username',
       contacts: 'id, cipherText, iv'
     })
 
