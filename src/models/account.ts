@@ -14,6 +14,7 @@ interface EncryptedAccount {
 // Representation of a signed authentication token
 interface SignedAuthenticationToken {
   id: string;
+  username?: string;
   signature: string;
 }
 
