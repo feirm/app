@@ -2,12 +2,6 @@ import jwt_decode from "jwt-decode";
 
 export const auth = {
   state: {
-    registration: {
-      username: "",
-      password: "",
-      pin: "",
-      confirmPin: "",
-    },
     login: {
       username: "",
       password: "",
@@ -20,22 +14,6 @@ export const auth = {
     },
   },
   mutations: {
-    // Mutations for registration process
-    registerUsername(state, username) {
-      state.registration.username = username;
-    },
-    registerPassword(state, password) {
-      state.registration.password = password;
-    },
-    registerPin(state, pin) {
-      state.registration.pin = pin;
-    },
-    confirmPin(state, pin) {
-      state.registration.confirmPin = pin;
-    },
-    registerRootKey(state, key) {
-      state.authentication.rootKey = key;
-    },
     // Mutations for login process
     loginUsername(state, username) {
       state.login.username = username;
@@ -104,7 +82,6 @@ export const auth = {
     getSessionToken: (state) => state.authentication.sessionToken,
     getUsername: (state) => state.authentication.username,
     getRootKey: (state) => state.authentication.rootKey,
-    getRegistration: (state) => state.registration, // Return the entire registration state
     getLoginState: (state) => state.login, // Return the entire login state
   },
 };
