@@ -80,8 +80,6 @@ import {
   toastController,
 } from "@ionic/vue";
 import Account from "@/class/account";
-import { ArgonType, hash } from "argon2-browser";
-import hexStringToBytes from "@/lib/hexStringToBytes";
 import bufferToHex from "@/lib/bufferToHex";
 
 export default defineComponent({
@@ -168,7 +166,7 @@ export default defineComponent({
       }
 
       // Save the Hex encoded version of the key
-      localStorage.setItem("encryptionKey", secretKey.hashHex);
+      localStorage.setItem("encryptionKey", bufferToHex(secretKey));
 
       // Show a success toast
       const toast = await toastController.create({
