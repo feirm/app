@@ -34,19 +34,19 @@
       </ion-text>
 
       <!-- Key storage options -->
-      <ion-radio-group>
+      <ion-radio-group @ionChange="check($event.target.value)">
         <ion-item color="transparent" lines="none">
           <ion-label>Do not remember</ion-label>
-          <ion-radio slot="start" @click="removeKey"></ion-radio>
+          <ion-radio slot="start" value="noremember"></ion-radio>
         </ion-item>
         <ion-item color="transparent" lines="none">
           <ion-label>Remember</ion-label>
-          <ion-radio slot="start" value="2" @click="remember = true"></ion-radio>
+          <ion-radio slot="start" value="remember"></ion-radio>
         </ion-item>
       </ion-radio-group>
 
       <!-- Prompt for key verification if they select "remember" or if we already have a key present -->
-      <div v-if="remember || savedKey">
+      <div v-if="remember && !savedKey">
         <br />
         <ion-item color="transparent">
           <ion-label position="floating"
@@ -114,10 +114,19 @@ export default defineComponent({
       this.savedKey = true;
       this.remember = true;
     }
-
-    // TODO: Check the correct radio button depending if the key already exists or not...
   },
   methods: {
+    check(event) {
+      // If the event is 'noremember', then remove the key from storage
+      if (event === "noremember") {
+        this.removeKey();
+      }
+
+      // If the event is to remember, then open up the remember prompt
+      if (event === "remember") {
+        this.remember = true;
+      }
+    },
     // Remove encryption key from localStorage
     async removeKey() {
       const key = localStorage.getItem("encryptionKey");
