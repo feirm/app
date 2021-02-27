@@ -157,8 +157,13 @@ class Account extends DB {
   // but this method is handy to have just in case of multi-account
   // support in the future.
   async fetchAccountFromIDB(username: string): Promise<EncryptedAccount> {
-      const account = await this.account.get(username);
-      return account!;
+    const accounts = await this.account.toArray()
+    if (accounts.length === 0) {
+      return {} as EncryptedAccount;
+    }
+
+    const account = await this.account.get(username);
+    return account!;
   }
 }
 
