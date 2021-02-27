@@ -3,13 +3,22 @@
     <ion-grid>
       <ion-row>
         <ion-col class="ion-text-center">
-          <ion-icon :icon="keyOutline" size="large"></ion-icon>
-          <h1>Please enter your Feirm account password</h1>
-          <ion-item>
-            <ion-label position="stacked">Password</ion-label>
+          <img
+            width="64"
+            style="margin: 0 auto"
+            src="@/assets/img/logos/feirm.png"
+            alt="Feirm Logo"
+          />
+          <h1>
+            Welcome back, <b>{{ username }}</b
+            >.
+          </h1>
+          <p>Please enter your Feirm password to decrypt your account. 🔐</p>
+          <ion-item lines="none" color="transparent">
+            <ion-label position="floating" color="primary">Password</ion-label>
             <ion-input type="password" v-model="password"></ion-input>
           </ion-item>
-          <br />
+          <p style="color: tomato;">{{ errorMessage }}</p>
           <ion-button @click="decrypt">
             <p v-if="!decrypting">Decrypt</p>
             <ion-spinner v-if="decrypting"></ion-spinner>
@@ -24,7 +33,6 @@
 import { defineComponent } from "vue";
 import {
   IonContent,
-  IonIcon,
   IonGrid,
   IonRow,
   IonCol,
@@ -33,10 +41,8 @@ import {
   IonLabel,
   IonInput,
   IonSpinner,
-  modalController,
-  alertController,
+  modalController
 } from "@ionic/vue";
-import { keyOutline } from "ionicons/icons";
 import Account from "@/class/account";
 import { sign } from "tweetnacl";
 import hexStringToBytes from "@/lib/hexStringToBytes";
@@ -45,7 +51,6 @@ export default defineComponent({
   name: "Password",
   components: {
     IonContent,
-    IonIcon,
     IonGrid,
     IonRow,
     IonCol,
@@ -57,9 +62,16 @@ export default defineComponent({
   },
   data() {
     return {
+      username: "",
       password: "",
+      errorMessage: "",
       decrypting: false,
     };
+  },
+  created() {
+    // Get username
+    const username = localStorage.getItem("username")!;
+    this.username = username;
   },
   methods: {
     async decrypt() {
@@ -67,37 +79,33 @@ export default defineComponent({
       this.decrypting = true;
 
       // Fetch account from DB
-      const username = localStorage.getItem("username")!;
-      const encryptedAccount = await Account.fetchAccountFromIDB(username);
+      const encryptedAccount = await Account.fetchAccountFromIDB(this.username);
 
       // Attempt to decrypt using password
-      try {
-        const rootKey = await Account.decryptAccount(
-          this.password,
-          encryptedAccount
-        );
+      const rootKey = await Account.decryptAccount(
+        this.password,
+        encryptedAccount
+      );
 
-        // Create a signature to prove we own the account
-        const keypair = await Account.deriveIdentityKeypair(rootKey);
-        const signature = sign.detached(new Uint8Array(), keypair.secretKey);
+      // Create a signature to prove we own the account
+      const keypair = await Account.deriveIdentityKeypair(rootKey);
+      const signature = sign.detached(new Uint8Array(), keypair.secretKey);
 
-        // Verify the blank signature
-        const valid = sign.detached.verify(new Uint8Array(), signature, hexStringToBytes(encryptedAccount.rootPublicKey));
-        if (valid) {
-          Account.setRootKey(rootKey);
-        } else {
-          // Signature is invalid, so throw an invalid password error
-          throw new Error("Password is incorrect!")
-        }
-      } catch (e) {
-        throw new Error(e);
+      // Verify the blank signature
+      const valid = sign.detached.verify(new Uint8Array(), signature, hexStringToBytes(encryptedAccount.rootPublicKey));
+
+      if (valid) {
+        Account.setRootKey(rootKey);
+        modalController.dismiss();
+      } else {
+        // If the signature is invalid, throw a password error
+        this.decrypting = false;
+        this.errorMessage = "Password is incorrect! Please try again."
       }
+
+      // Toggle decrypting state
+      this.decrypting = false;
     },
-  },
-  setup() {
-    return {
-      keyOutline,
-    };
   },
 });
 </script>
