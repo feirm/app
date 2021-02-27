@@ -104,10 +104,16 @@ class Account extends DB {
     const salt = utils.hex.toBytes(account.encryptedRootKey.iv).slice(0, 16);
 
     // Create the AES256-CBC decipher and decrypt the root key
+    let rootKey: Uint8Array;
     const aesCbc = new ModeOfOperation.cbc(secretKey.hash, salt);
-    const rootKey = aesCbc.decrypt(utils.hex.toBytes(account.encryptedRootKey.cipherText));
 
-    // Return the root key
+    try {
+      rootKey = aesCbc.decrypt(utils.hex.toBytes(account.encryptedRootKey.cipherText));
+    } catch (e) {
+      console.log(e);
+      throw new Error(e);
+    }
+
     return rootKey;
   }
 
