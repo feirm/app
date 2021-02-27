@@ -1,3 +1,4 @@
+import Account from "@/class/account";
 import jwt_decode from "jwt-decode";
 
 export const auth = {
@@ -20,19 +21,32 @@ export const auth = {
     },
   },
   actions: {
+    initialize({ commit }) {
+      // Load in username and session token
+      const username = localStorage.getItem("username");
+      const sessionToken = sessionStorage.getItem("session");
+
+      const sessionData = {
+        username,
+        sessionToken
+      }
+
+      commit("setSessionState", sessionData);
+    },
     login({ commit }, sessionData) {
       commit("setSessionState", sessionData);
     },
-    logout({ commit }) {
-      commit("clearSessionState");
-    },
   },
   getters: {
-    isUserLoggedIn: (state, getters) => {
-      return (
-        !!state.authentication.sessionToken &&
-        getters.getSessionExpirationDate > new Date()
-      );
+    isUserLoggedIn: () => {
+      // The user is considered logged in if the root key is present
+      const rootKey = Account.getRootKey();
+
+      if(rootKey !== undefined) {
+        return true
+      }
+
+      return false;
     },
     getSessionExpirationDate: (getters) => {
       if (!getters.getSessionToken) {
