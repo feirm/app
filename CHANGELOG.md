@@ -18,6 +18,9 @@ All notable changes to the Feirm PWA will be documented in this file.
 * App version/about page.
 * Render a plaintext message if JavaScript is not available.
 * Use IndexedDB for long term storage of data (primarily JSON blobs).
+* Sentry for error monitoring.
+* Encrypted account payload is stored offline for future use.
+* Prompt to decrypt user account when starting app.
 
 ### Changed
 * Re-design of Marketplace overview page.
@@ -39,6 +42,9 @@ All notable changes to the Feirm PWA will be documented in this file.
 * Production source maps have been re-enabled.
 * Search engine and accessibility optimisations.
 * Contacts are only decrypted when the contacts page is visited.
+* Correct identicon is derived using account identity keypair.
+* Adjustment of styling on username, password and login pages.
+* Rewrite of the account authentication process.
 
 ## [1.1.4](https://github.com/feirm/app/commits/1.1.4) - 05-01-2020
 ### Changed
