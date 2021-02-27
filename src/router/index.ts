@@ -124,65 +124,27 @@ router.beforeEach(async (to, from, next) => {
   // Check to see if the account and root key exists
   const username = localStorage.getItem("username")!;
   const encryptedAccount = await Account.fetchAccountFromIDB(username);
-  const rootKey = Account.getRootKey();
 
-  // TODO: This should be reconsidered at a later date for offline usage...
-  // It is possible the account root key is present, but the user is not logged in.
-  // In this case, request for a new a authentication token.
-  if (rootKey !== undefined && !loggedIn) {
-    // Reconstruct the identity keypair
-    const keypair = await Account.deriveIdentityKeypair(rootKey);
-
-    // Fetch and sign the authentication token for the username
-    const loginToken = await(await tatsuyaService.getLoginToken(username)).data as AuthenticationToken;
-    const signedToken = await Account.signAuthenticationToken(keypair, loginToken);
-    signedToken.username = username;
-
-    // Submit signed token to API to get a session
-    const session = await tatsuyaService.loginAccount(signedToken);
-
-    // Update Vuex to store JWT
-    store.dispatch("login", session.data);
-
-    // Check to see if authed, and if so
-    // redirect the user to where they wanted to go
-    if (store.getters.isUserLoggedIn) {
-      return next();
-    }
-
-    return next("/auth/login");
+  // If the user is not logged in (don't have a root key in memory), or have an account in storage but auth is required for this route
+  // then redirect them to login
+  if (!store.getters.isUserLoggedIn && authRequired && !encryptedAccount.rootPublicKey) {
+    console.log("[Router] User is not logged")
+    next("/auth/login");
   }
 
-  // If the users encrypted account is present, they are not logged in
+  // If the users encrypted account is present, they are not logged in and auth is required for this route
   // then prompt for account decryption and set root key in memory
-  if (encryptedAccount.username !== undefined && !loggedIn) {
+  if (encryptedAccount.rootPublicKey && !loggedIn && authRequired) {
     console.log("Encrypted account is present and not logged in.")
     const passwordPrompt = await modalController.create({
       component: PasswordPrompt,
     });
 
     passwordPrompt.present();
-
-    // We should have an updated root key
-    const updatedRootKey = Account.getRootKey();
-    console.log('Please:', updatedRootKey);
-
-    return next();
   }
 
-  // If all else fails
-  // If the encrypted account is not present and the user is not logged in, redirect to login
-  if (!encryptedAccount && !loggedIn) {
-    console.log("Encrypted account not present and not logged in.")
-    return next("/auth/login")
-  }
-  
-  // Determine what happens depending on if the user is logged in
-  if (authRequired && !store.getters.isUserLoggedIn) {
-    next("/auth/login");
-  } else if(Account.getRootKey() !== undefined) {
-    next();
-  }
+  // For some reason keeping this in works...
+  next();
 });
 
 export default router;
