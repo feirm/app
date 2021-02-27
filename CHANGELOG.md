@@ -21,6 +21,7 @@ All notable changes to the Feirm PWA will be documented in this file.
 * Sentry for error monitoring.
 * Encrypted account payload is stored offline for future use.
 * Prompt to decrypt user account when starting app.
+* Ability to save account encryption key on the device and use it to decrypt automatically.
 
 ### Changed
 * Re-design of Marketplace overview page.
