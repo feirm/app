@@ -215,13 +215,19 @@ export default defineComponent({
           encryptedAccount.token!.signature = signedAuthenticationToken.signature;
 
           // Submit encrypted account to auth API
-          await tatsuyaService.registerAccount(encryptedAccount).then(res => {
-            console.log(res.data);
-          })
+          const session = await tatsuyaService.registerAccount(encryptedAccount);
 
-          // Set authentication token (JWT) in Vuex
+          // Save the account key root
+          Account.setRootKey(rootKey);
 
-          // Save the encrypted account to IndexedDB
+          // Save the JWT in Vuex
+          this.store.dispatch("login", session.data);
+
+          // Save the encrypted account payload
+          await Account.saveAccountToIDB(encryptedAccount);
+
+          // Push to discover page
+          this.router.push({ path: "/" });
 
           // Registration process is complete, so we can now close the modal
           a.dismiss();
