@@ -78,12 +78,11 @@
           <ion-toggle :checked="store.getters.darkModeEnabled" @ionChange="toggleDark($event)"></ion-toggle>
         </ion-item>
 
-        <ion-item button>
+        <ion-item button @click="navigate('/tabs/settings/deviceSecurity')">
           <ion-icon slot="start" color="dark" :icon="phonePortraitOutline"></ion-icon>
           <ion-label>Device Security</ion-label>
         </ion-item>
       </ion-list>
-
       <!-- Settings end -->
       
       <!-- Footer -->
