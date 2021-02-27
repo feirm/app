@@ -155,7 +155,7 @@ router.beforeEach(async (to, from, next) => {
 
   // If the users encrypted account is present, they are not logged in
   // then prompt for account decryption and set root key in memory
-  if (encryptedAccount && !loggedIn) {
+  if (encryptedAccount.username !== undefined && !loggedIn) {
     console.log("Encrypted account is present and not logged in.")
     const passwordPrompt = await modalController.create({
       component: PasswordPrompt,
@@ -180,7 +180,7 @@ router.beforeEach(async (to, from, next) => {
   // Determine what happens depending on if the user is logged in
   if (authRequired && !store.getters.isUserLoggedIn) {
     next("/auth/login");
-  } else {
+  } else if(Account.getRootKey() !== undefined) {
     next();
   }
 });
