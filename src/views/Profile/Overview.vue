@@ -77,6 +77,11 @@
           <ion-label>Dark Mode</ion-label>
           <ion-toggle :checked="store.getters.darkModeEnabled" @ionChange="toggleDark($event)"></ion-toggle>
         </ion-item>
+
+        <ion-item button>
+          <ion-icon slot="start" color="dark" :icon="phonePortraitOutline"></ion-icon>
+          <ion-label>Device Security</ion-label>
+        </ion-item>
       </ion-list>
 
       <!-- Settings end -->
@@ -114,7 +119,8 @@ import {
   lockClosedOutline,
   arrowDownOutline,
   documentLockOutline,
-  moonOutline
+  moonOutline,
+  phonePortraitOutline
 } from "ionicons/icons";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
@@ -237,7 +243,8 @@ export default defineComponent({
       lockClosedOutline,
       arrowDownOutline,
       documentLockOutline,
-      moonOutline
+      moonOutline,
+      phonePortraitOutline
     };
   },
 });
