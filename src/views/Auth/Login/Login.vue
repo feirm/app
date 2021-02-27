@@ -132,8 +132,11 @@ export default defineComponent({
             // to retrieve encrypted payload
             const encryptedAccount = await (await tatsuyaService.fetchEncryptedAccount(this.username, pin)).data as EncryptedAccount;
 
+            // Derive the stretched secret key
+            const secretKey = await Account.derivePassword(this.password, encryptedAccount.rootPasswordSalt);
+
             // Decrypt the account to get the root key
-            const rootKey = await Account.decryptAccount(this.password, encryptedAccount);
+            const rootKey = await Account.decryptAccount(secretKey, encryptedAccount);
 
             // Derive the identity keypair
             const keypair = await Account.deriveIdentityKeypair(rootKey);

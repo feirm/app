@@ -203,8 +203,11 @@ export default defineComponent({
           // Retrieve an ephemeral authentication token
           const authenticationToken = await (await tatsuyaService.getRegistrationToken()).data as AuthenticationToken;
 
+          // Derive the stretched secret key
+          const secretKey = await Account.derivePassword(this.password, encryptedAccount.rootPasswordSalt);
+
           // Decrypt the account payload we had just encrypted
-          const rootKey = await Account.decryptAccount(this.password, encryptedAccount);
+          const rootKey = await Account.decryptAccount(secretKey, encryptedAccount);
 
           // Reconstruct the identity (signing keypair) to sign the authentication token
           const keypair = await Account.deriveIdentityKeypair(rootKey);

@@ -149,16 +149,11 @@ export default defineComponent({
       const username = localStorage.getItem("username")!;
       const account = await Account.fetchAccountFromIDB(username);
 
-      // Reconstruct the encryption key from the account details (maybe put into its own method)
-      const secretKey = await hash({
-        pass: this.password,
-        salt: hexStringToBytes(account.rootPasswordSalt),
-        type: ArgonType.Argon2id,
-        hashLen: 32,
-      });
+      // Reconstruct the encryption key from the account details
+      const secretKey = await Account.derivePassword(this.password, account.rootPasswordSalt);
 
       // Attempt to decrypt the root key with the provided password
-      const rootKey = await Account.decryptAccount(this.password, account);
+      const rootKey = await Account.decryptAccount(secretKey, account);
       const keypair = await Account.deriveIdentityKeypair(rootKey);
 
       // Identity keypair public key does not match with the one we have for our account

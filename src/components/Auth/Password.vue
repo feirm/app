@@ -81,9 +81,12 @@ export default defineComponent({
       // Fetch account from DB
       const encryptedAccount = await Account.fetchAccountFromIDB(this.username);
 
+      // Derive the stretched secret key
+      const secretKey = await Account.derivePassword(this.password, encryptedAccount.rootPasswordSalt);
+
       // Attempt to decrypt using password
       const rootKey = await Account.decryptAccount(
-        this.password,
+        secretKey,
         encryptedAccount
       );
 
