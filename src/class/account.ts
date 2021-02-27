@@ -89,15 +89,23 @@ class Account extends DB {
     return account;
   }
 
-  // Decrypt an account to return the root key
-  async decryptAccount(password: string, account: EncryptedAccount): Promise<Uint8Array> {
-    // Reconstruct the stretched key from the password supplied as a parameter
+  // Derive stretched password from existing values (plaintext password and salt)
+  async derivePassword(password: string, salt: string): Promise<any> {
+    // Reconstruct the stretched key from parameter values
     const secretKey = await hash({
       pass: password,
-      salt: hexStringToBytes(account.rootPasswordSalt),
+      salt: hexStringToBytes(salt),
       type: ArgonType.Argon2id,
       hashLen: 32
     });
+
+    return secretKey;
+  }
+
+  // Decrypt an account to return the root key
+  async decryptAccount(password: string, account: EncryptedAccount): Promise<Uint8Array> {
+    // Reconstruct the stretched key from the password supplied as a parameter
+    const secretKey = await this.derivePassword(password, account.rootPasswordSalt);
 
     // Attempt to decrypt the account root key
     // Convert the salt to a format that is AES cipher friendly
