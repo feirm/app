@@ -90,8 +90,8 @@ class Account extends DB {
   }
 
   // Derive stretched password from existing values (plaintext password and salt)
-  // The returned type is 'any', but should be an 'Argon2BrowserHashResult'
-  async derivePassword(password: string, salt: string): Promise<any> {
+  // The password is returned as Uint8Array
+  async derivePassword(password: string, salt: string): Promise<Uint8Array> {
     // Reconstruct the stretched key from parameter values
     const secretKey = await hash({
       pass: password,
@@ -100,17 +100,17 @@ class Account extends DB {
       hashLen: 32
     });
 
-    return secretKey;
+    return secretKey.hash;
   }
 
   // Decrypt an account to return the root key
-  async decryptAccount(secretKey: any, account: EncryptedAccount): Promise<Uint8Array> {
+  async decryptAccount(secretKey: Uint8Array, account: EncryptedAccount): Promise<Uint8Array> {
     // Attempt to decrypt the account root key
     // Convert the salt to a format that is AES cipher friendly
     const salt = utils.hex.toBytes(account.encryptedRootKey.iv).slice(0, 16);
 
     // Create the AES256-CBC decipher and decrypt the root key
-    const aesCbc = new ModeOfOperation.cbc(secretKey.hash, salt);
+    const aesCbc = new ModeOfOperation.cbc(secretKey, salt);
 
     try {
       const rootKey = aesCbc.decrypt(utils.hex.toBytes(account.encryptedRootKey.cipherText));
