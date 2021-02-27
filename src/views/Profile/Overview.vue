@@ -145,7 +145,7 @@ export default defineComponent({
       identicon: ""
     }
   },
-  async ionViewWillEnter() {
+  async mounted() {
     // As we store the encrypted payload of an account containing the public key
     // it can be pulled straight from IDB.
     // Much better than deriving the public key again
