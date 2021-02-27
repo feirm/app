@@ -120,9 +120,7 @@ import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { version } from "../../../package.json";
 import { toSvg } from "jdenticon";
-import { store } from "@/store";
-import bufferToHex from "@/lib/bufferToHex";
-import * as nacl from "tweetnacl";
+import Account from "@/class/account";
 
 export default defineComponent({
   components: {
@@ -142,28 +140,23 @@ export default defineComponent({
   },
   data() {
     return {
+      username: "",
       identityPublicKey: "",
       identicon: ""
     }
   },
-  async created() {
-    // Need to derive the users identity keypair
-    const rootKey = store.getters.getRootKey;
+  async ionViewWillEnter() {
+    // As we store the encrypted payload of an account containing the public key
+    // it can be pulled straight from IDB.
+    // Much better than deriving the public key again
+    const username = localStorage.getItem("username")!;
+    const account = await Account.fetchAccountFromIDB(username);
 
-    const identityKeyString = rootKey + "identity";
-    const identityKey = await window.crypto.subtle.digest("SHA-256", new TextEncoder().encode(identityKeyString));
-
-    // Derive the signing ed25519 keypair from a seed (identityKey)
-    const rootKeyPair = nacl.sign.keyPair.fromSeed(new Uint8Array(identityKey));
-
-    // Create the Identicon of the user's identity public key
-    const identityPublicKey = bufferToHex(rootKeyPair.publicKey);
-    const identicon = toSvg(identityPublicKey, 100);
-
-    this.identityPublicKey = identityPublicKey;
-    this.identicon = identicon;
-
-    console.log(identicon)
+    if (account) {
+      const identicon = toSvg(account.rootPublicKey, 100);
+      this.identityPublicKey = account.rootPublicKey;
+      this.identicon = identicon;
+    }
   },
   methods: {
     async logout() {
