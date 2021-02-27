@@ -90,6 +90,10 @@ const routes: Array<RouteRecordRaw> = [
         path: "settings/version",
         component: () => import("@/views/Settings/Version.vue"),
       },
+      {
+        path: "settings/deviceSecurity",
+        component: () => import("@/views/Settings/DeviceSecurity.vue")
+      }
     ],
   },
   // Wallet Service
