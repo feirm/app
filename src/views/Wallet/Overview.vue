@@ -194,9 +194,6 @@ import cardGradient from "@/class/cardGradient";
 
 import SendCoins from "@/components/Wallet/Send/Send.vue";
 import ReceivingAddress from "@/components/Wallet/ReceivingAddress.vue";
-import tatsuyaService from "@/apiService/tatsuyaService";
-import { EncryptedContact } from "@/models/contact";
-import Contacts from "@/class/contacts";
 
 export default defineComponent({
   name: "WalletOverview",
@@ -341,24 +338,6 @@ export default defineComponent({
               // Fetch all transactions
               try {
                 await wallet.getAllTransactions();
-              } catch (e) {
-                throw new Error(e);
-              }
-
-              // Fetch all of our encrypted contacts
-              try {
-                await tatsuyaService.fetchContacts().then(async (res) => {
-                  // Set the encrypted contacts array
-                  const contacts = res.data as EncryptedContact[];
-                  if (!contacts) {
-                    return;
-                  }
-
-                  // Store contacts in IDB
-                  for (let i = 0; i < contacts.length; i++) {
-                    Contacts.addContact(contacts[i]);
-                  }
-                });
               } catch (e) {
                 throw new Error(e);
               }

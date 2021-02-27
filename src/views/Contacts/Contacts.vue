@@ -64,7 +64,8 @@ import NewContact from "@/components/Contacts/NewContact.vue";
 import ViewContact from "@/components/Contacts/ViewContact.vue";
 
 import Contacts from "@/class/contacts";
-import { Contact } from "@/models/contact";
+import { Contact, EncryptedContact } from "@/models/contact";
+import tatsuyaService from "@/apiService/tatsuyaService";
 
 export default defineComponent({
   name: "Contacts",
@@ -88,6 +89,24 @@ export default defineComponent({
     };
   },
   async mounted() {
+    // Fetch all of our encrypted contacts
+    try {
+      await tatsuyaService.fetchContacts().then(async (res) => {
+        // Set the encrypted contacts array
+        const contacts = res.data as EncryptedContact[];
+        if (!contacts) {
+          return;
+        }
+
+        // Store contacts in IDB
+        for (let i = 0; i < contacts.length; i++) {
+          Contacts.addContact(contacts[i]);
+        }
+      });
+    } catch (e) {
+      throw new Error(e);
+    }
+
     // Decrypt all contacts in our database
     const contacts = await Contacts.getEncryptedContacts();
     if (contacts.length === 0) {
