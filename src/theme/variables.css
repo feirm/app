@@ -226,6 +226,11 @@ body.dark {
   --ion-card-background: #1e1e1e;
 }
 
+/* Always align text to center for a toast */
+ion-toast {
+  text-align: center;
+}
+
 /* Recieving Address Clipboard Copy */
 .copied {
   text-align: center;
