@@ -104,17 +104,15 @@ class Account extends DB {
     const salt = utils.hex.toBytes(account.encryptedRootKey.iv).slice(0, 16);
 
     // Create the AES256-CBC decipher and decrypt the root key
-    let rootKey: Uint8Array;
     const aesCbc = new ModeOfOperation.cbc(secretKey.hash, salt);
 
     try {
-      rootKey = aesCbc.decrypt(utils.hex.toBytes(account.encryptedRootKey.cipherText));
+      const rootKey = aesCbc.decrypt(utils.hex.toBytes(account.encryptedRootKey.cipherText));
+      return rootKey;
     } catch (e) {
       console.log(e);
       throw new Error(e);
     }
-
-    return rootKey;
   }
 
   // Derive an identity (signing) keypair from account root
