@@ -490,6 +490,10 @@ export abstract class AbstractWallet extends DB {
   async loadFromDisk() {
     const wallet = JSON.parse(localStorage.getItem("wallet")!) as Wallet;
 
+    if (wallet === null) {
+      return;
+    }
+
     // Set the appropriate fields
     this.setSecret(wallet.secret);
     this.setId(await this.getId());
