@@ -194,8 +194,6 @@ export abstract class AbstractWallet extends DB {
     // Get the coin for it
     const coin = this.coins[index];
 
-    console.log("Fetching balance data for:", coin.name);
-
     // Get Blockbook URL for coin
     const blockbook = this.getBlockbook(ticker);
 
@@ -291,8 +289,6 @@ export abstract class AbstractWallet extends DB {
       const blockbookUrl = this.getBlockbook(coin.ticker);
 
       const networks = this.getNetwork(coin.ticker);
-
-      console.log("Fetching transaction data for:", coin.name);
 
       await axios
         .get(

@@ -81,8 +81,6 @@ export default defineComponent({
           {
             text: "Yes",
             handler: async () => {
-              console.log(this.$props.contact)
-
               // Delete from database store first
               const id = this.$props.contact?.id as string;
               Contacts.deleteContact(id);

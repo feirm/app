@@ -116,7 +116,6 @@ class Account extends DB {
       const rootKey = aesCbc.decrypt(utils.hex.toBytes(account.encryptedRootKey.cipherText));
       return rootKey;
     } catch (e) {
-      console.log(e);
       throw new Error(e);
     }
   }

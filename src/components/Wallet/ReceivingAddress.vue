@@ -108,8 +108,6 @@ export default defineComponent({
 
           // If the coin supports P2WPKH, then generate a Bech32 address
           if (coinNetworks.P2WPKH) {
-            console.log(coin.ticker, "supports P2WPKH!");
-
             const wallet = HDWalletP2WPKH;
             const address = wallet.getNodeAddressByIndex(coin.extendedPublicKey, 0, 0);
             this.address = address;

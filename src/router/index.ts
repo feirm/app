@@ -132,14 +132,12 @@ router.beforeEach(async (to, from, next) => {
   // If the user is not logged in (don't have a root key in memory), or have an account in storage but auth is required for this route
   // then redirect them to login
   if (!store.getters.isUserLoggedIn && authRequired && !encryptedAccount.rootPublicKey) {
-    console.log("[Router] User is not logged")
     next("/auth/login");
   }
 
   // If the users encrypted account is present, they are not logged in and auth is required for this route
   // then prompt for account decryption and set root key in memory
   if (encryptedAccount.rootPublicKey && !loggedIn && authRequired) {
-    console.log("Encrypted account is present and not logged in.")
     const passwordPrompt = await modalController.create({
       component: PasswordPrompt,
     });

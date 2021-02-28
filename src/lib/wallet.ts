@@ -183,10 +183,7 @@ async function CreateSignedTransaction(
           // Check that its under the change account we can continue
           if (account == 1) {
             // Increment the index until we reach one that doesnt exist
-            // console.log("Have change index:", index);
-
             if (i + 1 != index + 1) {
-              // console.log("Missing change index:", i + 1);
               lowestChangeIndex = i;
               break;
             }

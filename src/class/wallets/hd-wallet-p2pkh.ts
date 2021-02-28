@@ -133,7 +133,6 @@ class HDWalletP2PKH extends AbstractWallet {
 
         // Organise the UTXOs
         utxos.sort((a, b) => new BigNumber(a.value).toNumber() - new BigNumber(b.value).toNumber());
-        console.log(utxos);
 
         // We have the UTXOs, so iterate over them and add them as inputs to our Psbt
         utxos.forEach(utxo => {
