@@ -3,18 +3,21 @@ import Dexie from "dexie";
 
 import { EncryptedAccount } from "@/models/account";
 import { EncryptedContact } from "@/models/contact";
+import { Wallet } from "@/models/wallet";
 
 class DB extends Dexie {
   // Tables
   account: Dexie.Table<EncryptedAccount>;
   contacts: Dexie.Table<EncryptedContact>;
+  wallets: Dexie.Table<Wallet>;
 
   // Initialise the constructor
   constructor() {
     super("feirm");
     this.version(1).stores({
       account: 'username',
-      contacts: 'id, cipherText, iv'
+      contacts: 'id, cipherText, iv',
+      wallets: 'name'
     })
 
     // Assign our tables

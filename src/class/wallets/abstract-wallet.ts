@@ -14,8 +14,9 @@ import { fromBase58, fromSeed } from "bip32";
 import BigNumber from "bignumber.js";
 import b58 from "bs58check";
 import { payments } from "bitcoinjs-lib";
+import { DB } from "../db";
 
-export abstract class AbstractWallet {
+export abstract class AbstractWallet extends DB {
   id: string; // Wallet ID derived from secret mnemonic
   secret: string; // Going to be a private key or mnemonic
   coins: Coin[] = []; // Coins available in wallet
