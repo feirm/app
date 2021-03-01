@@ -75,7 +75,7 @@
         <ion-item>
           <ion-icon slot="start" color="dark" :icon="moonOutline"></ion-icon>
           <ion-label>Dark Mode</ion-label>
-          <ion-toggle :checked="store.getters.darkModeEnabled" @ionChange="toggleDark($event)"></ion-toggle>
+          <ion-toggle :checked="isDark" @ionChange="toggleDark($event)"></ion-toggle>
         </ion-item>
 
         <ion-item button @click="navigate('/tabs/settings/deviceSecurity')">
@@ -147,7 +147,7 @@ export default defineComponent({
     return {
       username: "",
       identityPublicKey: "",
-      identicon: ""
+      identicon: "",
     }
   },
   async mounted() {
@@ -193,8 +193,9 @@ export default defineComponent({
     toggleDark(event) {
       const enableDarkMode = event.detail.checked;
 
-      // Save toggle option
-      this.store.commit("toggleDarkMode", enableDarkMode);
+      // Save toggle option and update theme
+      localStorage.setItem("darkMode", enableDarkMode);
+      document.body.classList.toggle('dark', enableDarkMode);
     },
     navigate(path: string) {
       return this.router.push({ path: path });
@@ -232,6 +233,16 @@ export default defineComponent({
     const router = useRouter();
     const store = useStore();
 
+    // Get dark mode value from localstorage
+    const darkMode = localStorage.getItem("darkMode");
+    let isDark;
+
+    if (darkMode === 'true') {
+      isDark = true;
+    } else {
+      isDark = false;
+    } 
+
     return {
       router,
       store,
@@ -243,7 +254,8 @@ export default defineComponent({
       arrowDownOutline,
       documentLockOutline,
       moonOutline,
-      phonePortraitOutline
+      phonePortraitOutline,
+      isDark
     };
   },
 });

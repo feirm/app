@@ -13,6 +13,13 @@ export default defineComponent({
   components: {
     IonApp,
     IonRouterOutlet,
+  },
+  mounted() {
+    // Toggle between darkmode
+    const darkMode = localStorage.getItem("darkMode")!;
+    const isDark = (darkMode === 'true');
+    
+    document.body.classList.toggle('dark', isDark);
   }
 });
 </script>
