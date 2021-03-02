@@ -6,9 +6,9 @@ import Tabs from "../views/Tabs.vue";
 import PasswordPrompt from "@/components/Auth/Password.vue";
 
 import Account from "@/class/account";
-import tatsuyaService from "@/apiService/tatsuyaService";
-import { AuthenticationToken } from "@/models/account";
 import { modalController } from "@ionic/vue";
+import hexStringToBytes from "@/lib/hexStringToBytes";
+import bufferToHex from "@/lib/bufferToHex";
 
 const routes: Array<RouteRecordRaw> = [
   // Redirect index page to Discover route
@@ -133,6 +133,27 @@ router.beforeEach(async (to, from, next) => {
   // then redirect them to login
   if (!store.getters.isUserLoggedIn && authRequired && !encryptedAccount.rootPublicKey) {
     next("/auth/login");
+  }
+
+  // If the users encrypted account is present and their encryption key is stored on the device,
+  // automatically decrypt and set the account
+  const encryptionKey = localStorage.getItem("encryptionKey");
+  if (encryptedAccount.rootPublicKey && encryptionKey) {
+    const key = hexStringToBytes(encryptionKey); // convert to uint8array
+
+    // Automatically decrypt the root ket
+    const rootKey = await Account.decryptAccount(key, encryptedAccount)
+
+    // Derive the identity keypair to check that the public keys match
+    // (maybe replace this with signatures)
+    const keypair = await Account.deriveIdentityKeypair(rootKey);
+    if (bufferToHex(keypair.publicKey) === encryptedAccount.rootPublicKey) {
+      return next();
+    } else {
+      // Something went wrong
+      console.log("Uh oh...");
+      next("/auth/login");
+    }
   }
 
   // If the users encrypted account is present, they are not logged in and auth is required for this route

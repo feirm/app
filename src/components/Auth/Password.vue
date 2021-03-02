@@ -46,7 +46,6 @@ import {
 import Account from "@/class/account";
 import { sign } from "tweetnacl";
 import hexStringToBytes from "@/lib/hexStringToBytes";
-import bufferToHex from "@/lib/bufferToHex";
 
 export default defineComponent({
   name: "Password",
@@ -73,34 +72,6 @@ export default defineComponent({
     // Get username
     const username = localStorage.getItem("username")!;
     this.username = username;
-
-    // Check if an encryption key is already present in LocalStorage
-    // and then auto decrypt
-    const encryptionKey = localStorage.getItem("encryptionKey");
-    if (encryptionKey) {
-      // Toggle decrypting state
-      this.decrypting = true;
-
-      // Convert the stretched key hex string to byte array
-      const key = hexStringToBytes(encryptionKey);
-
-      // We have the stretched key, so we need to use it to auto decrypt the root key
-      const encryptedAccount = await Account.fetchAccountFromIDB(username);
-      const rootKey = await Account.decryptAccount(key, encryptedAccount);
-
-      // Derive the identity keypair and check if the public keys match
-      // (maybe replace this with signatures in the future...)
-      const keypair = await Account.deriveIdentityKeypair(rootKey);
-      if (bufferToHex(keypair.publicKey) === encryptedAccount.rootPublicKey) {
-        // They are a match!
-        // So set the root key and close the component
-        Account.setRootKey(rootKey);
-        modalController.dismiss();
-      } else {
-        // TODO: Handle this
-        console.log("Something went wrong...");
-      }
-    }
   },
   methods: {
     async decrypt() {
