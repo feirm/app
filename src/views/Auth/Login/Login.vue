@@ -158,6 +158,10 @@ export default defineComponent({
             // Save the encrypted account payload
             await Account.saveAccountToIDB(encryptedAccount);
 
+            // Clear the fields
+            this.username = "";
+            this.password = "";
+
             // Push to discover page
             this.router.push({ path: "/" });
 
