@@ -168,7 +168,7 @@ export default defineComponent({
       const alert = await alertController.create({
         header: "Are you sure?",
         message:
-          "This action will remove all data from the app, including wallets, so be sure you have a backup!",
+          "This action will remove all data from the app, including encrypted account data, wallets and contacts!",
         buttons: [
           {
             text: "Cancel",
@@ -177,12 +177,18 @@ export default defineComponent({
           {
             text: "Yes, log me out!",
             handler: () => {
-              // Clear Vuex state
-              this.store.dispatch("logout");
-              this.store.dispatch("deleteWallet");
+              // Clear LocalStorage, SessionStorage and IndexedDB
+              try {
+                localStorage.clear();
+                sessionStorage.clear();
+                Account.clearData();
+              } catch (e) {
+                // Something went wrong clearing
+                console.log(e);
+              }
 
               // Push to login page
-              this.router.push({ path: "/" });
+              this.router.push({ path: "/auth/login" });
             },
           },
         ],

@@ -24,6 +24,13 @@ class DB extends Dexie {
     this.account = this.table("account");
     this.contacts = this.table("contacts");
   }
+
+  // Clear the IDB store
+  clearData() {
+    this.account.clear();
+    this.contacts.clear();
+    this.wallets.clear();
+  }
 }
 
 export {
