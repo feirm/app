@@ -7,53 +7,53 @@
         </ion-buttons>
       </ion-toolbar>
     </ion-header>
-    <ion-content :fullscreen="true" class="ion-padding">
+    <ion-content :fullscreen="true" class="ion-padding ion-text-center">
+      <img
+        width="64"
+        style="margin: 0 auto"
+        src="@/assets/img/logos/feirm.png"
+        alt="Feirm Logo"
+      />
+
       <ion-grid>
         <ion-row>
-          <ion-col class="ion-text-center">
-            <img
-              width="64"
-              style="margin: 0 auto"
-              src="@/assets/img/logos/feirm.png"
-              alt="Feirm Logo"
-            />
-            <ion-text class="ion-text-center">
-              <h1>Let's create your Feirm account</h1>
-              <p class="ion-text-left">
-                With Feirm, you can create an account using a username or email
-                address. If you intend to use a username (with no email
-                address), there is no way to recover your account password.
-              </p>
+          <ion-col>
+            <!-- Welcome text -->
+            <ion-text>
+              <h1>Let's create your Feirm account!</h1>
+              <p>All we need to get you started are a few details!</p>
             </ion-text>
 
-            <!-- Username/email and password -->
-            <ion-item color="transparent" lines="none">
-              <ion-label position="floating" color="primary"
-                >Username or Email</ion-label
-              >
+            <!-- Username input -->
+            <ion-item>
+              <ion-label position="floating">Username or Email address</ion-label>
               <ion-input v-model="username"></ion-input>
             </ion-item>
-            <ion-item color="transparent" lines="none">
-              <ion-label position="floating" color="primary"
-                >Choose your password</ion-label
-              >
-              <ion-input type="password" v-model="password"></ion-input>
+
+            <!-- Password input -->
+            <ion-item>
+              <ion-label position="floating">Password</ion-label>
+              <ion-input v-model="password" :color="colourScore" type="password" @ionChange="checkPassword(password)"></ion-input>
             </ion-item>
 
-            <!-- Encryption key prompt text -->
-            <ion-item-divider></ion-item-divider>
-            <br>
-
-            <ion-item color="transparent" lines="none">
-              <ion-label position="floating" color="primary">Encryption key</ion-label>
-              <ion-input type="password" v-model="encryptionKey"></ion-input>
+            <!-- Encryption key input -->
+            <ion-item>
+              <ion-label position="floating">Encryption key</ion-label>
+              <ion-input v-model="encryptionKey" :color="encColourScore" type="password" @ionChange="checkEncryptionPassword(encryptionKey)"></ion-input>
             </ion-item>
 
-            <ion-text class="ion-text-left">
-              <p style="font-size: 0.75rem">
-                Your encryption key is used to encrypt all data associated to
-                your account. It is only accessible by you. The key never leaves
-                your device, and it is never sent to any servers.
+            <br />
+
+            <ion-text style="font-size: 0.75rem" class="ion-text-left">
+              <p>
+                We use an additional password (encryption key) to further
+                protect your data. If you forget this password, your data is
+                un-recoverable! It is also important for this key to be
+                different from your account password.
+              </p>
+              <p>
+                Every time you launch Feirm, you will be prompted for this
+                password to decrypt your data.
               </p>
             </ion-text>
           </ion-col>
@@ -61,9 +61,7 @@
       </ion-grid>
     </ion-content>
     <ion-footer class="ion-no-border ion-padding ion-text-center">
-      <ion-button expand="block" color="primary" @click="register"
-        >Next</ion-button
-      >
+      <ion-button expand="block" color="primary" :disabled="registerDisabled" @click="register">Register</ion-button>
     </ion-footer>
   </ion-page>
 </template>
@@ -76,16 +74,15 @@ import {
   IonButtons,
   IonBackButton,
   IonContent,
-  IonInput,
-  IonLabel,
-  IonItem,
   IonButton,
+  IonText,
+  IonFooter,
   IonGrid,
   IonRow,
   IonCol,
-  IonText,
-  IonFooter,
-  IonItemDivider
+  IonItem,
+  IonLabel,
+  IonInput,
 } from "@ionic/vue";
 import { defineComponent } from "vue";
 import { useRouter } from "vue-router";
@@ -94,9 +91,7 @@ import { showErrorToast } from "@/utils/toast";
 
 // Firebase
 import firebase from "firebase";
-import account from "@/class/account";
-
-import bufferToHex from "@/lib/bufferToHex";
+import zxcvbn from "zxcvbn";
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -107,35 +102,114 @@ export default defineComponent({
     IonButtons,
     IonBackButton,
     IonContent,
-    IonInput,
-    IonLabel,
-    IonItem,
     IonButton,
+    IonText,
+    IonFooter,
     IonGrid,
     IonRow,
     IonCol,
-    IonText,
-    IonFooter,
-    IonItemDivider
+    IonItem,
+    IonLabel,
+    IonInput,
   },
   data() {
     return {
       username: "",
       password: "",
-      encryptionKey: ""
+      encryptionKey: "",
+
+      registerDisabled: true,
+      colourScore: "",
+      encColourScore: ""
     };
   },
   methods: {
+    // Refactor the two following methods at some point...
+    // Check the strength of account password
+    checkPassword(password: string) {
+      // Calculate zxcvbn score
+      const score = zxcvbn(password).score;
+      
+      switch (score) {
+        case 0: {
+          this.colourScore = "danger"
+          break
+        }
+        case 1: {
+          this.colourScore = "danger"
+          break
+        }
+        case 2: {
+          this.colourScore = "danger"
+          break
+        }
+        case 3: {
+          this.colourScore = "warning"
+          break
+        }
+        case 4: {
+          this.colourScore = "success"
+          break
+        }
+        default: {
+          break
+        }
+      }
+    },
+    // Check the strength of the encryption password
+    checkEncryptionPassword(password: string) {
+      // Calculate zxcvbn score
+      const score = zxcvbn(password).score;
+
+      this.registerDisabled = true;
+      
+      switch (score) {
+        case 0: {
+          this.encColourScore = "danger"
+          break
+        }
+        case 1: {
+          this.encColourScore = "danger"
+          break
+        }
+        case 2: {
+          this.encColourScore = "danger"
+          break
+        }
+        case 3: {
+          this.encColourScore = "warning"
+          this.registerDisabled = false;
+          break
+        }
+        case 4: {
+          this.encColourScore = "success"
+          this.registerDisabled = false;
+          break;
+        }
+        default: {
+          break
+        }
+      }
+    },
     async register() {
+      // Check if account password and encryption password match
+      if (this.password === this.encryptionKey) {
+        const error = new Error("Account password and encryption key cannot match!")
+        return await showErrorToast(error.message)
+      }
+
       // Submit account to Firebase
       // Determine whether or not the username is a username or email
+      let isEmail = false;
       let usernameOrEmail = "";
       if (this.username && !this.username.includes("@")) {
         // Append a dummy email address to pass registration
         usernameOrEmail = this.username + "@users.feirm.com";
+        isEmail = false;
       } else {
         // Set the specified user's email address
         usernameOrEmail = this.username;
+        isEmail = true;
       }
 
       // Set the username/email to be stored in LocalStorage
@@ -152,8 +226,10 @@ export default defineComponent({
           .auth()
           .createUserWithEmailAndPassword(usernameOrEmail, this.password);
 
-        // For testing send out a verification email
-        await credentials.user.sendEmailVerification();
+        // If the user signed up with an email address, send out a verification email
+        if (isEmail) {
+          await credentials.user.sendEmailVerification();
+        }
       } catch (e) {
         // Extract the error code
         const error = e.code;
@@ -179,18 +255,14 @@ export default defineComponent({
             break;
           }
           default: {
-            await showErrorToast(
-              "Uh oh, it looks like there is a connectivity issue. Please try again later."
-            );
+            // Something else has gone wrong, or we want to provide a custom error message
+            await showErrorToast(e);
             break;
           }
         }
 
         console.log("[Register] Error creating account:", error);
       }
-
-      // User account must've been created, so output the credentials
-      console.log(credentials.user);
     },
   },
   setup() {
@@ -205,17 +277,7 @@ export default defineComponent({
 </script>
 
 <style scoped>
-ion-grid {
-  height: 100%;
-}
-
-ion-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
+/* Center text in Toast */
 .ion-toast {
   text-align: center;
 }
