@@ -96,9 +96,6 @@ import { showErrorToast } from "@/utils/toast";
 import firebase from "firebase";
 import account from "@/class/account";
 
-// OpenPGP
-import { encrypt, EncryptOptions, Message } from "openpgp";
-
 import bufferToHex from "@/lib/bufferToHex";
 
 export default defineComponent({
@@ -130,23 +127,6 @@ export default defineComponent({
   },
   methods: {
     async register() {
-      // Derive a stretched key from the encryption key
-      const salt = window.crypto.getRandomValues(new Uint8Array(16));
-      const key = await account.derivePassword(this.encryptionKey, bufferToHex(salt))
-
-      // Generate a root key
-      const rootKey = window.crypto.getRandomValues(new Uint8Array(1024));
-
-      // Encrypt root key with PGP using stretched encryption key
-      const options: EncryptOptions = {
-        message: Message.fromBinary(rootKey),
-        passwords: [bufferToHex(key)],
-        armor: true
-      };
-
-      const ciphertext = await encrypt(options);
-      console.log(ciphertext);
-
       // Submit account to Firebase
       // Determine whether or not the username is a username or email
       let usernameOrEmail = "";
