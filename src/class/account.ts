@@ -6,6 +6,8 @@ import { SignKeyPair, sign } from "tweetnacl";
 import bufferToHex from "@/lib/bufferToHex";
 import hexStringToBytes from "@/lib/hexStringToBytes";
 
+import { encrypt, EncryptOptions, Message } from "openpgp";
+
 // Different account key types
 enum Keys {
   Identity = "identity",
@@ -173,6 +175,38 @@ class Account extends DB {
 
     const account = await this.account.get(username);
     return account!;
+  }
+
+  /* ===========================
+        ACCOUNT GENERATION V2
+     ===========================
+  */
+
+  // Derive an account root key and encrypt using OpenPGP.js
+  async generateAccountV2(password: string, salt: string): Promise<string> {
+    // Generate a stretched password to act as the encryption key
+    const stretchedPassword = await this.derivePassword(password, salt);
+
+    return new Promise((resolve, reject) => {
+      // Generate an account root key
+      const rootKey = window.crypto.getRandomValues(new Uint8Array(32));
+
+      // OpenPGP options
+      const options = {
+        message: Message.fromBinary(rootKey),
+        passwords: bufferToHex(stretchedPassword),
+        armor: true
+      } as EncryptOptions
+
+      // Encrypt and return ciphertext
+      try {
+        encrypt(options).then(ciphertext => {
+          resolve(ciphertext as string);
+        })
+      } catch (e) {
+        reject(e);
+      }
+    })
   }
 }
 
