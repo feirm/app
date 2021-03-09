@@ -76,5 +76,31 @@ const azureApi = axios.create({
   baseURL: process.env.VUE_APP_AZURE_API_URL,
 });
 
+// Key Storage API
+const keyStorageApi = axios.create({
+  // TODO: Change to use Env vars
+  baseURL: "http://localhost:3000/api",
+  headers: {
+    "Content-Type": "application/json",
+  }
+})
+
+// Interceptor for Key Storage API
+keyStorageApi.interceptors.request.use(
+  (config) => {
+    const sessionToken = store.getters.getSessionToken;
+    console.log(sessionToken)
+
+    if (sessionToken) {
+      config.headers.Authorization = "Bearer " + sessionToken;
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Export all Axios instances
-export { tatsuyaApi, blockBookApi, azureApi };
+export { tatsuyaApi, blockBookApi, azureApi, keyStorageApi };
