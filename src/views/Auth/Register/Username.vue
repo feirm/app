@@ -92,6 +92,9 @@ import { showErrorToast } from "@/utils/toast";
 // Firebase
 import firebase from "firebase";
 import zxcvbn from "zxcvbn";
+import { useStore } from "vuex";
+import account from "@/class/account";
+import authService from "@/apiService/authService";
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -230,6 +233,16 @@ export default defineComponent({
         if (isEmail) {
           await credentials.user.sendEmailVerification();
         }
+
+        // Save the JWT in Vuex
+        const idToken = await credentials.user.getIdToken(true);
+        this.store.dispatch("login", idToken);
+
+        // Generate an account root key and encrypt it using OpenPGP.js
+        const key = await account.generateAccountV2(this.encryptionKey)
+
+        // Submit to key storage API
+        const keyResponse = await authService.SendKey(key)
       } catch (e) {
         // Extract the error code
         const error = e.code;
@@ -266,11 +279,13 @@ export default defineComponent({
     },
   },
   setup() {
-    // Use existing router
+    // Use existing router and store
     const router = useRouter();
+    const store = useStore();
 
     return {
       router,
+      store
     };
   },
 });
