@@ -9,15 +9,9 @@ export const auth = {
     },
   },
   mutations: {
-    setSessionState(state, sessionData) {
-      state.authentication.sessionToken = sessionData.sessionToken;
-      state.authentication.username = sessionData.username;
-
-      // Store session token in SessionStorage
-      sessionStorage.setItem("session", sessionData.sessionToken);
-
-      // Update username in LocalStorage
-      localStorage.setItem("username", sessionData.username);
+    setSessionState(state, sessionToken) {
+      state.authentication.sessionToken = sessionToken
+      sessionStorage.setItem("session", sessionToken);
     },
   },
   actions: {
