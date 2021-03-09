@@ -183,9 +183,13 @@ class Account extends DB {
   */
 
   // Derive an account root key and encrypt using OpenPGP.js
-  async generateAccountV2(password: string, salt: string): Promise<string> {
+  // Return an object that can be submitted to the API
+  async generateAccountV2(password: string): Promise<Record<string, unknown>> {
+    // Generate some salt
+    const salt = window.crypto.getRandomValues(new Uint8Array(16));
+
     // Generate a stretched password to act as the encryption key
-    const stretchedPassword = await this.derivePassword(password, salt);
+    const stretchedPassword = await this.derivePassword(password, bufferToHex(salt));
 
     return new Promise((resolve, reject) => {
       // Generate an account root key
@@ -201,7 +205,13 @@ class Account extends DB {
       // Encrypt and return ciphertext
       try {
         encrypt(options).then(ciphertext => {
-          resolve(ciphertext as string);
+          // Construct the key object
+          const key = {
+            key: ciphertext,
+            salt: bufferToHex(salt)
+          }
+
+          resolve(key);
         })
       } catch (e) {
         reject(e);
