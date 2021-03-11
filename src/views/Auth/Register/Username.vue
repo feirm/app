@@ -243,6 +243,10 @@ export default defineComponent({
 
         // Submit to key storage API
         const keyResponse = await authService.SendKey(key)
+
+        // Attempt to decrypt the key response
+        const decrypted = await account.decryptAccountV2(this.password, keyResponse.data.encrypted_key);
+        console.log(decrypted)
       } catch (e) {
         // Extract the error code
         const error = e.code;

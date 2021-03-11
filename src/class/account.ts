@@ -6,7 +6,7 @@ import { SignKeyPair, sign } from "tweetnacl";
 import bufferToHex from "@/lib/bufferToHex";
 import hexStringToBytes from "@/lib/hexStringToBytes";
 
-import { encrypt, EncryptOptions, Message } from "openpgp";
+import { decrypt, DecryptOptions, encrypt, EncryptOptions, Message } from "openpgp";
 
 // Different account key types
 enum Keys {
@@ -217,6 +217,23 @@ class Account extends DB {
         reject(e);
       }
     })
+  }
+
+  // Decrypt an encrypted root key
+  async decryptAccountV2(password: string, encryptedKey: any): Promise<any> {
+    // Derive the password using the Salt
+    const decryptPassword = await this.derivePassword(password, encryptedKey.salt)
+
+    // Decrypt the key
+    const options = {
+      message: encryptedKey.key,
+      passwords: [bufferToHex(decryptPassword)],
+      format: 'utf8'
+    } as DecryptOptions;
+
+    const plaintext = await decrypt(options);
+
+    console.log(plaintext)
   }
 }
 
