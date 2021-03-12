@@ -238,15 +238,9 @@ export default defineComponent({
         const idToken = await credentials.user.getIdToken(true);
         this.store.dispatch("login", idToken);
 
-        // Generate an account root key and encrypt it using OpenPGP.js
-        const key = await account.generateAccountV2(this.encryptionKey)
-
-        // Submit to key storage API
-        const keyResponse = await authService.SendKey(key)
-
-        // Attempt to decrypt the key response
-        const decrypted = await account.decryptAccountV2(this.password, keyResponse.data.encrypted_key);
-        console.log(decrypted)
+        // Generate an account root key
+        const encryptedAccount = await account.generateAccount(this.username, this.password, "");
+        console.log(encryptedAccount);
       } catch (e) {
         // Extract the error code
         const error = e.code;

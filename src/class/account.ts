@@ -176,65 +176,6 @@ class Account extends DB {
     const account = await this.account.get(username);
     return account!;
   }
-
-  /* ===========================
-        ACCOUNT GENERATION V2
-     ===========================
-  */
-
-  // Derive an account root key and encrypt using OpenPGP.js
-  // Return an object that can be submitted to the API
-  async generateAccountV2(password: string): Promise<Record<string, unknown>> {
-    // Generate some salt
-    const salt = window.crypto.getRandomValues(new Uint8Array(16));
-
-    // Generate a stretched password to act as the encryption key
-    const stretchedPassword = await this.derivePassword(password, bufferToHex(salt));
-
-    return new Promise((resolve, reject) => {
-      // Generate an account root key
-      const rootKey = window.crypto.getRandomValues(new Uint8Array(32));
-
-      // OpenPGP options
-      const options = {
-        message: Message.fromBinary(rootKey),
-        passwords: bufferToHex(stretchedPassword),
-        armor: true
-      } as EncryptOptions
-
-      // Encrypt and return ciphertext
-      try {
-        encrypt(options).then(ciphertext => {
-          // Construct the key object
-          const key = {
-            key: ciphertext,
-            salt: bufferToHex(salt)
-          }
-
-          resolve(key);
-        })
-      } catch (e) {
-        reject(e);
-      }
-    })
-  }
-
-  // Decrypt an encrypted root key
-  async decryptAccountV2(password: string, encryptedKey: any): Promise<any> {
-    // Derive the password using the Salt
-    const decryptPassword = await this.derivePassword(password, encryptedKey.salt)
-
-    // Decrypt the key
-    const options = {
-      message: encryptedKey.key,
-      passwords: [bufferToHex(decryptPassword)],
-      format: 'utf8'
-    } as DecryptOptions;
-
-    const plaintext = await decrypt(options);
-
-    console.log(plaintext)
-  }
 }
 
 // Exports
