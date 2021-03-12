@@ -157,13 +157,14 @@ export default defineComponent({
       const account = await Account.fetchAccountFromIDB(username);
 
       // Reconstruct the encryption key from the account details
-      const secretKey = await Account.derivePassword(this.password, account.rootPasswordSalt);
+      const secretKey = await Account.derivePassword(this.password, account.encrypted_key.salt);
 
       // Attempt to decrypt the root key with the provided password
-      const rootKey = await Account.decryptAccount(secretKey, account);
+      const rootKey = await Account.decryptAccountV2(secretKey, account);
       const keypair = await Account.deriveIdentityKeypair(rootKey);
 
       // Identity keypair public key does not match with the one we have for our account
+      /*
       if (bufferToHex(keypair.publicKey) !== account.rootPublicKey) {
           const toast = await toastController.create({
               message: "Invalid account encryption key! Please try again.",
@@ -173,6 +174,7 @@ export default defineComponent({
 
           return toast.present(); 
       }
+      */
 
       // Save the Hex encoded version of the key
       localStorage.setItem("encryptionKey", bufferToHex(secretKey));

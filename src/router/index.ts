@@ -135,7 +135,7 @@ router.beforeEach(async (to, from, next) => {
     const key = hexStringToBytes(encryptionKey); // convert to uint8array
 
     // Automatically decrypt the root ket
-    const rootKey = await Account.decryptAccount(key, encryptedAccount)
+    const rootKey = await Account.decryptAccountV2(key, encryptedAccount)
 
     // Derive the identity keypair to check that the public keys match
     // (maybe replace this with signatures)

@@ -45,7 +45,6 @@ import {
 } from "@ionic/vue";
 import Account from "@/class/account";
 import { sign } from "tweetnacl";
-import hexStringToBytes from "@/lib/hexStringToBytes";
 
 export default defineComponent({
   name: "Password",
@@ -82,10 +81,10 @@ export default defineComponent({
       const encryptedAccount = await Account.fetchAccountFromIDB(this.username);
 
       // Derive the stretched secret key
-      const secretKey = await Account.derivePassword(this.password, encryptedAccount.rootPasswordSalt);
+      const secretKey = await Account.derivePassword(this.password, encryptedAccount.encrypted_key.salt);
 
       // Attempt to decrypt using password
-      const rootKey = await Account.decryptAccount(
+      const rootKey = await Account.decryptAccountV2(
         secretKey,
         encryptedAccount
       );
@@ -95,7 +94,7 @@ export default defineComponent({
       const signature = sign.detached(new Uint8Array(), keypair.secretKey);
 
       // Verify the blank signature
-      const valid = sign.detached.verify(new Uint8Array(), signature, hexStringToBytes(encryptedAccount.rootPublicKey));
+      const valid = sign.detached.verify(new Uint8Array(), signature, keypair.publicKey);
 
       if (valid) {
         Account.setRootKey(rootKey);

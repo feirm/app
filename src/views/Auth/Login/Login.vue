@@ -156,7 +156,7 @@ export default defineComponent({
             this.store.dispatch("login", session.data);
 
             // Save the encrypted account payload
-            await Account.saveAccountToIDB(encryptedAccount);
+            // await Account.saveAccountToIDB(encryptedAccount);
 
             // Clear the fields
             this.username = "";
