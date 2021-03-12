@@ -1,12 +1,10 @@
 import { DB } from "./db";
-import { EncryptedAccount, SignedAuthenticationToken, AuthenticationToken } from "@/models/account";
+import { EncryptedAccount, SignedAuthenticationToken, AuthenticationToken, EncryptedAccountV2 } from "@/models/account";
 import { ArgonType, hash } from "argon2-browser";
 import { ModeOfOperation, utils } from "aes-js";
 import { SignKeyPair, sign } from "tweetnacl";
 import bufferToHex from "@/lib/bufferToHex";
 import hexStringToBytes from "@/lib/hexStringToBytes";
-
-import { decrypt, DecryptOptions, encrypt, EncryptOptions, Message } from "openpgp";
 
 // Different account key types
 enum Keys {
@@ -175,6 +173,51 @@ class Account extends DB {
 
     const account = await this.account.get(username);
     return account!;
+  }
+
+  // ===================
+  // ACCOUNTS v2
+  // ===================
+
+  // Generate a new account for V2
+  async generateAccountV2(password: string): Promise<EncryptedAccountV2> {
+    // Generate 16 random bytes of salt.
+    // This is to be used when stretching the password.
+    const salt = window.crypto.getRandomValues(new Uint8Array(16));
+
+    // Derive the stretched key from the password to be used for encryption
+    const secretKey = await hash({
+      pass: password,
+      salt: salt,
+      type: ArgonType.Argon2id,
+      hashLen: 32,
+    });
+
+    // The account root key, as the name implies, is the root of the account.
+    // It is important that this key never leaves the device.
+    // If a key is compromised, the user account can never be secure.
+    const rootKey = window.crypto.getRandomValues(new Uint8Array(32));
+
+    // Generate 16 bytes of salt to be used for account root key encryption.
+    const rootKeySalt = window.crypto.getRandomValues(new Uint8Array(16));
+
+    // The current implementation relies on cryptography methods provided by the aes-js module.
+    // To reduce the dependency on third-party libraries, this should eventually be replaced to use
+    // the Web Crypto API.
+    // This web application currently uses AES256-CBC.
+
+    // Create a new cipher and encrypt the rootkey
+    const aesCbc = new ModeOfOperation.cbc(secretKey.hash, rootKeySalt);
+    const rootKeyCiphertext = aesCbc.encrypt(rootKey);
+
+    // Construct and return the new account payload
+    const account: EncryptedAccountV2 = {
+      key: bufferToHex(rootKeyCiphertext),
+      iv: bufferToHex(rootKeySalt),
+      salt: bufferToHex(salt)
+    }
+
+    return account;
   }
 }
 
