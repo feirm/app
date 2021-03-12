@@ -238,9 +238,14 @@ export default defineComponent({
         const idToken = await credentials.user.getIdToken(true);
         this.store.dispatch("login", idToken);
 
-        // Generate an account root key
-        const encryptedAccount = await account.generateAccount(this.username, this.password, "");
-        console.log(encryptedAccount);
+        // Generate an encrypted account
+        const encryptedAccount = await account.generateAccountV2(this.password);
+        
+        // Submit it to the authentication API
+        await authService.SendKey(encryptedAccount);
+
+        // Navigate to the homepage
+        this.router.push("/")
       } catch (e) {
         // Extract the error code
         const error = e.code;
