@@ -95,6 +95,7 @@ import zxcvbn from "zxcvbn";
 import { useStore } from "vuex";
 import account from "@/class/account";
 import authService from "@/apiService/authService";
+import { EncryptedAccountV2 } from "@/models/account";
 
 export default defineComponent({
   name: "RegisterUsername",
@@ -238,11 +239,12 @@ export default defineComponent({
         const idToken = await credentials.user.getIdToken(true);
         this.store.dispatch("login", idToken);
 
-        // Generate an encrypted account
-        const encryptedAccount = await account.generateAccountV2(this.password);
+        // Generate an encrypted key
+        const encryptedKey = await account.generateAccountV2(this.password);
         
-        // Submit it to the authentication API
-        await authService.SendKey(encryptedAccount);
+        // Submit it to the authentication API and save the account to IDB
+        const userAccount = await authService.SendKey(encryptedKey);
+        await account.saveAccountToIDB(userAccount.data as EncryptedAccountV2)
 
         // Navigate to the homepage
         this.router.push("/")
