@@ -6,10 +6,6 @@
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="ion-padding">
-      <!-- Identicon -->
-      <div class="ion-text-center" v-html="identicon"></div>
-      <br>
-
       <ion-list lines="none">
         <ion-item>
           <ion-icon slot="start" color="primary" :icon="personOutline"></ion-icon>
@@ -148,19 +144,6 @@ export default defineComponent({
       username: "",
       identityPublicKey: "",
       identicon: "",
-    }
-  },
-  async mounted() {
-    // As we store the encrypted payload of an account containing the public key
-    // it can be pulled straight from IDB.
-    // Much better than deriving the public key again
-    const username = localStorage.getItem("username")!;
-    const account = await Account.fetchAccountFromIDB(username);
-
-    if (account) {
-      const identicon = toSvg(account.rootPublicKey, 100);
-      this.identityPublicKey = account.rootPublicKey;
-      this.identicon = identicon;
     }
   },
   methods: {
