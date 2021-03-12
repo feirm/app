@@ -131,14 +131,14 @@ router.beforeEach(async (to, from, next) => {
 
   // If the user is not logged in (don't have a root key in memory), or have an account in storage but auth is required for this route
   // then redirect them to login
-  if (!store.getters.isUserLoggedIn && authRequired && !encryptedAccount.rootPublicKey) {
+  if (!store.getters.isUserLoggedIn && authRequired && !encryptedAccount) {
     next("/auth/login");
   }
 
   // If the users encrypted account is present and their encryption key is stored on the device,
   // automatically decrypt and set the account
   const encryptionKey = localStorage.getItem("encryptionKey");
-  if (encryptedAccount.rootPublicKey && encryptionKey) {
+  if (encryptedAccount && encryptionKey) {
     const key = hexStringToBytes(encryptionKey); // convert to uint8array
 
     // Automatically decrypt the root ket
@@ -147,18 +147,17 @@ router.beforeEach(async (to, from, next) => {
     // Derive the identity keypair to check that the public keys match
     // (maybe replace this with signatures)
     const keypair = await Account.deriveIdentityKeypair(rootKey);
-    if (bufferToHex(keypair.publicKey) === encryptedAccount.rootPublicKey) {
+    if (keypair) {
       return next();
     } else {
-      // Something went wrong
-      console.log("Uh oh...");
+      // Something went wrong, so be safe and redirect them to login
       next("/auth/login");
     }
   }
 
   // If the users encrypted account is present, they are not logged in and auth is required for this route
   // then prompt for account decryption and set root key in memory
-  if (encryptedAccount.rootPublicKey && !loggedIn && authRequired) {
+  if (encryptedAccount && !loggedIn && authRequired) {
     const passwordPrompt = await modalController.create({
       component: PasswordPrompt,
     });
