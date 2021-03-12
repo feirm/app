@@ -11,8 +11,16 @@ interface EncryptedAccount {
   token?: SignedAuthenticationToken;
 }
 
-// Representation of a V2 encrypted account
+// Representation of an encrypted account for V2
 interface EncryptedAccountV2 {
+  uid: string;
+  encrypted_key: EncryptedKey;
+  created_at: number;
+  version: number;
+}
+
+// Representation of an encrypted key for V2
+interface EncryptedKey {
   key: string;
   iv: string;
   salt: string;
@@ -34,6 +42,7 @@ interface AuthenticationToken {
 export {
   EncryptedAccount,
   EncryptedAccountV2,
+  EncryptedKey,
   SignedAuthenticationToken,
   AuthenticationToken
 };
