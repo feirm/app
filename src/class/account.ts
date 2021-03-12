@@ -1,5 +1,5 @@
 import { DB } from "./db";
-import { EncryptedAccount, SignedAuthenticationToken, AuthenticationToken, EncryptedAccountV2 } from "@/models/account";
+import { EncryptedAccount, SignedAuthenticationToken, AuthenticationToken, EncryptedKey, EncryptedAccountV2 } from "@/models/account";
 import { ArgonType, hash } from "argon2-browser";
 import { ModeOfOperation, utils } from "aes-js";
 import { SignKeyPair, sign } from "tweetnacl";
@@ -157,18 +157,18 @@ class Account extends DB {
   }
 
   // Save an encrypted account to IndexedDB
-  async saveAccountToIDB(account: EncryptedAccount): Promise<void> {
-    await this.account.add(account, account.username);
+  async saveAccountToIDB(account: EncryptedAccountV2): Promise<void> {
+    await this.account.add(account, account.uid);
   }
 
   // Fetch an encrypted account from IndexedDB by username.
   // It is likely the account username will be stored in LocalStorage
   // but this method is handy to have just in case of multi-account
   // support in the future.
-  async fetchAccountFromIDB(username: string): Promise<EncryptedAccount> {
+  async fetchAccountFromIDB(username: string): Promise<EncryptedAccountV2> {
     const accounts = await this.account.toArray()
     if (accounts.length === 0) {
-      return {} as EncryptedAccount;
+      return {} as EncryptedAccountV2;
     }
 
     const account = await this.account.get(username);
@@ -179,8 +179,8 @@ class Account extends DB {
   // ACCOUNTS v2
   // ===================
 
-  // Generate a new account for V2
-  async generateAccountV2(password: string): Promise<EncryptedAccountV2> {
+  // Generate a new encrypted key for V2
+  async generateAccountV2(password: string): Promise<EncryptedKey> {
     // Generate 16 random bytes of salt.
     // This is to be used when stretching the password.
     const salt = window.crypto.getRandomValues(new Uint8Array(16));
@@ -211,13 +211,30 @@ class Account extends DB {
     const rootKeyCiphertext = aesCbc.encrypt(rootKey);
 
     // Construct and return the new account payload
-    const account: EncryptedAccountV2 = {
+    const account: EncryptedKey = {
       key: bufferToHex(rootKeyCiphertext),
       iv: bufferToHex(rootKeySalt),
       salt: bufferToHex(salt)
     }
 
     return account;
+  }
+
+  // Decrypt an account to return the root key
+  async decryptAccountV2(secretKey: Uint8Array, account: EncryptedAccountV2): Promise<Uint8Array> {
+    // Attempt to decrypt the account root key
+    // Convert the salt to a format that is AES cipher friendly
+    const salt = utils.hex.toBytes(account.encrypted_key.iv).slice(0, 16);
+
+    // Create the AES256-CBC decipher and decrypt the root key
+    const aesCbc = new ModeOfOperation.cbc(secretKey, salt);
+
+    try {
+      const rootKey = aesCbc.decrypt(utils.hex.toBytes(account.encrypted_key.key));
+      return rootKey;
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 }
 
