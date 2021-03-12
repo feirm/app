@@ -1,13 +1,13 @@
 // This DB class will be a subclass of Dexie - the IndexedDB for data storage
 import Dexie from "dexie";
 
-import { EncryptedAccount } from "@/models/account";
+import { EncryptedAccountV2 } from "@/models/account";
 import { EncryptedContact } from "@/models/contact";
 import { Wallet } from "@/models/wallet";
 
 class DB extends Dexie {
   // Tables
-  account: Dexie.Table<EncryptedAccount>;
+  account: Dexie.Table<EncryptedAccountV2>;
   contacts: Dexie.Table<EncryptedContact>;
   wallets: Dexie.Table<Wallet>;
 
